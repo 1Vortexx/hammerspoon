@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>X-ORBIT Minecraft</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0; padding: 0;
+        width: 100%; height: 100%;
+        font-family: "Inter", sans-serif;
+        background: #000;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .background {
+        position: fixed; inset: 0;
+        background: url("https://i.imgur.com/Id6OMsw.png") no-repeat center center / cover;
+        filter: brightness(0.2) blur(10px);
+        z-index: -2;
+      }
+      .overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: -1;
+      }
+
+      /* ── Fullscreen iframe ─────────────────────── */
+      .iframe-container {
+        display: none;
+        width: 100%; height: 100%;
+        flex-grow: 1;
+      }
+      .iframe-container iframe {
+        width: 100%; height: 100%;
+        border: none;
+      }
+
+      /* ── Landing ───────────────────────────────── */
+      .landing {
+        position: fixed; inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .panel {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 24px;
+        padding: 36px 40px 40px;
+        width: 100%;
+        max-width: 540px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 80px rgba(0,180,100,0.07);
+        animation: panelIn 0.4s ease;
+      }
+
+      @keyframes panelIn {
+        from { opacity: 0; transform: translateY(-28px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      /* ── Header ────────────────────────────────── */
+      .panel-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 8px;
+      }
+
+      .mc-icon {
+        width: 54px; height: 54px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #fff;
+        flex-shrink: 0;
+        box-shadow: 0 0 28px rgba(34,197,94,0.45);
+        animation: iconPulse 3s ease-in-out infinite;
+      }
+
+      @keyframes iconPulse {
+        0%,100% { box-shadow: 0 0 28px rgba(34,197,94,0.45); }
+        50%      { box-shadow: 0 0 48px rgba(34,197,94,0.7); }
+      }
+
+      .panel-header h1 {
+        margin: 0;
+        font-size: 25px;
+        font-weight: 700;
+        color: #fff;
+      }
+      .panel-header p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: rgba(255,255,255,0.45);
+      }
+
+      .premium-tag {
+        margin-left: auto;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: #fff;
+        padding: 5px 13px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+      }
+
+      .divider {
+        height: 1px;
+        background: rgba(255,255,255,0.07);
+        margin: 22px 0;
+      }
+
+      /* ── Boot checklist ────────────────────────── */
+      .boot-list {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        margin-bottom: 24px;
+        min-height: 10px;
+      }
+
+      .boot-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.05);
+        opacity: 0;
+        transform: translateX(-14px);
+        transition: background 0.2s ease, border-color 0.2s ease;
+        animation: none;
+      }
+
+      .boot-item.visible {
+        animation: itemIn 0.35s ease forwards;
+      }
+
+      @keyframes itemIn {
+        to { opacity: 1; transform: translateX(0); }
+      }
+
+      /* left icon box */
+      .boot-item-icon {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        flex-shrink: 0;
+        transition: background 0.3s ease;
+      }
+
+      /* color variants */
+      .boot-item-icon.green  { background: rgba(34,197,94,0.15);  color: #22c55e; }
+      .boot-item-icon.blue   { background: rgba(0,212,255,0.12);  color: #00d4ff; }
+      .boot-item-icon.purple { background: rgba(147,51,234,0.15); color: #a855f7; }
+      .boot-item-icon.yellow { background: rgba(234,179,8,0.12);  color: #eab308; }
+      .boot-item-icon.pink   { background: rgba(240,147,251,0.12);color: #f093fb; }
+      .boot-item-icon.cyan   { background: rgba(6,182,212,0.12);  color: #06b6d4; }
+      .boot-item-icon.red    { background: rgba(239,68,68,0.12);  color: #ef4444; }
+
+      .boot-item-text {
+        flex: 1;
+      }
+      .boot-item-text strong {
+        display: block;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: #f1f5f9;
+        margin-bottom: 1px;
+      }
+      .boot-item-text span {
+        font-size: 11.5px;
+        color: rgba(255,255,255,0.4);
+      }
+
+      /* right status icon */
+      .boot-status {
+        font-size: 16px;
+        flex-shrink: 0;
+        width: 20px;
+        text-align: center;
+        transition: color 0.3s ease;
+      }
+      .boot-status.checking { color: #eab308; }
+      .boot-status.pass     { color: #22c55e; }
+      .boot-status.fail     { color: #ef4444; }
+      .boot-status.warn     { color: #f97316; }
+
+      .fa-spin-pulse { animation: fa-spin 0.8s linear infinite; }
+
+      /* ── Button ────────────────────────────────── */
+      .launch-btn {
+        width: 100%;
+        padding: 15px;
+        border-radius: 14px;
+        border: none;
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .launch-btn.premium {
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 60%, #00d4ff 100%);
+        background-size: 200% 200%;
+        animation: btnGrad 3s ease-in-out infinite;
+        box-shadow: 0 8px 32px rgba(34,197,94,0.35);
+      }
+      .launch-btn.premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(34,197,94,0.55);
+      }
+
+      .launch-btn.upgrade {
+        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #f093fb 100%);
+        background-size: 200% 200%;
+        animation: btnGrad 3s ease-in-out infinite;
+        box-shadow: 0 8px 32px rgba(147,51,234,0.35);
+      }
+      .launch-btn.upgrade:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(147,51,234,0.55);
+      }
+
+      .launch-btn:disabled {
+        background: rgba(255,255,255,0.07);
+        color: rgba(255,255,255,0.25);
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+        animation: none;
+      }
+
+      @keyframes btnGrad {
+        0%,100% { background-position: 0% 50%; }
+        50%      { background-position: 100% 50%; }
+      }
+
+      /* ── Upgrade modal ─────────────────────────── */
+      .upgrade-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0,0,0,0.9);
+        backdrop-filter: blur(15px);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        padding: 20px;
+      }
+      .upgrade-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .upgrade-modal {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        border-radius: 24px;
+        padding: 40px;
+        max-width: 480px;
+        width: 100%;
+        border: 2px solid rgba(147,51,234,0.5);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 100px rgba(147,51,234,0.3),
+          inset 0 1px 0 rgba(255,255,255,0.1);
+        animation: panelIn 0.4s ease;
+        text-align: center;
+      }
+
+      .upgrade-icon {
+        width: 78px; height: 78px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f093fb, #f5576c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: #fff;
+        box-shadow: 0 0 40px rgba(240,147,251,0.5);
+        animation: iconPulse 2s ease-in-out infinite;
+      }
+
+      .upgrade-modal h2 {
+        font-size: 23px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 20px;
+      }
+
+      .upgrade-content {
+        background: rgba(147,51,234,0.1);
+        border: 1px solid rgba(147,51,234,0.3);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 24px;
+        text-align: left;
+      }
+      .upgrade-content p {
+        color: #cbd5e1;
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0 0 12px;
+      }
+      .upgrade-content ol {
+        color: #e2e8f0;
+        font-size: 14px;
+        line-height: 1.9;
+        padding-left: 20px;
+        margin: 0;
+      }
+      .upgrade-content strong { color: #00d4ff; }
+
+      .upgrade-actions { display: flex; gap: 12px; }
+
+      .support-btn {
+        flex: 1;
+        padding: 14px;
+        border-radius: 14px;
+        border: none;
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(135deg, #9333ea 0%, #7c3aed 50%, #00d4ff 100%);
+        background-size: 200% 200%;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        animation: btnGrad 3s ease-in-out infinite;
+        box-shadow: 0 8px 32px rgba(147,51,234,0.3);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+      .support-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(147,51,234,0.5);
+      }
+
+      .cancel-btn {
+        flex: 1;
+        padding: 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.15);
+        background: rgba(255,255,255,0.05);
+        color: #94a3b8;
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+      }
+      .cancel-btn:hover {
+        background: rgba(255,255,255,0.1);
+        color: #f8fafc;
+        transform: translateY(-2px);
+        border-color: rgba(255,255,255,0.25);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="background"></div>
+    <div class="overlay"></div>
+
+    <!-- Landing Panel -->
+    <div class="landing" id="landing">
+      <div class="panel">
+
+        <!-- Header -->
+        <div class="panel-header">
+          <div class="mc-icon">
+            <i class="fa-solid fa-pickaxe"></i>
+          </div>
+          <div>
+            <h1>X-CRAFT</h1>
+            <p>Based off of EagleXCraft 1.8</p>
+          </div>
+          <span class="premium-tag">
+            <i class="fa-solid fa-star"></i> Premium
+          </span>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Boot sequence list (populated by JS) -->
+        <div class="boot-list" id="bootList"></div>
+
+        <!-- Launch button -->
+        <button class="launch-btn" id="launchBtn" disabled onclick="handleLaunch()">
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
+          <span>Starting up…</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Upgrade Modal -->
+    <div class="upgrade-overlay" id="upgradeOverlay">
+      <div class="upgrade-modal">
+        <div class="upgrade-icon">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2>Premium Required</h2>
+        <div class="upgrade-content">
+          <p>
+            Minecraft access is a <strong>premium feature</strong> available for only
+            <strong>$2/month</strong>.
+          </p>
+          <p><strong>To upgrade your account:</strong></p>
+          <ol>
+            <li>Visit the <strong>X-ORBIT Support Portal</strong></li>
+            <li>Submit a ticket requesting <strong>"Premium Upgrade"</strong></li>
+            <li>Our team will send you payment instructions</li>
+            <li>Once confirmed, Minecraft access is instant!</li>
+          </ol>
+        </div>
+        <div class="upgrade-actions">
+          <a href="https://xorbit.org/support" class="support-btn" target="_blank">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            Go to Support
+          </a>
+          <button class="cancel-btn" onclick="closeUpgradeModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fullscreen Minecraft iframe -->
+    <div class="iframe-container" id="iframeContainer">
+      <iframe id="mcFrame" src="" allowfullscreen></iframe>
+    </div>
+
+    <script>
+      const SUPABASE_URL     = "https://rujvmtvozorylfzsqppc.supabase.co";
+      const SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1anZtdHZvem9yeWxmenNxcHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0NjQxNDEsImV4cCI6MjA3MzA0MDE0MX0.b7jJz3Se_oXXDwwd0dWQ8-rEvhY0aU4JDHQVioE39iY";
+
+      let supabaseClient;
+      let userIsPremium = false;
+
+      // ── Step definitions ────────────────────────────────────────────
+      // Each step: { icon (FA class), color, label, sub }
+      const STEPS = [
+        { icon: "fa-solid fa-microchip",      color: "green",  label: "Starting game engine",       sub: "Initializing Eaglercraft WebAssembly runtime"   },
+        { icon: "fa-solid fa-cube",            color: "blue",   label: "Loading game modules",       sub: "Preparing renderer and asset pipeline"           },
+        { icon: "fa-solid fa-wifi",            color: "cyan",   label: "Connecting to auth server",  sub: "Reaching X-ORBIT authentication service"         },
+        { icon: "fa-solid fa-circle-user",     color: "purple", label: "Locating account",           sub: "Reading session credentials from storage"        },
+        { icon: "fa-solid fa-shield-halved",   color: "yellow", label: "Verifying account status",   sub: "Querying client database for account record"     },
+        { icon: "fa-solid fa-star",            color: "pink",   label: "Checking premium access",    sub: "Validating subscription entitlements"            },
+        { icon: "fa-solid fa-server",          color: "green",  label: "Establishing server link",   sub: "Connecting WebSocket to minecraft.xorbit.org"    },
+      ];
+
+      const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+      // ── DOM helpers ─────────────────────────────────────────────────
+      function addStep(index) {
+        const s = STEPS[index];
+        const list = document.getElementById("bootList");
+
+        const item = document.createElement("div");
+        item.className = "boot-item";
+        item.id = `step-${index}`;
+        item.innerHTML = `
+          <div class="boot-item-icon ${s.color}">
+            <i class="${s.icon}"></i>
+          </div>
+          <div class="boot-item-text">
+            <strong>${s.label}</strong>
+            <span>${s.sub}</span>
+          </div>
+          <div class="boot-status checking" id="status-${index}">
+            <i class="fa-solid fa-circle-notch fa-spin-pulse"></i>
+          </div>
+        `;
+        list.appendChild(item);
+
+        // Trigger entrance animation on next frame
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => item.classList.add("visible"));
+        });
+      }
+
+      function resolveStep(index, result) {
+        // result: "pass" | "fail" | "warn"
+        const statusEl = document.getElementById(`status-${index}`);
+        if (!statusEl) return;
+        statusEl.className = `boot-status ${result}`;
+        const icons = { pass: "fa-circle-check", fail: "fa-circle-xmark", warn: "fa-triangle-exclamation" };
+        statusEl.innerHTML = `<i class="fa-solid ${icons[result]}"></i>`;
+      }
+
+      function setButton(state, label) {
+        const btn = document.getElementById("launchBtn");
+        const icons = {
+          loading:  `<i class="fa-solid fa-circle-notch fa-spin"></i>`,
+          launch:   `<i class="fa-solid fa-play"></i>`,
+          upgrade:  `<i class="fa-solid fa-lock"></i>`,
+          blocked:  `<i class="fa-solid fa-ban"></i>`,
+          error:    `<i class="fa-solid fa-triangle-exclamation"></i>`,
+          signin:   `<i class="fa-solid fa-right-to-bracket"></i>`,
+        };
+        btn.querySelector("span").textContent = label;
+        btn.querySelector("i") ? btn.querySelector("i").outerHTML : "";
+        btn.innerHTML = `${icons[state] || ""}<span>${label}</span>`;
+
+        btn.className = "launch-btn";
+        if (state === "launch")  btn.classList.add("premium");
+        if (state === "upgrade" || state === "signin") btn.classList.add("upgrade");
+        btn.disabled = (state === "loading" || state === "blocked" || state === "error");
+      }
+
+      // ── Auth helpers ────────────────────────────────────────────────
+      function getUserEmail() {
+        try {
+          const s = localStorage.getItem("xorbit_auth_session")
+                 || sessionStorage.getItem("xorbit_auth_session");
+          if (s) return JSON.parse(s).email;
+          const u = localStorage.getItem("xorbit_remembered_user");
+          if (u) return JSON.parse(u).email;
+        } catch (_) {}
+        return null;
+      }
+
+      // ── Main boot sequence ──────────────────────────────────────────
+      async function runBootSequence() {
+        // Step 0 — game engine
+        addStep(0);
+        await delay(420);
+        resolveStep(0, "pass");
+        await delay(220);
+
+        // Step 1 — loading modules
+        addStep(1);
+        await delay(500);
+        resolveStep(1, "pass");
+        await delay(200);
+
+        // Step 2 — auth server
+        addStep(2);
+        await delay(350);
+
+        // Wait for Supabase SDK to load
+        let attempts = 0;
+        while (!window.supabase && attempts < 20) {
+          await delay(100);
+          attempts++;
+        }
+        if (!window.supabase) {
+          resolveStep(2, "fail");
+          await delay(200);
+          setButton("error", "Auth library failed to load");
+          return;
+        }
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        resolveStep(2, "pass");
+        await delay(200);
+
+        // Step 3 — locate account
+        addStep(3);
+        await delay(380);
+        const email = getUserEmail();
+        if (!email) {
+          resolveStep(3, "fail");
+          await delay(200);
+          setButton("signin", "Sign In Required");
+          return;
+        }
+        resolveStep(3, "pass");
+        await delay(200);
+
+        // Step 4 — verify account
+        addStep(4);
+        await delay(300);
+
+        let clientData = null;
+        try {
+          const { data, error } = await supabaseClient
+            .from("clients")
+            .select("role, blocked")
+            .eq("email", email)
+            .single();
+
+          if (error || !data) {
+            resolveStep(4, "warn");
+            await delay(200);
+            // Step 5 — premium check (fail gracefully)
+            addStep(5);
+            await delay(300);
+            resolveStep(5, "fail");
+            await delay(200);
+            setButton("upgrade", "Upgrade to Premium");
+            return;
+          }
+
+          if (data.blocked) {
+            resolveStep(4, "fail");
+            await delay(200);
+            addStep(5);
+            await delay(300);
+            resolveStep(5, "fail");
+            await delay(200);
+            setButton("blocked", "Account Blocked");
+            return;
+          }
+
+          clientData = data;
+          resolveStep(4, "pass");
+        } catch (_) {
+          resolveStep(4, "fail");
+          await delay(200);
+          setButton("error", "Verification Error");
+          return;
+        }
+
+        await delay(200);
+
+        // Step 5 — premium check
+        addStep(5);
+        await delay(420);
+
+        if (clientData.role !== "premium") {
+          resolveStep(5, "fail");
+          await delay(200);
+          setButton("upgrade", "Upgrade to Premium");
+          return;
+        }
+
+        resolveStep(5, "pass");
+        userIsPremium = true;
+        await delay(220);
+
+        // Step 6 — server link
+        addStep(6);
+        await delay(480);
+        resolveStep(6, "pass");
+        await delay(250);
+
+        // All done
+        setButton("launch", "Launch Minecraft");
+      }
+
+      // ── Actions ─────────────────────────────────────────────────────
+      function handleLaunch() {
+        if (userIsPremium) {
+          document.getElementById("landing").style.display = "none";
+          const c = document.getElementById("iframeContainer");
+          c.style.display = "block";
+          document.getElementById("mcFrame").src = "https://minecraft.xorbit.org";
+        } else {
+          document.getElementById("upgradeOverlay").classList.add("active");
+        }
+      }
+
+      function closeUpgradeModal() {
+        document.getElementById("upgradeOverlay").classList.remove("active");
+      }
+
+      // ── Init ─────────────────────────────────────────────────────────
+      window.addEventListener("DOMContentLoaded", runBootSequence);
+    </script>
+  </body>
+</html>
