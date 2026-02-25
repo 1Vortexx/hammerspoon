@@ -1,0 +1,2647 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login into X-ORBIT</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+      :root {
+        --black:    #000000;
+        --void:     #04010a;
+        --card:     #08030f;
+        --card-mid: #0e061a;
+        --border:   #1f0d40;
+        --border-b: #3b1a78;
+        --p-dim:    #4c1d95;
+        --p-mid:    #7c3aed;
+        --p-core:   #9333ea;
+        --p-bright: #a855f7;
+        --p-light:  #c084fc;
+        --p-pale:   #e9d5ff;
+        --text:     #ffffff;
+        --text-sub: #94a3b8;
+        --text-dim: #475569;
+        --red:      #ef4444;
+        --red-dim:  #7f1d1d;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      @keyframes authFadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+
+      body {
+        min-height: 100vh;
+        font-family: "Inter", sans-serif;
+        display: flex;
+        justify-content: flex-end;
+        align-items: stretch;
+        background: var(--black);
+        overflow: hidden;
+        color: var(--text);
+        position: relative;
+        animation: authFadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
+      }
+
+      /* ── Left image panel ── */
+      .auth-image-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 480px;
+        background: url("https://codehs.com/uploads/4172b2f0b44709a295bd992b1757f9f4") center center / cover no-repeat;
+        z-index: 0;
+      }
+
+      /* Gradient fade from image into the right panel */
+      .auth-image-panel::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 220px;
+        background: linear-gradient(to right, transparent, var(--void));
+      }
+
+      @media (max-width: 860px) {
+        .auth-image-panel { display: none; }
+        body { justify-content: center; align-items: center; }
+      }
+
+      /* ── Background ── */
+      .void-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -3;
+        background: var(--black);
+      }
+
+      .void-glow {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        background:
+          radial-gradient(ellipse 90% 55% at 50% -5%,  #1a0a35 0%, transparent 70%),
+          radial-gradient(ellipse 60% 40% at 15% 100%, #0f0520 0%, transparent 60%),
+          radial-gradient(ellipse 50% 35% at 90% 90%,  #120830 0%, transparent 60%);
+        animation: breathe 9s ease-in-out infinite;
+      }
+
+      @keyframes breathe {
+        0%, 100% { opacity: 0.8; }
+        50%       { opacity: 1;   }
+      }
+
+      .void-grid {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background-image:
+          linear-gradient(rgba(124, 58, 237, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(124, 58, 237, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      /* ── Stars ── */
+      .stars {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .star {
+        position: absolute;
+        border-radius: 50%;
+        animation: twinkle 4s infinite ease-in-out;
+      }
+
+      .star:nth-child(odd)  { animation-delay: 2s; }
+      .star:nth-child(3n)   { animation-delay: 1s; }
+
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.15; transform: scale(1); }
+        50%       { opacity: 0.6;  transform: scale(1.3); }
+      }
+
+      /* Purple particles */
+      .particle {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(1px);
+        animation: rise 18s infinite linear;
+      }
+
+      @keyframes rise {
+        0%   { transform: translateY(100vh) scale(0);   opacity: 0; }
+        10%  { opacity: 1; }
+        90%  { opacity: 0.6; }
+        100% { transform: translateY(-100px) scale(1);  opacity: 0; }
+      }
+
+      /* ── Floating container ── */
+      @keyframes containerFloat {
+        0%, 100% { transform: translateY(0); }
+        50%       { transform: translateY(-8px); }
+      }
+
+      /* ── Main Panel (full-height right side) ── */
+      .login-container {
+        position: relative;
+        z-index: 1;
+        width: 480px;
+        min-width: 480px;
+        min-height: 100vh;
+        background: rgba(4, 1, 10, 0.92);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: none;
+        border-left: 1px solid rgba(124, 58, 237, 0.15);
+        border-radius: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: -4px 0 40px rgba(0, 0, 0, 0.6);
+      }
+
+      .login-container.os-mode { width: 480px; min-width: 480px; }
+
+      @media (max-width: 860px) {
+        .login-container {
+          width: 100%;
+          min-width: 0;
+          border-left: none;
+          border-radius: 0;
+          min-height: 100vh;
+        }
+      }
+
+      /* ── Regular View (single column) ── */
+      .regular-view {
+        display: flex;
+        flex-direction: column;
+        transition: all 0.4s ease;
+      }
+
+      .regular-view.hidden { display: none; }
+
+      /* ── Brand Header ── */
+      .brand-panel {
+        padding: 2.5rem 2.5rem 1.75rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        background: linear-gradient(180deg, rgba(124,58,237,0.08) 0%, transparent 100%);
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* corner accents */
+      .brand-panel::before,
+      .brand-panel::after {
+        content: "";
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border-color: var(--border-b);
+        border-style: solid;
+        opacity: 0.5;
+      }
+      .brand-panel::before { top: 0; left: 0;  border-width: 1px 0 0 1px; }
+      .brand-panel::after  { top: 0; right: 0; border-width: 1px 1px 0 0; }
+
+      .logo-ring {
+        position: relative;
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        margin-bottom: 0.4rem;
+      }
+
+      .logo-ring::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: conic-gradient(
+          from 0deg,
+          var(--p-bright),
+          var(--p-dim),
+          var(--p-bright),
+          var(--p-core),
+          var(--p-bright)
+        );
+        animation: spin-ring 5s linear infinite;
+        z-index: 0;
+      }
+
+      @keyframes spin-ring {
+        to { transform: rotate(360deg); }
+      }
+
+      .logo {
+        position: absolute;
+        inset: 3px;
+        border-radius: 50%;
+        background:
+          url("https://codehs.com/uploads/ab65fa0acacaff18144310e79cb0895f") no-repeat center center;
+        background-size: cover;
+        z-index: 1;
+        box-shadow: inset 0 0 20px rgba(124,58,237,0.4);
+      }
+
+      .brand-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        letter-spacing: 10px;
+        color: var(--text);
+        text-transform: uppercase;
+        position: relative;
+        z-index: 1;
+      }
+
+      .brand-accent {
+        width: 48px;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--p-core), transparent);
+        margin: 0.2rem auto 0;
+      }
+
+      .brand-sub {
+        font-size: 0.62rem;
+        letter-spacing: 3.5px;
+        color: var(--p-dim);
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-top: 0.1rem;
+      }
+
+      /* ── Login Panel ── */
+      .login-panel {
+        padding: 2rem 2.5rem 2.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+      }
+
+      .login-header {
+        margin-bottom: 1.75rem;
+      }
+
+      .login-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: 1px;
+      }
+
+      .login-subtitle {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+        margin-top: 0.25rem;
+        letter-spacing: 0.3px;
+      }
+
+      /* ── Input Fields (underline style) ── */
+      .form-group {
+        position: relative;
+        margin-bottom: 1.6rem;
+      }
+
+      .field-label {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--p-dim);
+        margin-bottom: 0.5rem;
+      }
+
+      .field-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--border-b);
+        transition: border-color 0.25s ease;
+      }
+
+      .field-wrap:focus-within {
+        border-color: var(--p-core);
+        box-shadow: 0 1px 0 var(--p-core);
+      }
+
+      .field-icon {
+        color: var(--p-dim);
+        font-size: 0.85rem;
+        width: 20px;
+        flex-shrink: 0;
+        transition: color 0.25s ease;
+      }
+
+      .field-wrap:focus-within .field-icon { color: var(--p-bright); }
+
+      .form-input {
+        flex: 1;
+        padding: 0.6rem 0.5rem 0.6rem 0.75rem;
+        background: transparent;
+        border: none;
+        color: var(--text);
+        font-size: 0.95rem;
+        font-family: "Inter", sans-serif;
+        font-weight: 400;
+        outline: none;
+        caret-color: var(--p-bright);
+      }
+
+      .form-input::placeholder { color: var(--text-dim); opacity: 1; }
+
+      .form-input.error   { color: var(--red); }
+      .form-input.banned  { color: var(--red); }
+
+      .field-wrap.error  { border-color: var(--red); box-shadow: 0 1px 0 var(--red); animation: shake 0.4s ease; }
+      .field-wrap.banned { border-color: var(--red); box-shadow: 0 1px 0 var(--red); }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25%       { transform: translateX(-4px); }
+        75%       { transform: translateX(4px); }
+      }
+
+      /* ── Remember Me ── */
+      .remember-section {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-bottom: 1.75rem;
+      }
+
+      .remember-checkbox {
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border: 1px solid var(--border-b);
+        border-radius: 3px;
+        background: transparent;
+        cursor: pointer;
+        position: relative;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+      }
+
+      .remember-checkbox:checked {
+        background: var(--p-mid);
+        border-color: var(--p-mid);
+      }
+
+      .remember-checkbox:checked::after {
+        content: "";
+        position: absolute;
+        left: 4px;
+        top: 1px;
+        width: 5px;
+        height: 9px;
+        border: 2px solid #fff;
+        border-left: none;
+        border-top: none;
+        transform: rotate(45deg);
+      }
+
+      .remember-label {
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        cursor: pointer;
+        user-select: none;
+      }
+
+      /* ── Login Button ── */
+      .login-btn {
+        width: 100%;
+        padding: 0.85rem 1.5rem;
+        border-radius: 6px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--p-mid);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(124,58,237,0.35);
+      }
+
+      .login-btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+        transform: translateX(-100%);
+        transition: transform 0.5s ease;
+      }
+
+      .login-btn:hover { background: var(--p-core); box-shadow: 0 6px 28px rgba(147,51,234,0.5); transform: translateY(-1px); }
+      .login-btn:hover::before { transform: translateX(100%); }
+      .login-btn:active { transform: translateY(0); box-shadow: 0 2px 12px rgba(124,58,237,0.3); }
+      .login-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+      .login-btn.banned { background: var(--red); box-shadow: 0 4px 20px rgba(239,68,68,0.3); }
+
+      /* ── Register Link ── */
+      .register-link {
+        text-align: center;
+        margin-top: 1.25rem;
+        font-size: 0.78rem;
+        color: var(--text-dim);
+      }
+
+      .register-link button {
+        background: none;
+        border: none;
+        color: var(--p-bright);
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-family: "Inter", sans-serif;
+        border-bottom: 1px solid transparent;
+        padding-bottom: 1px;
+        transition: all 0.2s ease;
+      }
+
+      .register-link button:hover { color: var(--p-light); border-bottom-color: var(--p-light); }
+
+      /* ── Status & Loading ── */
+      .status-message {
+        margin-top: 0.9rem;
+        font-size: 0.82rem;
+        font-weight: 500;
+        color: var(--p-light);
+        text-align: center;
+        min-height: 1.3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .loading {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(168,85,247,0.3);
+        border-top-color: var(--p-bright);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      /* ── Ban Modal ── */
+      .ban-modal {
+        margin-top: 1.25rem;
+        padding: 1.1rem 1.25rem;
+        border-radius: 6px;
+        background: rgba(127,29,29,0.18);
+        border: 1px solid rgba(239,68,68,0.25);
+        display: none;
+        animation: fadeUp 0.3s ease;
+      }
+
+      .ban-modal.show { display: block; }
+
+      @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      .ban-modal h2 {
+        color: #fca5a5;
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+        text-align: center;
+      }
+
+      .ban-modal p {
+        color: #fecaca;
+        text-align: center;
+        font-size: 0.8rem;
+        line-height: 1.5;
+        margin-bottom: 0.85rem;
+      }
+
+      .ban-modal-actions { display: flex; gap: 0.6rem; }
+
+      .support-btn {
+        flex: 1;
+        padding: 0.6rem 0.75rem;
+        border-radius: 5px;
+        border: 1px solid rgba(168,85,247,0.3);
+        background: rgba(124,58,237,0.1);
+        color: var(--p-light);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        font-family: "Inter", sans-serif;
+      }
+
+      .support-btn:hover { background: rgba(124,58,237,0.2); border-color: var(--p-mid); }
+
+      .retry-btn {
+        flex: 1;
+        padding: 0.6rem 0.75rem;
+        border-radius: 5px;
+        border: 1px solid var(--border-b);
+        background: transparent;
+        color: var(--text-dim);
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: "Inter", sans-serif;
+      }
+
+      .retry-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+      /* ── OS Mode ── */
+      .os-view {
+        padding: 2.5rem 2.5rem 2.5rem;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        background: linear-gradient(180deg, rgba(124,58,237,0.06) 0%, transparent 100%);
+      }
+
+      .os-view.active { display: flex; }
+
+      .user-profile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.65rem;
+      }
+
+      .user-avatar {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        position: relative;
+      }
+
+      .user-avatar::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: conic-gradient(
+          from 0deg,
+          var(--p-bright),
+          var(--p-dim),
+          var(--p-bright),
+          var(--p-core),
+          var(--p-bright)
+        );
+        animation: spin-ring 5s linear infinite;
+        z-index: 0;
+      }
+
+      .user-avatar::after {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        border-radius: 50%;
+        background: url("https://codehs.com/uploads/ab65fa0acacaff18144310e79cb0895f") no-repeat center center;
+        background-size: cover;
+        z-index: 1;
+        box-shadow: inset 0 0 20px rgba(124,58,237,0.4);
+      }
+
+      .username-display {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: 0.5px;
+      }
+
+      .user-email {
+        font-size: 0.78rem;
+        color: var(--text-dim);
+      }
+
+      .switch-user-btn {
+        width: 100%;
+        padding: 0.6rem;
+        border-radius: 5px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-dim);
+        font-size: 0.78rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: "Inter", sans-serif;
+        margin-top: -0.5rem;
+      }
+
+      .switch-user-btn:hover { border-color: var(--border-b); color: var(--text); }
+
+      /* ── Back Nav ── */
+      .back-nav {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        z-index: 10;
+        display: none;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--text-dim);
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 0.4rem 0.75rem;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: rgba(8,3,15,0.6);
+      }
+
+      .back-nav.show { display: flex; animation: slideRight 0.3s ease; }
+      .back-nav:hover { color: var(--text); border-color: var(--border-b); }
+
+      @keyframes slideRight {
+        from { opacity: 0; transform: translateX(-10px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+
+      /* ── Help Menu ── */
+      .help-menu-container {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 999;
+      }
+
+      .help-trigger {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--card);
+        border: 1px solid var(--border-b);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      }
+
+      .help-trigger:hover {
+        border-color: var(--p-core);
+        box-shadow: 0 4px 20px rgba(124,58,237,0.3);
+      }
+
+      .help-trigger i {
+        font-size: 16px;
+        color: var(--text-dim);
+        transition: all 0.25s ease;
+      }
+
+      .help-trigger:hover i { color: var(--p-bright); transform: rotate(90deg); }
+
+      .help-menu {
+        position: absolute;
+        bottom: 52px;
+        right: 0;
+        background: var(--card);
+        border: 1px solid var(--border-b);
+        border-radius: 8px;
+        padding: 0.4rem;
+        min-width: 190px;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.6), 0 0 60px rgba(124,58,237,0.1);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(8px) scale(0.96);
+        transition: all 0.25s ease;
+      }
+
+      .help-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0) scale(1);
+      }
+
+      .help-menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.7rem 0.85rem;
+        border-radius: 5px;
+        color: var(--text-sub);
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+
+      .help-menu-item:hover { background: rgba(124,58,237,0.12); color: var(--text); }
+      .help-menu-item i { font-size: 13px; width: 16px; text-align: center; color: var(--p-mid); }
+      .help-menu-divider { height: 1px; background: var(--border); margin: 0.3rem 0; }
+
+      /* ── Warning Modal ── */
+      .warning-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        backdrop-filter: blur(8px);
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.25s ease;
+      }
+
+      .warning-overlay.show { display: flex; }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+
+      .warning-modal {
+        background: var(--card);
+        border: 1px solid rgba(239,68,68,0.4);
+        border-top: 2px solid var(--red);
+        border-radius: 10px;
+        padding: 2.5rem 2rem;
+        max-width: 440px;
+        width: 90%;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 60px rgba(239,68,68,0.15);
+        animation: modalIn 0.35s ease;
+      }
+
+      @keyframes modalIn {
+        from { opacity: 0; transform: translateY(-30px) scale(0.95); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      .warning-icon-large {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1.25rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--red), #b91c1c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        animation: warnPulse 2s ease-in-out infinite;
+        box-shadow: 0 0 30px rgba(239,68,68,0.4);
+      }
+
+      @keyframes warnPulse {
+        0%, 100% { box-shadow: 0 0 30px rgba(239,68,68,0.4); }
+        50%       { box-shadow: 0 0 50px rgba(239,68,68,0.6); transform: scale(1.04); }
+      }
+
+      .warning-modal h2 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #fca5a5;
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+
+      .warning-content {
+        background: rgba(239,68,68,0.07);
+        border: 1px solid rgba(239,68,68,0.2);
+        border-radius: 8px;
+        padding: 1.1rem;
+        margin-bottom: 1.5rem;
+        max-height: 260px;
+        overflow-y: auto;
+      }
+
+      .warning-content::-webkit-scrollbar { width: 4px; }
+      .warning-content::-webkit-scrollbar-track { background: transparent; }
+      .warning-content::-webkit-scrollbar-thumb { background: rgba(239,68,68,0.4); border-radius: 2px; }
+
+      .warning-message {
+        color: #fecaca;
+        line-height: 1.6;
+        text-align: center;
+        font-size: 0.88rem;
+        white-space: pre-wrap;
+      }
+
+      .warning-actions { display: flex; }
+
+      .acknowledge-btn {
+        flex: 1;
+        padding: 0.85rem 1.5rem;
+        border-radius: 6px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--red);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 20px rgba(239,68,68,0.3);
+      }
+
+      .acknowledge-btn:hover { background: #dc2626; box-shadow: 0 6px 28px rgba(239,68,68,0.45); transform: translateY(-1px); }
+
+      /* ── Dynamic Alert Modal ── */
+      .solaris-alert {
+        position: fixed;
+        inset: 0;
+        background: rgba(4, 1, 10, 0.97);
+        backdrop-filter: blur(16px);
+        z-index: 1999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.4s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        /* color vars set dynamically by JS */
+        --alert-primary: #f59e0b;
+        --alert-glow:    rgba(245,158,11,0.3);
+        --alert-bg:      rgba(245,158,11,0.08);
+        --alert-border:  rgba(245,158,11,0.35);
+        --alert-text:    #fcd34d;
+      }
+
+      .solaris-alert.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+
+      .alert-content-wrapper {
+        background: var(--card);
+        border: 1px solid var(--alert-border);
+        border-top: 2px solid var(--alert-primary);
+        border-radius: 10px;
+        padding: 2.5rem 2rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 60px var(--alert-glow);
+        animation: modalIn 0.4s ease;
+        text-align: center;
+      }
+
+      .alert-header {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+        text-align: left;
+      }
+
+      .alert-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        background: var(--alert-bg);
+        border: 1px solid var(--alert-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: var(--alert-primary);
+        flex-shrink: 0;
+        box-shadow: 0 0 20px var(--alert-glow);
+        animation: warnPulse 3s ease-in-out infinite;
+      }
+
+      .alert-type-badge {
+        font-size: 0.58rem;
+        font-weight: 700;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--alert-primary);
+        margin-bottom: 0.25rem;
+        opacity: 0.85;
+      }
+
+      .alert-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--alert-text);
+        letter-spacing: 0.3px;
+      }
+
+      .alert-content {
+        color: var(--text-sub);
+        font-size: 0.88rem;
+        line-height: 1.7;
+        text-align: center;
+        padding: 1rem 0.5rem;
+        background: var(--alert-bg);
+        border: 1px solid var(--alert-border);
+        border-radius: 8px;
+      }
+
+      .alert-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+      }
+
+      .alert-dismiss {
+        background: var(--alert-primary);
+        border: none;
+        color: #000;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        cursor: pointer;
+        padding: 0.8rem 2rem;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+        font-family: "Inter", sans-serif;
+        box-shadow: 0 4px 16px var(--alert-glow);
+      }
+
+      .alert-dismiss:hover { opacity: 0.85; transform: translateY(-1px); }
+
+      /* ── Registration Modal ── */
+      .registration-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        backdrop-filter: blur(8px);
+        z-index: 2001;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.25s ease;
+      }
+
+      .registration-overlay.show { display: flex; }
+
+      .registration-modal {
+        background: var(--card);
+        border: 1px solid var(--border-b);
+        border-top: 2px solid var(--p-mid);
+        border-radius: 10px;
+        padding: 2rem 2.5rem;
+        max-width: 660px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 80px rgba(124,58,237,0.1);
+        animation: modalIn 0.35s ease;
+        position: relative;
+      }
+
+      .registration-modal::-webkit-scrollbar { width: 4px; }
+      .registration-modal::-webkit-scrollbar-track { background: transparent; }
+      .registration-modal::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.4); border-radius: 2px; }
+
+      .registration-header { text-align: center; margin-bottom: 1.75rem; }
+
+      .registration-icon-large {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--p-mid), var(--p-core));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        color: #fff;
+        box-shadow: 0 0 30px rgba(124,58,237,0.4);
+      }
+
+      .registration-modal h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text);
+        text-align: center;
+        margin-bottom: 0.4rem;
+      }
+
+      .registration-modal .subtitle {
+        color: var(--text-dim);
+        font-size: 0.82rem;
+        text-align: center;
+      }
+
+      .registration-content {
+        background: rgba(124,58,237,0.06);
+        border: 1px solid rgba(124,58,237,0.18);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1.75rem;
+      }
+
+      .registration-steps {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.85rem;
+        color: var(--text-sub);
+        line-height: 1.6;
+      }
+
+      .registration-steps .step {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.85rem;
+        background: rgba(8,3,15,0.5);
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        transition: all 0.2s ease;
+      }
+
+      .registration-steps .step:hover { border-color: var(--border-b); background: rgba(124,58,237,0.08); }
+
+      .registration-steps .step-icon {
+        min-width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--p-mid), var(--p-core));
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .registration-steps .step-content { flex: 1; padding-top: 2px; }
+      .registration-steps .step-title { font-weight: 600; color: var(--text); font-size: 0.85rem; margin-bottom: 0.2rem; }
+      .registration-steps .step-description { color: var(--text-dim); font-size: 0.78rem; line-height: 1.4; }
+      .registration-steps strong { color: var(--p-light); }
+
+      .registration-actions { display: flex; gap: 0.85rem; }
+
+      .support-portal-btn {
+        flex: 1;
+        padding: 0.85rem 1.25rem;
+        border-radius: 6px;
+        border: none;
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--p-mid);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 20px rgba(124,58,237,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-family: "Inter", sans-serif;
+      }
+
+      .support-portal-btn:hover { background: var(--p-core); box-shadow: 0 6px 28px rgba(147,51,234,0.45); transform: translateY(-1px); }
+
+      .close-registration-btn {
+        flex: 1;
+        padding: 0.85rem 1.25rem;
+        border-radius: 6px;
+        border: 1px solid var(--border-b);
+        background: transparent;
+        color: var(--text-dim);
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: "Inter", sans-serif;
+      }
+
+      .close-registration-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+      /* ── Notice Bar ── */
+      .notice-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: rgba(4,1,10,0.9);
+        border-top: 1px solid rgba(124,58,237,0.2);
+        padding: 0.55rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        font-size: 0.75rem;
+        color: var(--text-dim);
+      }
+
+      .notice-bar i { color: var(--p-dim); }
+      .notice-bar strong { color: var(--p-bright); }
+
+      /* ── Credits Modal (Ctrl+M) ── */
+      .credits-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.88);
+        backdrop-filter: blur(16px);
+        z-index: 3000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.25s ease;
+      }
+
+      .credits-overlay.show { display: flex; }
+
+      .credits-modal {
+        background: var(--card);
+        border: 1px solid var(--border-b);
+        border-top: 2px solid var(--p-core);
+        border-radius: 12px;
+        padding: 3rem 2.5rem 2.25rem;
+        max-width: 480px;
+        width: 90%;
+        box-shadow:
+          0 0 0 1px rgba(124,58,237,0.1),
+          0 30px 70px rgba(0,0,0,0.8),
+          0 0 100px rgba(124,58,237,0.15);
+        animation: modalIn 0.35s ease;
+        position: relative;
+        text-align: center;
+      }
+
+      .credits-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-dim);
+        font-size: 0.75rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+      }
+
+      .credits-close:hover { border-color: var(--border-b); color: var(--text); background: rgba(124,58,237,0.1); }
+
+      .credits-logo-ring {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.25rem;
+      }
+
+      .credits-logo-ring::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, var(--p-bright), var(--p-dim), var(--p-bright), var(--p-core), var(--p-bright));
+        animation: spin-ring 5s linear infinite;
+      }
+
+      .credits-logo-img {
+        position: absolute;
+        inset: 3px;
+        border-radius: 50%;
+        background: url("https://codehs.com/uploads/ab65fa0acacaff18144310e79cb0895f") no-repeat center center;
+        background-size: cover;
+        box-shadow: inset 0 0 16px rgba(124,58,237,0.5);
+      }
+
+      .credits-heading {
+        font-size: 1.4rem;
+        font-weight: 900;
+        letter-spacing: 6px;
+        color: var(--text);
+        text-transform: uppercase;
+        margin-bottom: 0.2rem;
+      }
+
+      .credits-label {
+        font-size: 0.6rem;
+        letter-spacing: 3.5px;
+        color: var(--p-dim);
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 1.75rem;
+      }
+
+      .credits-rule {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border-b), transparent);
+        margin-bottom: 1.75rem;
+      }
+
+      .sole-creator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.75rem 1.25rem;
+        background: rgba(124,58,237,0.06);
+        border: 1px solid rgba(124,58,237,0.15);
+        border-radius: 10px;
+        margin-bottom: 1.75rem;
+        transition: all 0.25s ease;
+      }
+
+      .sole-creator:hover {
+        background: rgba(124,58,237,0.1);
+        border-color: rgba(168,85,247,0.3);
+        box-shadow: 0 0 30px rgba(124,58,237,0.1);
+      }
+
+      .creator-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 2px solid var(--border-b);
+        box-shadow: 0 0 24px rgba(124,58,237,0.4);
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .creator-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 150px;
+        display: block;
+      }
+
+      .creator-name {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: 0.5px;
+      }
+
+      .creator-roles {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        justify-content: center;
+      }
+
+      .role-pill {
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        padding: 0.25rem 0.6rem;
+        border-radius: 999px;
+        background: rgba(124,58,237,0.18);
+        border: 1px solid rgba(168,85,247,0.25);
+        color: var(--p-light);
+      }
+
+      .creator-about {
+        font-size: 0.78rem;
+        color: var(--text-sub);
+        line-height: 1.7;
+        text-align: center;
+        margin-top: 0.5rem;
+        opacity: 0.85;
+      }
+
+      .credits-footer {
+        font-size: 0.72rem;
+        color: var(--text-dim);
+        line-height: 1.8;
+      }
+
+      .credits-footer .acc { color: var(--p-bright); }
+
+      .credits-hint {
+        margin-top: 1.5rem;
+        font-size: 0.65rem;
+        color: #1e293b;
+      }
+
+      kbd {
+        display: inline-block;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 3px;
+        padding: 0.08rem 0.3rem;
+        font-family: monospace;
+        font-size: 0.62rem;
+        color: var(--text-dim);
+      }
+
+      /* ── Responsive ── */
+      @media (max-width: 500px) {
+        .brand-panel { padding: 2rem 1.75rem 1.5rem; }
+        .login-panel { padding: 1.75rem 1.75rem 2rem; }
+        .brand-title { font-size: 1.9rem; letter-spacing: 7px; }
+        .registration-steps { grid-template-columns: 1fr; }
+        .registration-actions { flex-direction: column; }
+        .credits-modal { padding: 2.5rem 1.75rem 2rem; }
+        .notice-bar { padding: 0.55rem 1rem; font-size: 0.7rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="auth-image-panel"></div>
+    <div class="void-bg"></div>
+    <div class="void-glow"></div>
+    <div class="void-grid"></div>
+    <div class="stars"></div>
+
+    <!-- Help/Support Menu -->
+    <div class="help-menu-container">
+      <div class="help-trigger" id="helpTrigger">
+        <i class="fas fa-ellipsis-h"></i>
+      </div>
+      <div class="help-menu" id="helpMenu">
+        <a href="https://xorbit.org/support" class="help-menu-item" target="_blank">
+          <i class="fas fa-life-ring"></i>
+          <span>Support Center</span>
+        </a>
+        <div class="help-menu-divider"></div>
+        <a href="https://xorbit.org/admin/dashboard" class="help-menu-item" target="_blank">
+          <i class="fas fa-shield-halved"></i>
+          <span>Admin Dashboard</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Ban Modal -->
+    <div class="warning-overlay" id="banOverlay">
+      <div class="warning-modal">
+        <div class="warning-icon-large">🚫</div>
+        <h2>Access Denied</h2>
+        <div class="warning-content">
+          <p class="warning-message" id="banOverlayReason"></p>
+        </div>
+        <div class="warning-actions" style="gap:0.75rem;">
+          <a href="https://xorbit.org/support" class="acknowledge-btn" target="_blank" style="text-decoration:none; background: rgba(124,58,237,0.2); border:1px solid rgba(124,58,237,0.4); color:var(--p-light);">
+            <i class="fas fa-life-ring" style="margin-right:6px;"></i>Contact Support
+          </a>
+          <button class="acknowledge-btn" onclick="closeBanModal()" style="background:transparent; border:1px solid rgba(239,68,68,0.35); color:#fca5a5;">
+            Try Again
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div class="warning-overlay" id="warningOverlay">
+      <div class="warning-modal">
+        <div class="warning-icon-large">⚠</div>
+        <h2>Account Warning</h2>
+        <div class="warning-content">
+          <p class="warning-message" id="warningMessage"></p>
+        </div>
+        <div class="warning-actions">
+          <button class="acknowledge-btn" id="acknowledgeBtn">I Acknowledge</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic Alert Modal (populated from Supabase "alerts" table) -->
+    <div class="solaris-alert hidden" id="solarisAlert">
+      <div class="alert-content-wrapper" id="alertWrapper">
+        <div class="alert-header">
+          <div class="alert-icon" id="alertIcon">
+            <i class="fas fa-circle-info" id="alertIconInner"></i>
+          </div>
+          <div>
+            <div class="alert-type-badge" id="alertTypeBadge"></div>
+            <div class="alert-title" id="alertTitle"></div>
+          </div>
+        </div>
+        <div class="alert-content" id="alertMessage"></div>
+        <div class="alert-actions">
+          <button class="alert-dismiss" onclick="dismissDowntimeAlert()">Acknowledge</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="login-container" id="loginContainer">
+      <div class="back-nav" id="backNav">
+        <span>&#8592;</span>
+        <span>Back</span>
+      </div>
+
+      <!-- Regular Login View -->
+      <div class="regular-view" id="regularView">
+
+        <!-- Brand Header -->
+        <div class="brand-panel">
+          <div class="logo-ring">
+            <div class="logo"></div>
+          </div>
+          <h1 class="brand-title">X-ORBIT</h1>
+          <div class="brand-accent"></div>
+          <p class="brand-sub">Authorized Access Only</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="login-panel">
+          <div class="login-header">
+            <h2 class="login-title">Sign In</h2>
+            <p class="login-subtitle">Enter your credentials to continue</p>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="usernameOrEmail">
+              <i class="fas fa-user" style="margin-right:4px"></i> Identifier
+            </label>
+            <div class="field-wrap" id="usernameWrap">
+              <i class="fas fa-at field-icon"></i>
+              <input
+                id="usernameOrEmail"
+                type="text"
+                class="form-input"
+                placeholder="Username or email"
+                autocomplete="username"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="password">
+              <i class="fas fa-lock" style="margin-right:4px"></i> Password
+            </label>
+            <div class="field-wrap" id="passwordWrap">
+              <i class="fas fa-lock field-icon"></i>
+              <input
+                id="password"
+                type="password"
+                class="form-input"
+                placeholder="Enter password"
+                autocomplete="current-password"
+              />
+            </div>
+          </div>
+
+          <div class="remember-section">
+            <input type="checkbox" id="rememberMe" class="remember-checkbox" />
+            <label for="rememberMe" class="remember-label">Remember this account</label>
+          </div>
+
+          <button type="button" id="loginButton" class="login-btn">Authenticate</button>
+
+          <div class="register-link">
+            Don't have an account?
+            <button id="registerBtn">Register here</button>
+          </div>
+
+          <!-- Registration Modal -->
+          <div class="registration-overlay" id="registrationOverlay">
+            <div class="registration-modal">
+              <div class="registration-header">
+                <div class="registration-icon-large">
+                  <i class="fas fa-user-plus"></i>
+                </div>
+                <h2>Create an Account</h2>
+                <p class="subtitle">Follow these steps to get started with X-ORBIT</p>
+              </div>
+              <div class="registration-content">
+                <div class="registration-steps">
+                  <div class="step">
+                    <div class="step-icon"><i class="fas fa-globe"></i></div>
+                    <div class="step-content">
+                      <div class="step-title">Visit Support Portal</div>
+                      <div class="step-description">Click the button below to access our <strong>Support Portal</strong></div>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <div class="step-icon"><i class="fas fa-user-circle"></i></div>
+                    <div class="step-content">
+                      <div class="step-title">Create Account Services Account</div>
+                      <div class="step-description">Register for an <strong>Account Services</strong> account on the portal</div>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <div class="step-icon"><i class="fas fa-ticket-alt"></i></div>
+                    <div class="step-content">
+                      <div class="step-title">Submit Support Ticket</div>
+                      <div class="step-description">Open a ticket requesting <strong>X-ORBIT account creation</strong></div>
+                    </div>
+                  </div>
+                  <div class="step">
+                    <div class="step-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="step-content">
+                      <div class="step-title">Receive Credentials</div>
+                      <div class="step-description">Our team will process your request and send your login credentials</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="registration-actions">
+                <button class="support-portal-btn" id="supportPortalBtn">
+                  <i class="fas fa-external-link-alt"></i>
+                  <span>Open Support Portal</span>
+                </button>
+                <button class="close-registration-btn" id="closeRegistrationBtn">
+                  <i class="fas fa-times"></i>
+                  <span>Close</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+
+          <div id="loginStatus" class="status-message"></div>
+        </div>
+      </div>
+
+      <!-- OS Mode View -->
+      <div class="os-view" id="osView">
+        <div class="user-profile">
+          <div class="user-avatar"></div>
+          <div class="username-display" id="savedUsername"></div>
+          <div class="user-email" id="savedEmail"></div>
+        </div>
+
+        <div style="width:100%">
+          <div class="form-group">
+            <label class="field-label"><i class="fas fa-lock" style="margin-right:4px"></i> Password</label>
+            <div class="field-wrap">
+              <i class="fas fa-lock field-icon"></i>
+              <input
+                id="osPassword"
+                type="password"
+                class="form-input"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+              />
+            </div>
+          </div>
+
+          <button type="button" id="osLoginButton" class="login-btn">Sign In</button>
+          <button type="button" id="switchUserButton" class="switch-user-btn">Sign in as different user</button>
+
+
+          <div id="osLoginStatus" class="status-message"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+      <i class="fas fa-circle-info"></i>
+      <span><strong>New:</strong> Ticket support is live — use the <i class="fas fa-ellipsis-h"></i> menu (bottom-right) to open a ticket.</span>
+    </div>
+
+    <!-- Credits Modal  Ctrl+M -->
+    <div class="credits-overlay" id="creditsOverlay">
+      <div class="credits-modal">
+        <button class="credits-close" id="creditsClose"><i class="fas fa-times"></i></button>
+
+        <div class="credits-logo-ring">
+          <div class="credits-logo-img"></div>
+        </div>
+        <div class="credits-heading">X-ORBIT</div>
+        <div class="credits-label">Project Credits</div>
+
+        <div class="credits-rule"></div>
+
+        <div class="sole-creator">
+          <div class="creator-avatar">
+            <img src="https://codehs.com/uploads/a7102418a6203e83d520c14eb008b8fc" alt="Demitri Burns" />
+          </div>
+          <div class="creator-name">Demitri Burns</div>
+          <div class="creator-roles">
+            <span class="role-pill">Founder</span>
+            <span class="role-pill">Lead Developer</span>
+          </div>
+          <p class="creator-about">
+            Self-taught developer and the sole mind behind X-ORBIT. Passionate about
+            building clean, powerful systems from the ground up — every line of code,
+            every design decision, every feature. Driven by the belief that great
+            software should feel effortless to use, no matter how complex it is under the hood.
+          </p>
+        </div>
+
+        <div class="credits-rule"></div>
+
+        <div class="credits-footer">
+          Built solo. Every line of code, every pixel.<br />
+          <span class="acc">X-ORBIT</span> &mdash; All systems operational.
+        </div>
+
+        <div class="credits-hint">
+          <kbd>Ctrl</kbd> + <kbd>M</kbd> to toggle &nbsp;&middot;&nbsp; <kbd>Esc</kbd> to close
+        </div>
+      </div>
+    </div>
+
+    <script>
+      console.log("🚀 X-ORBIT Login System Starting...");
+
+      // Global state
+      let rememberedUser = null;
+      let supabaseClient = null;
+      let pendingUserData = null;
+
+      // ============================================================
+      // DEVICE UUID — persists in localStorage across sessions.
+      // Generates a random 6-character alphanumeric ID on first visit.
+      // ============================================================
+      function getOrCreateDeviceUUID() {
+        const STORAGE_KEY = "xorbit_device_uuid";
+        const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        try {
+          let uuid = localStorage.getItem(STORAGE_KEY);
+
+          if (!uuid || uuid.length !== 6) {
+            // Generate a new 6-character alphanumeric UUID
+            uuid = Array.from({ length: 6 }, () =>
+              CHARS.charAt(Math.floor(Math.random() * CHARS.length))
+            ).join("");
+            localStorage.setItem(STORAGE_KEY, uuid);
+            console.log("🆕 Generated new device UUID:", uuid);
+          } else {
+            console.log("📱 Existing device UUID:", uuid);
+          }
+
+          return uuid;
+        } catch (error) {
+          // If localStorage is blocked (e.g. private browsing edge cases),
+          // generate an ephemeral UUID just for this session
+          console.warn("⚠️ localStorage unavailable for device UUID:", error);
+          return Array.from({ length: 6 }, () =>
+            CHARS.charAt(Math.floor(Math.random() * CHARS.length))
+          ).join("");
+        }
+      }
+      // ============================================================
+
+      // Help Menu Toggle
+      function toggleHelpMenu() {
+        const menu = document.getElementById("helpMenu");
+        menu.classList.toggle("show");
+      }
+
+      // Close help menu when clicking outside
+      document.addEventListener("click", function (e) {
+        const helpContainer = document.querySelector(".help-menu-container");
+        const helpMenu = document.getElementById("helpMenu");
+
+        if (helpContainer && !helpContainer.contains(e.target)) {
+          helpMenu.classList.remove("show");
+        }
+      });
+
+      // Registration Modal functions
+      function showRegistrationModal() {
+        console.log("📝 Showing registration modal");
+        const overlay = document.getElementById("registrationOverlay");
+        overlay.classList.add("show");
+      }
+
+      function hideRegistrationModal() {
+        console.log("✅ Hiding registration modal");
+        const overlay = document.getElementById("registrationOverlay");
+        overlay.classList.remove("show");
+      }
+
+      function openSupportPortal() {
+        console.log("🌐 Opening support portal in new tab");
+        window.open("https://xorbit.org/support", "_blank");
+      }
+
+      // Alert functions
+      function dismissDowntimeAlert() {
+        const el = document.getElementById("solarisAlert");
+        if (el) el.classList.add("hidden");
+      }
+
+      async function fetchAndShowAlert() {
+        try {
+          if (!supabaseClient) return;
+
+          const { data, error } = await supabaseClient
+            .from("alerts")
+            .select("type, title, message")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single();
+
+          if (error || !data || !data.type || data.type === "none") return;
+
+          const configs = {
+            downtime:    { primary: "#ef4444", glow: "rgba(239,68,68,0.3)",    bg: "rgba(239,68,68,0.08)",    border: "rgba(239,68,68,0.35)",    text: "#fca5a5", icon: "fa-triangle-exclamation" },
+            maintenance: { primary: "#f59e0b", glow: "rgba(245,158,11,0.3)",   bg: "rgba(245,158,11,0.08)",   border: "rgba(245,158,11,0.35)",   text: "#fcd34d", icon: "fa-wrench" },
+            survey:      { primary: "#eab308", glow: "rgba(234,179,8,0.3)",    bg: "rgba(234,179,8,0.08)",    border: "rgba(234,179,8,0.35)",    text: "#fef08a", icon: "fa-clipboard-list" },
+            feature:     { primary: "#a855f7", glow: "rgba(168,85,247,0.3)",   bg: "rgba(168,85,247,0.08)",   border: "rgba(168,85,247,0.35)",   text: "#e9d5ff", icon: "fa-star" },
+            info:        { primary: "#3b82f6", glow: "rgba(59,130,246,0.3)",   bg: "rgba(59,130,246,0.08)",   border: "rgba(59,130,246,0.35)",   text: "#bfdbfe", icon: "fa-circle-info" },
+            update:      { primary: "#22c55e", glow: "rgba(34,197,94,0.3)",    bg: "rgba(34,197,94,0.08)",    border: "rgba(34,197,94,0.35)",    text: "#bbf7d0", icon: "fa-arrow-up-from-bracket" },
+          };
+
+          const cfg = configs[data.type] || configs.info;
+          const overlay   = document.getElementById("solarisAlert");
+          const iconEl    = document.getElementById("alertIconInner");
+          const titleEl   = document.getElementById("alertTitle");
+          const messageEl = document.getElementById("alertMessage");
+          const badgeEl   = document.getElementById("alertTypeBadge");
+
+          overlay.style.setProperty("--alert-primary", cfg.primary);
+          overlay.style.setProperty("--alert-glow",    cfg.glow);
+          overlay.style.setProperty("--alert-bg",      cfg.bg);
+          overlay.style.setProperty("--alert-border",  cfg.border);
+          overlay.style.setProperty("--alert-text",    cfg.text);
+
+          iconEl.className    = `fas ${cfg.icon}`;
+          titleEl.textContent = data.title   || "";
+          messageEl.textContent = data.message || "";
+          badgeEl.textContent = data.type.toUpperCase();
+
+          overlay.classList.remove("hidden");
+          console.log("🔔 Alert shown:", data.type, data.title);
+        } catch (err) {
+          console.warn("⚠️ Could not fetch alert:", err);
+        }
+      }
+
+      // Ban Modal functions
+      function showBanModal(reason) {
+        document.getElementById("banOverlayReason").textContent = reason;
+        document.getElementById("banOverlay").classList.add("show");
+      }
+
+      function closeBanModal() {
+        document.getElementById("banOverlay").classList.remove("show");
+      }
+
+      // Warning Modal functions
+      function showWarningModal(warningText) {
+        console.log("⚠️ Showing warning modal");
+        const overlay = document.getElementById("warningOverlay");
+        const message = document.getElementById("warningMessage");
+
+        message.textContent = warningText;
+        overlay.classList.add("show");
+      }
+
+      function hideWarningModal() {
+        console.log("✅ Hiding warning modal");
+        const overlay = document.getElementById("warningOverlay");
+        overlay.classList.remove("show");
+      }
+
+      function acknowledgeWarning() {
+        console.log("✅ User acknowledged warning");
+        hideWarningModal();
+
+        if (pendingUserData) {
+          console.log("🔄 Completing login after warning acknowledgment");
+          completeLogin(pendingUserData);
+          pendingUserData = null;
+        }
+      }
+
+      // localStorage functions
+      function saveRememberedUser(userData) {
+        try {
+          const userToSave = {
+            username: userData.username,
+            email: userData.email,
+            id: userData.id,
+            savedAt: new Date().toISOString(),
+          };
+          localStorage.setItem(
+            "xorbit_remembered_user",
+            JSON.stringify(userToSave)
+          );
+          console.log("💾 User saved to localStorage:", userData.username);
+          return true;
+        } catch (error) {
+          console.warn("⚠️ Could not save to localStorage:", error);
+          return false;
+        }
+      }
+
+      function loadRememberedUser() {
+        try {
+          const saved = localStorage.getItem("xorbit_remembered_user");
+          if (saved) {
+            const userData = JSON.parse(saved);
+            console.log(
+              "📂 Loaded remembered user from localStorage:",
+              userData.username
+            );
+            return userData;
+          }
+        } catch (error) {
+          console.warn("⚠️ Could not load from localStorage:", error);
+        }
+        return null;
+      }
+
+      function clearRememberedUser() {
+        try {
+          localStorage.removeItem("xorbit_remembered_user");
+          console.log("🗑️ Cleared remembered user from localStorage");
+        } catch (error) {
+          console.warn("⚠️ Could not clear localStorage:", error);
+        }
+      }
+
+      async function initSupabase() {
+        console.log("📡 Loading Supabase client...");
+        try {
+          let attempts = 0;
+          while (!window.supabase && attempts < 10) {
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            attempts++;
+          }
+
+          if (!window.supabase) {
+            console.error("❌ Supabase library failed to load after waiting");
+            return false;
+          }
+
+          const SUPABASE_URL = "https://rujvmtvozorylfzsqppc.supabase.co";
+          const SUPABASE_ANON_KEY =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1anZtdHZvem9yeWxmenNxcHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0NjQxNDEsImV4cCI6MjA3MzA0MDE0MX0.b7jJz3Se_oXXDwwd0dWQ8-rEvhY0aU4JDHQVioE39iY";
+
+          supabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_ANON_KEY
+          );
+
+          console.log("✅ Supabase client initialized successfully");
+          return true;
+        } catch (error) {
+          console.error("❌ Failed to initialize Supabase:", error);
+          console.error("Error details:", error.message, error.stack);
+          return false;
+        }
+      }
+
+      // Create visual effects
+      function createStars() {
+        console.log("⭐ Creating stars...");
+        const starsContainer = document.querySelector(".stars");
+        if (!starsContainer) return;
+
+        for (let i = 0; i < 60; i++) {
+          const star = document.createElement("div");
+          star.className = "star";
+          star.style.left = Math.random() * 100 + "%";
+          star.style.top = Math.random() * 100 + "%";
+          const size = Math.random() * 2 + 0.5;
+          star.style.width = size + "px";
+          star.style.height = size + "px";
+          // Purple-tinted stars
+          const purpleChance = Math.random();
+          if (purpleChance > 0.7) {
+            star.style.background = "#c084fc";
+          } else if (purpleChance > 0.5) {
+            star.style.background = "#a855f7";
+          } else {
+            star.style.background = "#ffffff";
+          }
+          star.style.animationDelay = Math.random() * 4 + "s";
+          star.style.animationDuration = (Math.random() * 3 + 3) + "s";
+          starsContainer.appendChild(star);
+        }
+      }
+
+      function createParticles() {
+        console.log("🌌 Creating particles...");
+        const purples = ["#7c3aed", "#9333ea", "#a855f7", "#6d28d9", "#4c1d95"];
+        for (let i = 0; i < 10; i++) {
+          const particle = document.createElement("div");
+          particle.className = "particle";
+          particle.style.left = Math.random() * 100 + "%";
+          const size = Math.random() * 3 + 1.5;
+          particle.style.width = size + "px";
+          particle.style.height = size + "px";
+          particle.style.background = purples[Math.floor(Math.random() * purples.length)];
+          particle.style.animationDelay = Math.random() * 18 + "s";
+          particle.style.animationDuration = (Math.random() * 8 + 14) + "s";
+          document.body.appendChild(particle);
+        }
+      }
+
+      // Show/Hide views
+      function showOSMode(userData) {
+        console.log(
+          "🖥️ Switching to macOS-style login for user:",
+          userData.username
+        );
+
+        const container = document.getElementById("loginContainer");
+        const regularView = document.getElementById("regularView");
+        const osView = document.getElementById("osView");
+        const backNav = document.getElementById("backNav");
+        const savedUsername = document.getElementById("savedUsername");
+        const savedEmail = document.getElementById("savedEmail");
+
+        savedUsername.textContent = userData.username;
+        savedEmail.textContent = userData.email;
+
+        rememberedUser = userData;
+
+        regularView.classList.add("hidden");
+        osView.classList.add("active");
+        container.classList.add("os-mode");
+        backNav.classList.remove("show");
+
+        setTimeout(() => {
+          const passwordInput = document.getElementById("osPassword");
+          if (passwordInput) {
+            passwordInput.focus();
+          }
+        }, 300);
+
+        console.log("✅ Successfully switched to macOS login mode");
+      }
+
+      function showRegularMode(showBackButton = false) {
+        console.log("📝 Switching back to regular login mode");
+
+        const container = document.getElementById("loginContainer");
+        const regularView = document.getElementById("regularView");
+        const osView = document.getElementById("osView");
+        const backNav = document.getElementById("backNav");
+
+        if (!showBackButton) {
+          rememberedUser = null;
+          clearRememberedUser();
+        }
+
+        const inputs = ["usernameOrEmail", "password", "osPassword"];
+        inputs.forEach((id) => {
+          const input = document.getElementById(id);
+          if (input) input.value = "";
+        });
+
+        const rememberCheckbox = document.getElementById("rememberMe");
+        if (rememberCheckbox) rememberCheckbox.checked = false;
+
+        const statusElements = ["loginStatus", "osLoginStatus"];
+        statusElements.forEach((id) => {
+          const element = document.getElementById(id);
+          if (element) element.innerHTML = "";
+        });
+
+        closeBanModal();
+
+        const buttons = ["loginButton", "osLoginButton"];
+        buttons.forEach((id) => {
+          const button = document.getElementById(id);
+          if (button) {
+            button.disabled = false;
+            button.classList.remove("banned");
+            if (id === "loginButton") button.innerHTML = "Authenticate";
+            if (id === "osLoginButton") button.innerHTML = "Sign In";
+          }
+        });
+
+        osView.classList.remove("active");
+        regularView.classList.remove("hidden");
+        container.classList.remove("os-mode");
+
+        if (showBackButton && rememberedUser) {
+          backNav.classList.add("show");
+          console.log("🔙 Back button shown");
+        } else {
+          backNav.classList.remove("show");
+          console.log("🔙 Back button hidden");
+        }
+
+        setTimeout(() => {
+          const usernameInput = document.getElementById("usernameOrEmail");
+          if (usernameInput) {
+            usernameInput.focus();
+          }
+        }, 300);
+
+        console.log("✅ Successfully switched back to regular login mode");
+      }
+
+      function goBackToOSMode() {
+        console.log("🔙 Returning to macOS login mode");
+        if (rememberedUser) {
+          showOSMode(rememberedUser);
+        } else {
+          console.warn("⚠️ No remembered user to go back to");
+          showRegularMode(false);
+        }
+      }
+
+      function completeLogin(userData) {
+        console.log("✅ Completing login for user:", userData.username);
+
+        if (userData.rememberMe) {
+          console.log("💾 Saving user to localStorage for future logins");
+          const userDataToSave = {
+            username: userData.username,
+            email: userData.email,
+            id: userData.id,
+          };
+
+          const saved = saveRememberedUser(userDataToSave);
+          if (saved) {
+            console.log("✅ User successfully saved to localStorage");
+            rememberedUser = userDataToSave;
+          } else {
+            console.warn(
+              "⚠️ Failed to save user to localStorage, using memory only"
+            );
+            rememberedUser = userDataToSave;
+          }
+        } else {
+          console.log("📝 Remember me not checked, not saving user");
+        }
+
+        const status = userData.isOSMode
+          ? document.getElementById("osLoginStatus")
+          : document.getElementById("loginStatus");
+        const button = userData.isOSMode
+          ? document.getElementById("osLoginButton")
+          : document.getElementById("loginButton");
+
+        status.innerHTML = userData.isOSMode
+          ? "✅ Welcome back! Redirecting..."
+          : "✅ Authentication successful! Redirecting...";
+        button.innerHTML = "✅ Success";
+
+        try {
+          const authSession = {
+            authenticated: true,
+            username: userData.username,
+            email: userData.email,
+            userId: userData.id,
+            timestamp: new Date().toISOString(),
+            expiresAt: new Date(Date.now() + 3600000).toISOString(),
+          };
+
+          localStorage.setItem(
+            "xorbit_auth_session",
+            JSON.stringify(authSession)
+          );
+          sessionStorage.setItem(
+            "xorbit_auth_session",
+            JSON.stringify(authSession)
+          );
+
+          console.log("✅ Authentication session stored");
+        } catch (error) {
+          console.warn("⚠️ Could not store auth session:", error);
+        }
+
+        setTimeout(() => {
+          console.log("📤 Sending postMessage to parent window...");
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage("auth-success", "*");
+          } else {
+            window.location.href = "browser.html";
+          }
+        }, 1000);
+      }
+
+      async function login() {
+        console.log("🚀 Login function called");
+
+        if (!supabaseClient) {
+          console.error("❌ Supabase not initialized");
+          document.getElementById("loginStatus").innerHTML =
+            "❌ System error. Please refresh the page.";
+          return;
+        }
+
+        const usernameInput = document.getElementById("usernameOrEmail");
+        const passwordInput = document.getElementById("password");
+        const rememberCheckbox = document.getElementById("rememberMe");
+        const loginButton = document.getElementById("loginButton");
+        const status = document.getElementById("loginStatus");
+
+        const emailOrName = usernameInput.value.trim();
+        const pwd = passwordInput.value.trim();
+        const rememberMe = rememberCheckbox.checked;
+
+        status.innerHTML = "";
+        closeBanModal();
+        usernameInput.classList.remove("error", "banned");
+        passwordInput.classList.remove("error", "banned");
+        document.getElementById("usernameWrap").classList.remove("error", "banned");
+        document.getElementById("passwordWrap").classList.remove("error", "banned");
+        loginButton.classList.remove("banned");
+        loginButton.innerHTML = "Authenticate";
+        loginButton.disabled = false;
+
+        if (!emailOrName || !pwd) {
+          status.innerHTML = "❌ Please fill in both fields.";
+          if (!emailOrName) {
+            usernameInput.classList.add("error");
+            document.getElementById("usernameWrap").classList.add("error");
+          }
+          if (!pwd) {
+            passwordInput.classList.add("error");
+            document.getElementById("passwordWrap").classList.add("error");
+          }
+          return;
+        }
+
+        status.innerHTML = '<span class="loading"></span> Authenticating...';
+        loginButton.innerHTML =
+          '<span class="loading"></span> Authenticating...';
+        loginButton.disabled = true;
+
+        // Get (or create) the device UUID for this browser
+        const deviceUUID = getOrCreateDeviceUUID();
+
+        try {
+          const { data, error } = await supabaseClient
+            .from("clients")
+            .select("id, name, email, blocked, ban_reason, warnings")
+            .or(`email.eq.${emailOrName},name.eq.${emailOrName}`)
+            .eq("password", pwd)
+            .single();
+
+          const attemptLog = {
+            attempted_username: emailOrName,
+            attempted_email: emailOrName.includes("@") ? emailOrName : null,
+            success: !!(data && !error && !data.blocked),
+            attempt_timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            device_uuid: deviceUUID,
+          };
+
+          if (data && !error) {
+            attemptLog.client_id = data.id;
+            attemptLog.client_name = data.name;
+            attemptLog.client_email = data.email;
+
+            if (data.blocked) {
+              attemptLog.success = false;
+              attemptLog.failure_reason = "Account blocked";
+            }
+          } else {
+            attemptLog.failure_reason = "Invalid credentials";
+          }
+
+          try {
+            await supabaseClient.from("login_attempts").insert(attemptLog);
+          } catch (logErr) {
+            console.warn("⚠️ Error logging login attempt:", logErr);
+          }
+
+          if (error || !data) {
+            status.innerHTML = "";
+            usernameInput.classList.add("error");
+            passwordInput.classList.add("error");
+            document.getElementById("usernameWrap").classList.add("error");
+            document.getElementById("passwordWrap").classList.add("error");
+            loginButton.innerHTML = "Authenticate";
+            loginButton.disabled = false;
+            showBanModal("Invalid username/email or password. Please check your credentials and try again.");
+            return;
+          }
+
+          if (data.blocked) {
+            usernameInput.classList.add("banned");
+            passwordInput.classList.add("banned");
+            document.getElementById("usernameWrap").classList.add("banned");
+            document.getElementById("passwordWrap").classList.add("banned");
+            loginButton.classList.add("banned");
+            loginButton.innerHTML = "Return to Login";
+            loginButton.onclick = () => (location.href = "index.html");
+            showBanModal(data.ban_reason || "Account access has been restricted. Contact support for assistance.");
+            status.innerHTML = "";
+            return;
+          }
+
+          if (data.warnings && data.warnings.trim() !== "") {
+            pendingUserData = {
+              username: data.name,
+              email: data.email,
+              id: data.id,
+              rememberMe: rememberMe,
+              isOSMode: false,
+            };
+
+            status.innerHTML = "";
+            loginButton.innerHTML = "Authenticate";
+            loginButton.disabled = false;
+
+            showWarningModal(data.warnings);
+            return;
+          }
+
+          const userData = {
+            username: data.name,
+            email: data.email,
+            id: data.id,
+            rememberMe: rememberMe,
+            isOSMode: false,
+          };
+
+          completeLogin(userData);
+        } catch (err) {
+          console.error("💥 Critical error during login:", err);
+          status.innerHTML = "❌ Connection error. Please try again.";
+          loginButton.innerHTML = "Authenticate";
+          loginButton.disabled = false;
+        }
+      }
+
+      async function osLogin() {
+        console.log("🖥️ OS login function called");
+
+        if (!supabaseClient || !rememberedUser) {
+          console.error("❌ Supabase or remembered user not available");
+          document.getElementById("osLoginStatus").innerHTML =
+            "❌ Session expired. Please sign in again.";
+          showRegularMode();
+          return;
+        }
+
+        const passwordInput = document.getElementById("osPassword");
+        const loginButton = document.getElementById("osLoginButton");
+        const status = document.getElementById("osLoginStatus");
+
+        const pwd = passwordInput.value.trim();
+
+        status.innerHTML = "";
+        closeBanModal();
+        passwordInput.classList.remove("error", "banned");
+        loginButton.classList.remove("banned");
+        loginButton.innerHTML = "Sign In";
+        loginButton.disabled = false;
+
+        if (!pwd) {
+          status.innerHTML = "❌ Please enter your password.";
+          passwordInput.classList.add("error");
+          return;
+        }
+
+        status.innerHTML = '<span class="loading"></span> Signing in...';
+        loginButton.innerHTML = '<span class="loading"></span> Signing in...';
+        loginButton.disabled = true;
+
+        // Get (or create) the device UUID for this browser
+        const deviceUUID = getOrCreateDeviceUUID();
+
+        try {
+          const { data, error } = await supabaseClient
+            .from("clients")
+            .select("id, name, email, blocked, ban_reason, warnings")
+            .or(
+              `email.eq.${rememberedUser.email},name.eq.${rememberedUser.username}`
+            )
+            .eq("password", pwd)
+            .single();
+
+          const attemptLog = {
+            attempted_username: rememberedUser.username,
+            attempted_email: rememberedUser.email,
+            success: !!(data && !error && !data.blocked),
+            attempt_timestamp: new Date().toISOString(),
+            user_agent: navigator.userAgent,
+            device_uuid: deviceUUID,
+          };
+
+          if (data && !error) {
+            attemptLog.client_id = data.id;
+            attemptLog.client_name = data.name;
+            attemptLog.client_email = data.email;
+
+            if (data.blocked) {
+              attemptLog.success = false;
+              attemptLog.failure_reason = "Account blocked";
+            }
+          } else {
+            attemptLog.failure_reason = "Invalid credentials";
+          }
+
+          try {
+            await supabaseClient.from("login_attempts").insert(attemptLog);
+          } catch (logErr) {
+            console.warn("⚠️ Error logging login attempt:", logErr);
+          }
+
+          if (error || !data) {
+            status.innerHTML = "";
+            passwordInput.classList.add("error");
+            loginButton.innerHTML = "Sign In";
+            loginButton.disabled = false;
+            showBanModal("Incorrect password. Please try again or sign in as a different user.");
+            return;
+          }
+
+          if (data.blocked) {
+            passwordInput.classList.add("banned");
+            loginButton.classList.add("banned");
+            loginButton.innerHTML = "Access Denied";
+            loginButton.disabled = true;
+            showBanModal(data.ban_reason || "Account access has been restricted. Contact support for assistance.");
+            status.innerHTML = "";
+            return;
+          }
+
+          if (data.warnings && data.warnings.trim() !== "") {
+            pendingUserData = {
+              username: data.name,
+              email: data.email,
+              id: data.id,
+              rememberMe: true,
+              isOSMode: true,
+            };
+
+            status.innerHTML = "";
+            loginButton.innerHTML = "Sign In";
+            loginButton.disabled = false;
+
+            showWarningModal(data.warnings);
+            return;
+          }
+
+          const userData = {
+            username: data.name,
+            email: data.email,
+            id: data.id,
+            rememberMe: true,
+            isOSMode: true,
+          };
+
+          completeLogin(userData);
+        } catch (err) {
+          console.error("💥 Critical error during OS login:", err);
+          status.innerHTML = "❌ Connection error. Please try again.";
+          loginButton.innerHTML = "Sign In";
+          loginButton.disabled = false;
+        }
+      }
+
+      // Credits Modal functions
+      function showCreditsModal() {
+        const overlay = document.getElementById("creditsOverlay");
+        if (overlay) overlay.classList.add("show");
+      }
+
+      function hideCreditsModal() {
+        const overlay = document.getElementById("creditsOverlay");
+        if (overlay) overlay.classList.remove("show");
+      }
+
+      function toggleCreditsModal() {
+        const overlay = document.getElementById("creditsOverlay");
+        if (overlay) overlay.classList.toggle("show");
+      }
+
+      function handleKeyPress(event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+
+          const osView = document.getElementById("osView");
+          if (osView.classList.contains("active")) {
+            osLogin();
+          } else {
+            login();
+          }
+        }
+
+        if (event.ctrlKey && event.key === "m") {
+          event.preventDefault();
+          toggleCreditsModal();
+        }
+
+        if (event.key === "Escape") {
+          const creditsOverlay = document.getElementById("creditsOverlay");
+          if (creditsOverlay && creditsOverlay.classList.contains("show")) {
+            hideCreditsModal();
+          }
+        }
+      }
+
+      async function initApp() {
+        console.log("🔧 Initializing X-ORBIT Login System...");
+
+        createStars();
+        createParticles();
+        startSessionTimer();
+        setupActivityListeners();
+
+        // Pre-generate device UUID on page load so it's ready when login fires
+        getOrCreateDeviceUUID();
+
+        const supabaseReady = await initSupabase();
+        if (!supabaseReady) {
+          document.getElementById("loginStatus").innerHTML =
+            "❌ System error. Please refresh the page.";
+          return;
+        }
+
+        // Fetch alert from Supabase after client is ready
+        fetchAndShowAlert();
+
+        const savedUser = loadRememberedUser();
+        if (savedUser) {
+          console.log("👤 Found remembered user:", savedUser.username);
+          rememberedUser = savedUser;
+          showOSMode(savedUser);
+        } else {
+          console.log("ℹ️ No remembered user found");
+        }
+
+        const loginButton = document.getElementById("loginButton");
+        const osLoginButton = document.getElementById("osLoginButton");
+        const switchUserButton = document.getElementById("switchUserButton");
+        const backNav = document.getElementById("backNav");
+        const acknowledgeBtn = document.getElementById("acknowledgeBtn");
+        const helpTrigger = document.getElementById("helpTrigger");
+        const registerBtn = document.getElementById("registerBtn");
+        const supportPortalBtn = document.getElementById("supportPortalBtn");
+        const closeRegistrationBtn = document.getElementById(
+          "closeRegistrationBtn"
+        );
+        const creditsClose = document.getElementById("creditsClose");
+        const creditsOverlay = document.getElementById("creditsOverlay");
+
+        if (loginButton) {
+          loginButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            login();
+          });
+        }
+
+        if (osLoginButton) {
+          osLoginButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            osLogin();
+          });
+        }
+
+        if (switchUserButton) {
+          switchUserButton.addEventListener("click", (e) => {
+            e.preventDefault();
+            showRegularMode(true);
+          });
+        }
+
+        if (backNav) {
+          backNav.addEventListener("click", (e) => {
+            e.preventDefault();
+            goBackToOSMode();
+          });
+        }
+
+        if (acknowledgeBtn) {
+          acknowledgeBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            acknowledgeWarning();
+          });
+        }
+
+        if (helpTrigger) {
+          helpTrigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleHelpMenu();
+          });
+        }
+
+        if (registerBtn) {
+          registerBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            showRegistrationModal();
+          });
+        }
+
+        if (supportPortalBtn) {
+          supportPortalBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            openSupportPortal();
+          });
+        }
+
+        if (closeRegistrationBtn) {
+          closeRegistrationBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            hideRegistrationModal();
+          });
+        }
+
+        if (creditsClose) {
+          creditsClose.addEventListener("click", (e) => {
+            e.preventDefault();
+            hideCreditsModal();
+          });
+        }
+
+        if (creditsOverlay) {
+          creditsOverlay.addEventListener("click", (e) => {
+            if (e.target === creditsOverlay) hideCreditsModal();
+          });
+        }
+
+        document.addEventListener("keydown", handleKeyPress);
+
+        const inputs = document.querySelectorAll(".form-input");
+        inputs.forEach((input) => {
+          input.addEventListener("focus", function () {
+            if (this.parentElement) {
+              this.parentElement.style.transform = "translateY(-1px)";
+            }
+          });
+
+          input.addEventListener("blur", function () {
+            if (this.parentElement) {
+              this.parentElement.style.transform = "translateY(0)";
+            }
+          });
+        });
+
+        console.log("✅ X-ORBIT Login System initialized");
+      }
+
+      document.addEventListener("DOMContentLoaded", initApp);
+
+      if (document.readyState === "loading") {
+        console.log("⏳ DOM loading...");
+      } else {
+        console.log("⚡ DOM ready");
+        initApp();
+      }
+
+      let sessionTimer = null;
+
+      function startSessionTimer() {
+        if (sessionTimer) {
+          clearTimeout(sessionTimer);
+        }
+
+        sessionTimer = setTimeout(() => {
+          handleSessionTimeout();
+        }, 3600000);
+      }
+
+      function resetSessionTimer() {
+        startSessionTimer();
+      }
+
+      function handleSessionTimeout() {
+        console.log("⏰ Session timed out");
+
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage("session-timeout", "*");
+        } else {
+          window.location.href = "timeout.html";
+        }
+      }
+
+      function setupActivityListeners() {
+        const events = [
+          "mousedown",
+          "mousemove",
+          "keypress",
+          "scroll",
+          "touchstart",
+          "click",
+        ];
+
+        events.forEach((event) => {
+          document.addEventListener(event, resetSessionTimer, {
+            passive: true,
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

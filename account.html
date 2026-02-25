@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Account Settings — X-ORBIT</title>
+    <link
+      rel="icon"
+      href="https://codehs.com/uploads/7f204d91a682cb833441eb2fc59228b6"
+      type="image/png"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+      :root {
+        --black:    #000000;
+        --void:     #04010a;
+        --card:     #08030f;
+        --card-mid: #0e061a;
+        --border:   #1f0d40;
+        --border-b: #3b1a78;
+        --p-dim:    #4c1d95;
+        --p-mid:    #7c3aed;
+        --p-core:   #9333ea;
+        --p-bright: #a855f7;
+        --p-light:  #c084fc;
+        --p-pale:   #e9d5ff;
+        --text:     #ffffff;
+        --text-sub: #94a3b8;
+        --text-dim: #475569;
+        --green:    #10b981;
+        --green-dim:#064e3b;
+        --red:      #ef4444;
+        --red-dim:  #7f1d1d;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        min-height: 100vh;
+        font-family: "Inter", sans-serif;
+        background: var(--black);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem 4rem;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      /* ── Background ── */
+      .void-bg  { position: fixed; inset: 0; z-index: -3; background: var(--black); }
+      .void-glow {
+        position: fixed; inset: 0; z-index: -2;
+        background:
+          radial-gradient(ellipse 90% 55% at 50% -5%,  #1a0a35 0%, transparent 70%),
+          radial-gradient(ellipse 60% 40% at 15% 100%, #0f0520 0%, transparent 60%),
+          radial-gradient(ellipse 50% 35% at 90% 90%,  #120830 0%, transparent 60%);
+        animation: breathe 9s ease-in-out infinite;
+      }
+      @keyframes breathe { 0%,100% { opacity: 0.8; } 50% { opacity: 1; } }
+      .void-grid {
+        position: fixed; inset: 0; z-index: -1;
+        background-image:
+          linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+
+      /* ── Top bar ── */
+      .topbar {
+        width: 100%;
+        max-width: 680px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2.5rem;
+        padding-top: 0.5rem;
+      }
+
+      .back-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-dim);
+        font-size: 0.8rem;
+        font-weight: 500;
+        text-decoration: none;
+        padding: 0.45rem 0.9rem;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        background: rgba(8,3,15,0.6);
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+      .back-btn:hover { color: var(--text); border-color: var(--border-b); }
+      .back-btn i { font-size: 12px; }
+
+      .page-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: var(--p-dim);
+      }
+
+      /* placeholder on the right to balance the topbar */
+      .topbar-spacer { width: 90px; }
+
+      /* ── Header card ── */
+      .header-card {
+        width: 100%;
+        max-width: 680px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-top: 2px solid var(--p-mid);
+        border-radius: 12px;
+        padding: 2rem 2.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        box-shadow: 0 0 0 1px rgba(124,58,237,0.08), 0 20px 50px rgba(0,0,0,0.7);
+      }
+
+      .avatar-ring {
+        position: relative;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .avatar-ring::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 50%;
+        background: conic-gradient(from 0deg, var(--p-bright), var(--p-dim), var(--p-bright), var(--p-core), var(--p-bright));
+        animation: spin-ring 5s linear infinite;
+      }
+      @keyframes spin-ring { to { transform: rotate(360deg); } }
+      .avatar-ring::after {
+        content: "";
+        position: absolute;
+        inset: 3px;
+        border-radius: 50%;
+        background: url("https://codehs.com/uploads/ab65fa0acacaff18144310e79cb0895f") no-repeat center center;
+        background-size: cover;
+        box-shadow: inset 0 0 16px rgba(124,58,237,0.4);
+      }
+
+      .header-info { flex: 1; min-width: 0; }
+      .header-name {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .header-email {
+        font-size: 0.8rem;
+        color: var(--text-dim);
+        margin-top: 0.25rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        background: rgba(16,185,129,0.12);
+        border: 1px solid rgba(16,185,129,0.3);
+        color: var(--green);
+        margin-top: 0.5rem;
+      }
+      .header-badge i { font-size: 9px; }
+
+      /* ── Section cards ── */
+      .section-card {
+        width: 100%;
+        max-width: 680px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.75rem 2.5rem;
+        margin-bottom: 1.25rem;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        transition: border-color 0.2s ease;
+      }
+      .section-card:hover { border-color: var(--border-b); }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .section-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        background: rgba(124,58,237,0.15);
+        border: 1px solid rgba(124,58,237,0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--p-bright);
+        font-size: 14px;
+        flex-shrink: 0;
+      }
+      .section-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+      .section-desc  { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.15rem; }
+
+      /* ── Form fields ── */
+      .form-group { margin-bottom: 1.25rem; }
+      .field-label {
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--p-dim);
+        margin-bottom: 0.5rem;
+      }
+      .field-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--border-b);
+        transition: border-color 0.2s ease;
+      }
+      .field-wrap:focus-within { border-color: var(--p-bright); }
+      .field-wrap i {
+        color: var(--text-dim);
+        font-size: 14px;
+        margin-right: 0.6rem;
+        flex-shrink: 0;
+      }
+      .field-wrap input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--text);
+        font-size: 0.9rem;
+        font-family: "Inter", sans-serif;
+        padding: 0.65rem 0;
+        min-width: 0;
+      }
+      .field-wrap input::placeholder { color: var(--text-dim); }
+      .field-wrap input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0 1000px var(--card) inset;
+        -webkit-text-fill-color: var(--text);
+      }
+
+      .toggle-pw {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--text-dim);
+        font-size: 13px;
+        padding: 0 0 0 0.5rem;
+        transition: color 0.2s ease;
+      }
+      .toggle-pw:hover { color: var(--p-bright); }
+
+      /* ── Submit button ── */
+      .submit-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.85rem;
+        border-radius: 8px;
+        border: none;
+        font-family: "Inter", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--p-mid);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 16px rgba(124,58,237,0.3);
+        margin-top: 0.5rem;
+      }
+      .submit-btn:hover:not(:disabled) {
+        background: var(--p-core);
+        box-shadow: 0 6px 24px rgba(147,51,234,0.45);
+        transform: translateY(-1px);
+      }
+      .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+      /* ── Status messages ── */
+      .status-msg {
+        margin-top: 0.85rem;
+        font-size: 0.82rem;
+        font-weight: 500;
+        min-height: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .status-msg.success { color: var(--green); }
+      .status-msg.error   { color: var(--red); }
+      .status-msg.loading { color: var(--p-light); }
+
+      .spinner {
+        display: inline-block;
+        width: 13px;
+        height: 13px;
+        border: 2px solid rgba(168,85,247,0.3);
+        border-top-color: var(--p-bright);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        flex-shrink: 0;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ── Danger zone ── */
+      .section-card.danger { border-color: rgba(239,68,68,0.2); }
+      .section-card.danger:hover { border-color: rgba(239,68,68,0.35); }
+      .section-card.danger .section-icon {
+        background: rgba(239,68,68,0.1);
+        border-color: rgba(239,68,68,0.2);
+        color: var(--red);
+      }
+
+      /* ── Red confirmation modals ── */
+      .red-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.85);
+        backdrop-filter: blur(8px);
+        z-index: 2000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        animation: fadeIn 0.2s ease;
+      }
+      .red-overlay.show { display: flex; }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+      .red-modal {
+        background: var(--card);
+        border: 1px solid rgba(239,68,68,0.35);
+        border-top: 2px solid var(--red);
+        border-radius: 12px;
+        padding: 2rem 2rem 1.75rem;
+        max-width: 420px;
+        width: 90%;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 60px rgba(239,68,68,0.12);
+        animation: modalIn 0.3s ease;
+      }
+      @keyframes modalIn {
+        from { opacity: 0; transform: translateY(-20px) scale(0.97); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+      .red-modal-icon {
+        width: 52px;
+        height: 52px;
+        margin: 0 auto 1.1rem;
+        border-radius: 50%;
+        background: rgba(239,68,68,0.12);
+        border: 1px solid rgba(239,68,68,0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        color: var(--red);
+        animation: warnPulse 2.5s ease-in-out infinite;
+      }
+      @keyframes warnPulse {
+        0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+        50%      { box-shadow: 0 0 0 8px rgba(239,68,68,0.12); }
+      }
+
+      .red-modal h3 {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #fca5a5;
+        text-align: center;
+        margin-bottom: 0.65rem;
+      }
+
+      .red-modal p {
+        font-size: 0.82rem;
+        color: var(--text-sub);
+        text-align: center;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        padding: 0.85rem;
+        background: rgba(239,68,68,0.06);
+        border: 1px solid rgba(239,68,68,0.15);
+        border-radius: 8px;
+      }
+
+      .red-modal p strong { color: #fca5a5; }
+
+      .red-modal-actions { display: flex; gap: 0.75rem; }
+
+      .red-confirm-btn {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: none;
+        font-family: "Inter", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: #fff;
+        background: var(--red);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px rgba(239,68,68,0.3);
+      }
+      .red-confirm-btn:hover { background: #dc2626; transform: translateY(-1px); }
+
+      .red-cancel-btn {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-b);
+        background: transparent;
+        font-family: "Inter", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .red-cancel-btn:hover { border-color: var(--text-dim); color: var(--text); }
+
+
+      /* ── Notice bar ── */
+      .notice-bar {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 100;
+        background: rgba(4,1,10,0.9);
+        border-top: 1px solid rgba(124,58,237,0.2);
+        padding: 0.55rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        font-size: 0.72rem;
+        color: var(--text-dim);
+      }
+      .notice-bar i { color: var(--p-dim); }
+      .notice-bar strong { color: var(--p-bright); }
+
+      @media (max-width: 520px) {
+        .header-card, .section-card { padding: 1.5rem 1.25rem; }
+        .topbar { margin-bottom: 1.5rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="void-bg"></div>
+    <div class="void-glow"></div>
+    <div class="void-grid"></div>
+
+    <!-- Top bar -->
+    <div class="topbar">
+      <span class="page-title">Account Settings</span>
+    </div>
+
+    <!-- Header card -->
+    <div class="header-card">
+      <div class="avatar-ring"></div>
+      <div class="header-info">
+        <div class="header-name" id="headerName">Loading…</div>
+        <div class="header-email" id="headerEmail">—</div>
+        <div class="header-badge">
+          <i class="fas fa-circle-check"></i>
+          Authenticated
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Change Name ── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-user"></i></div>
+        <div>
+          <div class="section-title">Display Name</div>
+          <div class="section-desc">Update the name shown on your account</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label" for="newName">New Display Name</label>
+        <div class="field-wrap">
+          <i class="fas fa-user"></i>
+          <input
+            type="text"
+            id="newName"
+            placeholder="Enter new display name"
+            autocomplete="off"
+            maxlength="40"
+          />
+        </div>
+      </div>
+
+      <button class="submit-btn" id="nameBtn" onclick="changeName()">
+        <i class="fas fa-check"></i> Save Name
+      </button>
+      <div class="status-msg" id="nameStatus"></div>
+    </div>
+
+    <!-- ── Change Email ── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-envelope"></i></div>
+        <div>
+          <div class="section-title">Email Address</div>
+          <div class="section-desc">Update the email linked to your account</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label" for="newEmail">New Email Address</label>
+        <div class="field-wrap">
+          <i class="fas fa-envelope"></i>
+          <input
+            type="email"
+            id="newEmail"
+            placeholder="Enter new email address"
+            autocomplete="off"
+          />
+        </div>
+      </div>
+
+      <button class="submit-btn" id="emailBtn" onclick="changeEmail()">
+        <i class="fas fa-check"></i> Save Email
+      </button>
+      <div class="status-msg" id="emailStatus"></div>
+    </div>
+
+    <!-- ── Change Password ── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon"><i class="fas fa-lock"></i></div>
+        <div>
+          <div class="section-title">Password</div>
+          <div class="section-desc">You must confirm your current password to set a new one</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label" for="currentPwd">Current Password</label>
+        <div class="field-wrap" id="currentPwdWrap">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="currentPwd" placeholder="Enter current password" />
+          <button class="toggle-pw" onclick="togglePw('currentPwd', this)" tabindex="-1">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label" for="newPwd">New Password</label>
+        <div class="field-wrap" id="newPwdWrap">
+          <i class="fas fa-key"></i>
+          <input type="password" id="newPwd" placeholder="Enter new password" />
+          <button class="toggle-pw" onclick="togglePw('newPwd', this)" tabindex="-1">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="field-label" for="confirmPwd">Confirm New Password</label>
+        <div class="field-wrap" id="confirmPwdWrap">
+          <i class="fas fa-key"></i>
+          <input type="password" id="confirmPwd" placeholder="Re-enter new password" />
+          <button class="toggle-pw" onclick="togglePw('confirmPwd', this)" tabindex="-1">
+            <i class="fas fa-eye"></i>
+          </button>
+        </div>
+      </div>
+
+      <button class="submit-btn" id="pwdBtn" onclick="changePassword()">
+        <i class="fas fa-check"></i> Save Password
+      </button>
+      <div class="status-msg" id="pwdStatus"></div>
+    </div>
+
+    <!-- ── Sign Out ── -->
+    <div class="section-card danger">
+      <div class="section-header" style="margin-bottom:0; border-bottom:none; padding-bottom:0;">
+        <div class="section-icon"><i class="fas fa-right-from-bracket"></i></div>
+        <div>
+          <div class="section-title">Sign Out</div>
+          <div class="section-desc">Clear your session and return to the login page</div>
+        </div>
+        <button
+          class="submit-btn"
+          onclick="openSignOutModal()"
+          style="width:auto; margin-top:0; margin-left:auto; padding: 0.6rem 1.25rem; background: transparent; border: 1px solid rgba(239,68,68,0.35); color: var(--red); box-shadow: none;"
+          onmouseover="this.style.background='rgba(239,68,68,0.1)'"
+          onmouseout="this.style.background='transparent'"
+        >
+          <i class="fas fa-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Sign Out Confirmation Modal ── -->
+    <div class="red-overlay" id="signOutOverlay">
+      <div class="red-modal">
+        <div class="red-modal-icon"><i class="fas fa-right-from-bracket"></i></div>
+        <h3>Sign Out?</h3>
+        <p>Are you sure you want to sign out? Your current X-ORBIT session will be cleared.</p>
+        <div class="red-modal-actions">
+          <button class="red-confirm-btn" onclick="signOut()">
+            <i class="fas fa-right-from-bracket"></i> Sign Out
+          </button>
+          <button class="red-cancel-btn" onclick="closeSignOutModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Email Change Warning Modal ── -->
+    <div class="red-overlay" id="emailChangedOverlay">
+      <div class="red-modal">
+        <div class="red-modal-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        <h3>Warning — Session Will End</h3>
+        <p>
+          Your email is your <strong>account identifier</strong>. Changing it
+          will immediately invalidate your current X-ORBIT session and you will
+          need to <strong>re-authenticate</strong> with the new email.
+        </p>
+        <div class="red-modal-actions">
+          <button class="red-confirm-btn" onclick="confirmEmailChange()">
+            <i class="fas fa-check"></i> Confirm Change
+          </button>
+          <button class="red-cancel-btn" onclick="cancelEmailChange()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="notice-bar">
+      <i class="fas fa-shield-halved"></i>
+      <span><strong>X-ORBIT</strong> — Account Settings</span>
+    </div>
+
+    <script>
+      const SUPABASE_URL     = "https://rujvmtvozorylfzsqppc.supabase.co";
+      const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1anZtdHZvem9yeWxmenNxcHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0NjQxNDEsImV4cCI6MjA3MzA0MDE0MX0.b7jJz3Se_oXXDwwd0dWQ8-rEvhY0aU4JDHQVioE39iY";
+
+      let supabaseClient = null;
+      let currentSession = null; // { authenticated, username, email, userId, ... }
+
+      // ── Init ──────────────────────────────────────────────────────────────
+
+      async function init() {
+        // Wait for Supabase library
+        let attempts = 0;
+        while (!window.supabase && attempts < 20) {
+          await new Promise(r => setTimeout(r, 100));
+          attempts++;
+        }
+        if (!window.supabase) {
+          redirectToLogin("Supabase failed to load.");
+          return;
+        }
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Load session
+        const raw =
+          localStorage.getItem("xorbit_auth_session") ||
+          sessionStorage.getItem("xorbit_auth_session");
+
+        if (!raw) { redirectToLogin(); return; }
+
+        let session;
+        try { session = JSON.parse(raw); } catch { redirectToLogin(); return; }
+
+        if (!session || !session.authenticated || !session.userId) {
+          redirectToLogin();
+          return;
+        }
+
+        // Check expiry (1-hour window)
+        if (session.expiresAt && new Date(session.expiresAt) < new Date()) {
+          redirectToLogin("Your session has expired. Please sign in again.");
+          return;
+        }
+
+        currentSession = session;
+
+        // Verify account is still active in Supabase and pull fresh data
+        // Use email as the filter — consistent with how auth.html queries the table
+        const { data, error } = await supabaseClient
+          .from("clients")
+          .select("id, name, email, blocked")
+          .eq("email", session.email)
+          .single();
+
+        if (error || !data) { redirectToLogin("Account not found."); return; }
+        if (data.blocked)   { redirectToLogin("Your account has been blocked."); return; }
+
+        // Keep session in sync with DB values
+        currentSession.username = data.name;
+        currentSession.email    = data.email;
+
+        // Populate header
+        document.getElementById("headerName").textContent  = data.name;
+        document.getElementById("headerEmail").textContent = data.email;
+
+        // Pre-fill form fields
+        document.getElementById("newName").value  = data.name;
+        document.getElementById("newEmail").value = data.email;
+
+
+      }
+
+      function redirectToLogin(msg) {
+        if (msg) {
+          sessionStorage.setItem("xorbit_login_notice", msg);
+        }
+        // When running inside X-ORBIT's iframe, navigate the parent — not the iframe itself
+        if (window.parent && window.parent !== window) {
+          window.parent.location.href = "auth.html";
+        } else {
+          window.location.href = "auth.html";
+        }
+      }
+
+      // ── Helpers ───────────────────────────────────────────────────────────
+
+      function setStatus(id, type, html) {
+        const el = document.getElementById(id);
+        el.className = "status-msg " + type;
+        el.innerHTML = html;
+      }
+
+      function clearStatus(id) {
+        const el = document.getElementById(id);
+        el.className = "status-msg";
+        el.innerHTML = "";
+      }
+
+      function togglePw(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon  = btn.querySelector("i");
+        if (input.type === "password") {
+          input.type = "text";
+          icon.classList.replace("fa-eye", "fa-eye-slash");
+        } else {
+          input.type = "password";
+          icon.classList.replace("fa-eye-slash", "fa-eye");
+        }
+      }
+
+      function updateStoredSession(updates) {
+        // Merge updates into both storage locations
+        const rawLocal   = localStorage.getItem("xorbit_auth_session");
+        const rawSession = sessionStorage.getItem("xorbit_auth_session");
+
+        if (rawLocal) {
+          try {
+            const s = { ...JSON.parse(rawLocal), ...updates };
+            localStorage.setItem("xorbit_auth_session", JSON.stringify(s));
+          } catch {}
+        }
+        if (rawSession) {
+          try {
+            const s = { ...JSON.parse(rawSession), ...updates };
+            sessionStorage.setItem("xorbit_auth_session", JSON.stringify(s));
+          } catch {}
+        }
+
+        // Also update remembered user if present
+        const rawRemembered = localStorage.getItem("xorbit_remembered_user");
+        if (rawRemembered) {
+          try {
+            const u = { ...JSON.parse(rawRemembered), ...updates };
+            localStorage.setItem("xorbit_remembered_user", JSON.stringify(u));
+          } catch {}
+        }
+      }
+
+      // ── Change Name ───────────────────────────────────────────────────────
+
+      async function changeName() {
+        const btn     = document.getElementById("nameBtn");
+        const newName = document.getElementById("newName").value.trim();
+
+        clearStatus("nameStatus");
+
+        if (!newName) {
+          setStatus("nameStatus", "error", "❌ Display name cannot be empty.");
+          return;
+        }
+        if (newName === currentSession.username) {
+          setStatus("nameStatus", "error", "❌ That's already your current name.");
+          return;
+        }
+        if (newName.length < 2) {
+          setStatus("nameStatus", "error", "❌ Name must be at least 2 characters.");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Saving…';
+        setStatus("nameStatus", "loading", '<span class="spinner"></span> Updating name…');
+
+        // Check the new name isn't taken by someone else
+        const { data: existing } = await supabaseClient
+          .from("clients")
+          .select("id")
+          .eq("name", newName)
+          .neq("id", currentSession.userId)
+          .maybeSingle();
+
+        if (existing) {
+          setStatus("nameStatus", "error", "❌ That name is already taken.");
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-check"></i> Save Name';
+          return;
+        }
+
+        const { error } = await supabaseClient
+          .from("clients")
+          .update({ name: newName })
+          .eq("email", currentSession.email);
+
+        if (error) {
+          setStatus("nameStatus", "error", "❌ Failed to update name. Try again.");
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-check"></i> Save Name';
+          return;
+        }
+
+        // Update local state
+        currentSession.username = newName;
+        updateStoredSession({ username: newName });
+        document.getElementById("headerName").textContent = newName;
+
+        setStatus("nameStatus", "success", "✅ Display name updated successfully.");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Save Name';
+      }
+
+      // ── Change Email ──────────────────────────────────────────────────────
+
+      let pendingEmail = null;
+
+      async function changeEmail() {
+        const btn      = document.getElementById("emailBtn");
+        const newEmail = document.getElementById("newEmail").value.trim().toLowerCase();
+
+        clearStatus("emailStatus");
+
+        if (!newEmail) {
+          setStatus("emailStatus", "error", "❌ Email cannot be empty.");
+          return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+          setStatus("emailStatus", "error", "❌ Please enter a valid email address.");
+          return;
+        }
+        if (newEmail === currentSession.email.toLowerCase()) {
+          setStatus("emailStatus", "error", "❌ That's already your current email.");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Checking…';
+        setStatus("emailStatus", "loading", '<span class="spinner"></span> Checking availability…');
+
+        // Check the new email isn't already in use
+        const { data: existing } = await supabaseClient
+          .from("clients")
+          .select("id")
+          .eq("email", newEmail)
+          .neq("id", currentSession.userId)
+          .maybeSingle();
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Save Email';
+        clearStatus("emailStatus");
+
+        if (existing) {
+          setStatus("emailStatus", "error", "❌ That email is already in use by another account.");
+          return;
+        }
+
+        // All checks passed — store the pending value and show the warning modal
+        pendingEmail = newEmail;
+        document.getElementById("emailChangedOverlay").classList.add("show");
+      }
+
+      async function confirmEmailChange() {
+        if (!pendingEmail) return;
+
+        document.getElementById("emailChangedOverlay").classList.remove("show");
+
+        const btn = document.getElementById("emailBtn");
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Saving…';
+        setStatus("emailStatus", "loading", '<span class="spinner"></span> Updating email…');
+
+        let succeeded = false;
+        try {
+          const { error } = await supabaseClient
+            .from("clients")
+            .update({ email: pendingEmail })
+            .eq("email", currentSession.email);
+
+          if (error) {
+            setStatus("emailStatus", "error", "❌ Failed to update email. Try again.");
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Save Email';
+            pendingEmail = null;
+            return;
+          }
+
+          currentSession.email = pendingEmail;
+          updateStoredSession({ email: pendingEmail });
+          pendingEmail = null;
+          succeeded = true;
+        } catch (err) {
+          console.error("Error updating email:", err);
+          setStatus("emailStatus", "error", "❌ Connection error. Try again.");
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-check"></i> Save Email';
+          pendingEmail = null;
+        }
+
+        // Call signOut outside the try block so a cross-frame reload error
+        // doesn't get caught and falsely reported as a "connection error"
+        if (succeeded) signOut();
+      }
+
+      function cancelEmailChange() {
+        pendingEmail = null;
+        document.getElementById("emailChangedOverlay").classList.remove("show");
+      }
+
+      // ── Change Password ───────────────────────────────────────────────────
+
+      async function changePassword() {
+        const btn        = document.getElementById("pwdBtn");
+        const currentPwd = document.getElementById("currentPwd").value;
+        const newPwd     = document.getElementById("newPwd").value;
+        const confirmPwd = document.getElementById("confirmPwd").value;
+
+        clearStatus("pwdStatus");
+
+        if (!currentPwd || !newPwd || !confirmPwd) {
+          setStatus("pwdStatus", "error", "❌ Please fill in all password fields.");
+          return;
+        }
+        if (newPwd !== confirmPwd) {
+          setStatus("pwdStatus", "error", "❌ New passwords do not match.");
+          return;
+        }
+        if (newPwd.length < 6) {
+          setStatus("pwdStatus", "error", "❌ New password must be at least 6 characters.");
+          return;
+        }
+        if (newPwd === currentPwd) {
+          setStatus("pwdStatus", "error", "❌ New password must be different from current password.");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span> Verifying…';
+        setStatus("pwdStatus", "loading", '<span class="spinner"></span> Verifying current password…');
+
+        // Verify current password against the DB
+        const { data: verifyData, error: verifyError } = await supabaseClient
+          .from("clients")
+          .select("id")
+          .eq("email", currentSession.email)
+          .eq("password", currentPwd)
+          .maybeSingle();
+
+        if (verifyError || !verifyData) {
+          setStatus("pwdStatus", "error", "❌ Current password is incorrect.");
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-check"></i> Save Password';
+          return;
+        }
+
+        btn.innerHTML = '<span class="spinner"></span> Saving…';
+        setStatus("pwdStatus", "loading", '<span class="spinner"></span> Updating password…');
+
+        const { error } = await supabaseClient
+          .from("clients")
+          .update({ password: newPwd })
+          .eq("email", currentSession.email);
+
+        if (error) {
+          setStatus("pwdStatus", "error", "❌ Failed to update password. Try again.");
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas fa-check"></i> Save Password';
+          return;
+        }
+
+        // Clear the password fields on success
+        document.getElementById("currentPwd").value = "";
+        document.getElementById("newPwd").value     = "";
+        document.getElementById("confirmPwd").value = "";
+
+        setStatus("pwdStatus", "success", "✅ Password updated successfully.");
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check"></i> Save Password';
+      }
+
+      // ── Sign Out Modal ────────────────────────────────────────────────────
+
+      function openSignOutModal() {
+        document.getElementById("signOutOverlay").classList.add("show");
+      }
+
+      function closeSignOutModal() {
+        document.getElementById("signOutOverlay").classList.remove("show");
+      }
+
+      // ── Sign Out ──────────────────────────────────────────────────────────
+
+      function signOut() {
+        localStorage.removeItem("xorbit_auth_session");
+        sessionStorage.removeItem("xorbit_auth_session");
+        // If opened inside X-ORBIT as an iframe window, reload index.html so it
+        // picks up the cleared session and shows the login screen.
+        // Otherwise fall back to redirecting this page.
+        if (window.parent && window.parent !== window) {
+          window.parent.location.href = "index.html";
+        } else {
+          window.location.href = "index.html";
+        }
+      }
+
+      // ── Boot ──────────────────────────────────────────────────────────────
+      window.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
