@@ -241,6 +241,7 @@
         overflow: hidden;
         opacity: 0;
         transform: translateY(20px) scale(0.95);
+        transform-origin: center center;
         transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
           transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
           box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1550,194 +1551,145 @@
           font-size: 0.9rem;
         }
       }
-      /* Inline Update Progress (within the card) */
+      /* ── Software Update: Download Progress Overlay ───────────────────── */
       .update-progress-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(20, 15, 40, 0.98);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        inset: 0;
+        background: rgba(14, 10, 30, 0.96);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
         border-radius: 14px;
         display: none;
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
         justify-content: center;
-        padding: 24px;
+        padding: 32px 28px 28px;
         z-index: 10;
+        animation: updateFadeIn 0.25s ease;
       }
+      .update-progress-overlay.show { display: flex; }
 
-      .update-progress-overlay.show {
-        display: flex;
-      }
-
+      /* Cancel button — macOS traffic-light style */
       .update-cancel-btn {
         position: absolute;
-        top: 12px;
-        right: 12px;
-        width: 32px;
-        height: 32px;
+        top: 14px;
+        left: 16px;
+        width: 13px;
+        height: 13px;
         border-radius: 50%;
-        background: rgba(255, 87, 87, 0.2);
-        border: 2px solid rgba(255, 87, 87, 0.4);
-        color: #ff5757;
-        font-size: 0.9rem;
+        background: rgba(255, 87, 87, 0.85);
+        border: none;
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.15s;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0px; /* hide icon by default */
+        color: rgba(100,0,0,0.8);
         z-index: 11;
       }
+      .update-cancel-btn:hover { opacity: 0.75; font-size: 8px; }
 
-      .update-cancel-btn:hover {
-        background: rgba(255, 87, 87, 0.3);
-        border-color: rgba(255, 87, 87, 0.6);
-        transform: scale(1.1);
-      }
-
+      /* App icon row */
       .update-progress-icon {
-        font-size: 2.5rem;
-        color: #7d5cff;
-        margin-bottom: 16px;
-        animation: updateSpinPulse 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-      }
-
-      @keyframes updateSpinPulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
-      }
-
-      .update-progress-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #e8f0ff;
-        margin-bottom: 8px;
-      }
-
-      .update-progress-status {
-        font-size: 0.85rem;
-        color: #a8b4d9;
-        margin-bottom: 16px;
+        display: block;
+        font-size: 2rem;
+        color: #8b6fff;
         text-align: center;
+        margin-bottom: 12px;
+      }
+      @keyframes updateSpinPulse {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.6; }
       }
 
+      /* Title + status */
+      .update-progress-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #e8e0ff;
+        text-align: center;
+        margin-bottom: 4px;
+        letter-spacing: -0.01em;
+      }
+      .update-progress-status {
+        font-size: 0.78rem;
+        color: rgba(160, 148, 210, 0.8);
+        text-align: center;
+        margin-bottom: 20px;
+        min-height: 1.1em;
+      }
+
+      /* ── The progress bar itself ── */
       .update-progress-row {
         width: 100%;
         display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 12px;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 0;
       }
-
       .update-progress-bar-container {
-        flex: 1;
-        height: 24px;
-        background: rgba(40, 202, 66, 0.15);
-        border-radius: 14px;
+        width: 100%;
+        height: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 99px;
         overflow: hidden;
-        box-shadow: 0 0 15px rgba(40, 202, 66, 0.2) inset;
-        border: 1px solid rgba(40, 202, 66, 0.3);
       }
-
       .update-progress-bar {
         width: 0%;
         height: 100%;
-        background: linear-gradient(90deg, #28ca42 0%, #20a03a 100%);
-        border-radius: 14px;
-        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 0 20px rgba(40, 202, 66, 0.6),
-          0 0 40px rgba(40, 202, 66, 0.3);
+        background: linear-gradient(90deg, #7d5cff 0%, #5b8fff 100%);
+        border-radius: 99px;
+        transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
         overflow: hidden;
       }
-
       .update-progress-bar::after {
         content: "";
         position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(
-          90deg,
-          transparent,
-          rgba(255, 255, 255, 0.4),
-          transparent
-        );
-        animation: progressShine 1.5s infinite;
+        inset: 0;
+        background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%);
+        animation: progressShine 1.8s ease-in-out infinite;
       }
-
       @keyframes progressShine {
-        0% {
-          left: -100%;
-        }
-        100% {
-          left: 200%;
-        }
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(300%); }
       }
 
+      /* Percent + time row */
+      .update-progress-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
       .update-progress-percent {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #28ca42;
-        text-shadow: 0 0 15px rgba(40, 202, 66, 0.4);
-        min-width: 50px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: rgba(180, 168, 230, 0.9);
+        font-variant-numeric: tabular-nums;
+        min-width: 34px;
+      }
+      .update-progress-time {
+        font-size: 0.72rem;
+        color: rgba(140, 128, 190, 0.7);
         text-align: right;
       }
 
-      .update-progress-time {
-        font-size: 0.75rem;
-        color: #a8b4d9;
-        margin-top: 4px;
-        text-align: center;
-        width: 100%;
-      }
-
-      /* Update Success State */
+      /* Success state */
       .update-progress-icon.success {
-        color: #28ca42 !important;
-        animation: successBounce 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #34c759 !important;
+        animation: successBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
-
       @keyframes successBounce {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.3);
-        }
+        0%   { transform: scale(0.7); opacity: 0; }
+        100% { transform: scale(1);   opacity: 1; }
       }
 
       /* Light mode */
-      body.light-mode .update-progress-overlay {
-        background: rgba(255, 255, 255, 0.98);
-      }
-
-      body.light-mode .update-progress-title {
-        color: #1a1a2e;
-      }
-
-      body.light-mode .update-progress-status {
-        color: #3c4560;
-      }
-
-      body.light-mode .update-progress-bar-container {
-        background: rgba(40, 202, 66, 0.1);
-        border: 1px solid rgba(40, 202, 66, 0.25);
-      }
-
-      body.light-mode .update-progress-time {
-        color: #3c4560;
-      }
+      body.light-mode .update-progress-overlay { background: rgba(245, 243, 255, 0.97); }
+      body.light-mode .update-progress-title   { color: #1c1830; }
+      body.light-mode .update-progress-status  { color: rgba(80, 70, 120, 0.8); }
+      body.light-mode .update-progress-bar-container { background: rgba(0,0,0,0.1); }
+      body.light-mode .update-progress-percent { color: rgba(80, 70, 120, 0.9); }
+      body.light-mode .update-progress-time    { color: rgba(100, 90, 140, 0.7); }
       /* Update Notification Badge */
       .update-notification-badge {
         position: fixed;
@@ -2057,7 +2009,7 @@
       <div class="startup-content">
         <i class="fas fa-globe startup-icon"></i>
         <div class="startup-text">X-ORBIT</div>
-        <div class="startup-version">v5.1.3B Ventas</div>
+        <div class="startup-version">v5.2.3B Ventas</div>
         <div class="startup-progress-container">
           <div class="startup-progress-bar" id="startupProgress"></div>
         </div>
@@ -2453,9 +2405,9 @@
           class="desktop-icon"
           data-app="Minecraft"
           data-src="minecraft.html"
-          data-icon="fa-solid fa-tree"
+          data-icon="fas fa-tree"
         >
-          <i class="fa-solid fa-tree"></i>
+          <i class="fas fa-tree"></i>
           <span>Minecraft</span>
         </div>
         <div
@@ -2644,6 +2596,16 @@
       </div>
     </div>
 
+  <!-- X-ORBIT Modal — must be before the script so getElementById works immediately -->
+  <div id="xModal" class="xmodal-overlay">
+    <div class="xmodal-card">
+      <div class="xmodal-icon"  id="xModalIcon"></div>
+      <div class="xmodal-title" id="xModalTitle"></div>
+      <div class="xmodal-message" id="xModalMessage"></div>
+      <div class="xmodal-actions" id="xModalActions"></div>
+    </div>
+  </div>
+
     <script>
       // Global variable to track update check interval
       let updateCheckInterval = null;
@@ -2747,6 +2709,10 @@
           badge.classList.add("show");
           desktopUpdateBadgeShown = true;
 
+          // Play preloaded notification sound
+          _updateNotifSound.currentTime = 0;
+          _updateNotifSound.play().catch(() => {});
+
           // Make badge clickable to open settings
           badge.onclick = function (e) {
             if (e.target.closest(".desktop-update-badge-close")) return;
@@ -2843,6 +2809,10 @@
         pressure: 1013,
         uvIndex: 3,
       };
+      // Preload update notification sound so it plays instantly
+      const _updateNotifSound = new Audio("https://codehs.com/uploads/3cf37b71b40a03d66818483c82d3d4a3");
+      _updateNotifSound.preload = "auto";
+
       let settings = {
         theme: "dark",
         transparency: true,
@@ -2859,6 +2829,7 @@
         dockTooltips: true,
         windowSnapping: true,
         windowShadows: true,
+        jellyMode: false,
         launchFullscreen: false,
         customWallpaper: null,
         startupWindows: "welcome", // Options: 'welcome', 'none', 'browser', 'terminal', 'settings'
@@ -3029,7 +3000,7 @@
 
         // Check if it's an image
         if (!file.type.startsWith("image/")) {
-          alert("Please select a valid image file");
+          xModal.alert("Please select a valid image file (JPEG, PNG, GIF, etc.).", { title: "Invalid File", icon: '<i class="fas fa-exclamation-triangle" style="color:#ff453a"></i>' });
           return;
         }
 
@@ -3052,6 +3023,14 @@
           event.target.value = "";
         };
         reader.readAsDataURL(file);
+      }
+
+      function setPresetWallpaper(url) {
+        settings.customWallpaper = url;
+        localStorage.setItem("xorbit-settings", JSON.stringify(settings));
+        applyWallpaper(url);
+        const preview = document.getElementById("wallpaperPreview");
+        if (preview) { preview.src = url; preview.style.display = "block"; }
       }
 
       function resetWallpaper() {
@@ -3119,9 +3098,20 @@
         loadTheme(settings.theme);
         applySettings();
 
-        // Apply custom wallpaper if set
+        // Apply custom wallpaper if set, otherwise pick a random preset
         if (settings.customWallpaper) {
           applyWallpaper(settings.customWallpaper);
+        } else {
+          const presets = [
+            "https://codehs.com/uploads/d91102c835effc9c3856c7daef320895",
+            "https://codehs.com/uploads/33f4df933a540b5e1647a28a506c8e79",
+            "https://codehs.com/uploads/d94bb7b7aa8af986990f1fa97215c813",
+            "https://codehs.com/uploads/e2f2a83d14c5aee58f6ab7f474918fe0",
+            "https://codehs.com/uploads/889639ce12e33851cc220a16dcdc8644",
+            "https://codehs.com/uploads/3ecd035b21f16d948c4dc9bcbfc97348",
+            "https://codehs.com/uploads/84055eb5a4bb26ebb3c8bb1ae9776efb"
+          ];
+          applyWallpaper(presets[Math.floor(Math.random() * presets.length)]);
         }
       }
 
@@ -3492,7 +3482,7 @@
             openWindow("Browser", "browser.html", "fas fa-globe");
             break;
           case "terminal":
-            openWindow("Terminal", "terminal.html", "fas fa-terminal");
+            openWindow("Minecraft", "minecraft.html", "fas fa-tree");
             break;
           case "settings":
             openSettingsWindow();
@@ -3596,13 +3586,11 @@
 
         if (skipBtn) {
           skipBtn.onclick = function () {
-            if (
-              confirm(
-                "Skip the tour? You can restart it from X-ORBIT → Desktop Tour later."
-              )
-            ) {
-              hideTutorial();
-            }
+            xModal.confirm(
+              "You can restart it anytime from X-ORBIT → Desktop Tour.",
+              () => hideTutorial(),
+              { title: "Skip Tour?", icon: '<i class="fas fa-graduation-cap" style="color:#9070ff"></i>', confirmText: "Skip Tour" }
+            );
           };
         }
 
@@ -3830,16 +3818,15 @@
       function restartTutorial() {
         document.getElementById("xorbitDropdown").classList.remove("show");
 
-        if (
-          confirm(
-            "Restart the desktop tour? This will show you how to use X-ORBIT."
-          )
-        ) {
-          console.log("Restarting tutorial...");
-          // Clear completion flag temporarily
-          localStorage.removeItem("xorbit-tutorial-completed");
-          showTutorial();
-        }
+        xModal.confirm(
+          "This will walk you through X-ORBIT's features from the beginning.",
+          () => {
+            console.log("Restarting tutorial...");
+            localStorage.removeItem("xorbit-tutorial-completed");
+            showTutorial();
+          },
+          { title: "Restart Tour?", icon: '<i class="fas fa-graduation-cap" style="color:#9070ff"></i>', confirmText: "Restart" }
+        );
       }
 
       // Temporary function for testing - remove in production
@@ -4067,6 +4054,8 @@
         // Window dragging
         let isDragging = false;
         let dragOffset = { x: 0, y: 0 };
+        let lastMouseX = 0;
+        let lastMouseY = 0;
 
         if (titlebar) {
           titlebar.onmousedown = function (e) {
@@ -4080,6 +4069,8 @@
             const rect = windowEl.getBoundingClientRect();
             dragOffset.x = e.clientX - rect.left;
             dragOffset.y = e.clientY - rect.top;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
 
             document.onmousemove = function (e) {
               if (!isDragging) return;
@@ -4102,12 +4093,31 @@
 
               windowEl.style.left = newX + "px";
               windowEl.style.top = newY + "px";
+
+              // Jelly Mode: skew proportional to drag velocity
+              if (settings.jellyMode) {
+                const vx = e.clientX - lastMouseX;
+                const vy = e.clientY - lastMouseY;
+                const skewX = Math.max(-22, Math.min(22, vx * 3.5));
+                const skewY = Math.max(-12, Math.min(12, vy * 2.0));
+                windowEl.style.transition = "transform 0.04s linear";
+                windowEl.style.transform = `skew(${skewX}deg, ${skewY}deg)`;
+              }
+
+              lastMouseX = e.clientX;
+              lastMouseY = e.clientY;
             };
 
             document.onmouseup = function () {
               isDragging = false;
               document.onmousemove = null;
               document.onmouseup = null;
+              if (settings.jellyMode) {
+                // Spring bounce back to neutral
+                windowEl.style.transition = "transform 0.9s cubic-bezier(0.34, 1.8, 0.64, 1)";
+                windowEl.style.transform = "skew(0deg, 0deg)";
+                setTimeout(() => { windowEl.style.transition = ""; windowEl.style.transform = ""; }, 900);
+              }
             };
           };
         }
@@ -4397,6 +4407,62 @@
 
       .wallpaper-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
       .wallpaper-preview { width: 100%; height: 76px; border-radius: 7px; border: 1px solid rgba(90,50,200,0.18); object-fit: cover; display: none; margin-top: 5px; }
+      .wallpaper-presets-label { font-size: 0.75rem; color: rgba(180,160,255,0.7); margin: 10px 0 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+      .wallpaper-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+      .wallpaper-preset-thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; border: 2px solid transparent; cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+      .wallpaper-preset-thumb:hover { border-color: rgba(120,80,255,0.7); transform: scale(1.04); }
+
+      .backup-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+      .backup-note { font-size: 0.72rem; color: rgba(140,128,190,0.65); margin-top: 8px; line-height: 1.5; }
+
+      /* ── X-ORBIT Modal System ───────────────────────────────────────── */
+      .xmodal-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .xmodal-overlay.show { display: flex; }
+      .xmodal-card {
+        background: rgba(14, 9, 32, 0.97);
+        border: 1px solid rgba(120, 80, 255, 0.22);
+        border-radius: 16px;
+        padding: 28px 26px 22px;
+        width: 340px;
+        max-width: calc(100vw - 40px);
+        box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(120,80,255,0.08) inset;
+        animation: xmodalIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes xmodalIn {
+        from { opacity: 0; transform: scale(0.90) translateY(10px); }
+        to   { opacity: 1; transform: scale(1)    translateY(0);    }
+      }
+      .xmodal-icon {
+        text-align: center; font-size: 1.8rem; margin-bottom: 13px;
+      }
+      .xmodal-title {
+        font-size: 0.94rem; font-weight: 700; color: #ede6ff;
+        text-align: center; margin-bottom: 7px; letter-spacing: -0.01em;
+      }
+      .xmodal-message {
+        font-size: 0.80rem; color: rgba(180, 165, 220, 0.82);
+        text-align: center; line-height: 1.65; margin-bottom: 22px;
+      }
+      .xmodal-actions { display: flex; gap: 8px; }
+      .xmodal-actions button { flex: 1; }
+      .xmodal-btn-primary {
+        background: rgba(120, 80, 255, 0.22) !important;
+        border-color: rgba(120, 80, 255, 0.42) !important;
+        color: #b090ff !important;
+      }
+      .xmodal-btn-primary:hover {
+        background: rgba(120, 80, 255, 0.34) !important;
+        border-color: rgba(120, 80, 255, 0.6) !important;
+      }
 
       .reset-all-button {
         width: 100%; background: rgba(255,50,50,0.09); border: 1px solid rgba(255,50,50,0.22);
@@ -4434,6 +4500,232 @@
       @keyframes updateSpin  { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
       @keyframes updateSuccess { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
       @keyframes updateIndicatorPulse { 0%,100%{opacity:1} 50%{opacity:0.38} }
+      @keyframes updateFadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+      /* ── Software Update: Settings Panel States ─────────────────────── */
+      .upd-panel {
+        border-radius: 12px;
+        padding: 22px 20px;
+        position: relative;
+        overflow: hidden;
+        animation: updateFadeIn 0.28s ease;
+      }
+      .upd-panel-glow {
+        position: absolute; inset: 0; border-radius: inherit;
+        background: radial-gradient(ellipse at 50% -10%, rgba(110,70,240,0.14) 0%, transparent 65%);
+        pointer-events: none;
+      }
+      .upd-body { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+      /* Icon circle */
+      .upd-icon {
+        width: 52px; height: 52px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: 14px; font-size: 1.25rem; flex-shrink: 0;
+      }
+      .upd-icon-checking {
+        background: rgba(120, 80, 255, 0.12);
+        border: 1px solid rgba(120, 80, 255, 0.22);
+        color: #9070ff;
+      }
+      .upd-icon-ok {
+        background: rgba(52, 199, 89, 0.12);
+        border: 1px solid rgba(52, 199, 89, 0.25);
+        color: #34c759;
+      }
+      .upd-icon-available {
+        background: rgba(120, 80, 255, 0.14);
+        border: 1px solid rgba(120, 80, 255, 0.28);
+        color: #9070ff;
+      }
+      .upd-icon-error {
+        background: rgba(255, 69, 58, 0.1);
+        border: 1px solid rgba(255, 69, 58, 0.22);
+        color: #ff453a;
+      }
+
+      /* Text */
+      .upd-title {
+        font-size: 0.92rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.01em;
+      }
+      .upd-title-checking { color: #c8bcf5; }
+      .upd-title-ok       { color: #34c759; }
+      .upd-title-available{ color: #9d80ff; }
+      .upd-title-error    { color: #ff453a; }
+      .upd-subtitle {
+        font-size: 0.76rem; color: rgba(160, 148, 200, 0.7); margin-top: 2px; text-align: center; line-height: 1.5;
+      }
+
+      /* Panel backgrounds */
+      .upd-panel-checking {
+        background: rgba(120, 80, 255, 0.06);
+        border: 1px solid rgba(120, 80, 255, 0.14);
+      }
+      .upd-panel-ok {
+        background: rgba(52, 199, 89, 0.06);
+        border: 1px solid rgba(52, 199, 89, 0.16);
+      }
+      .upd-panel-available {
+        background: rgba(120, 80, 255, 0.07);
+        border: 1px solid rgba(120, 80, 255, 0.18);
+        margin-bottom: 12px;
+      }
+
+      /* ── Update available: compact horizontal card ── */
+      .upd-avail-card {
+        position: relative;
+        background: rgba(120, 80, 255, 0.07);
+        border: 1px solid rgba(120, 80, 255, 0.18);
+        border-radius: 12px;
+        padding: 14px 16px;
+        overflow: hidden;
+        animation: updateFadeIn 0.28s ease;
+      }
+      .upd-avail-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      /* Square OS icon */
+      .upd-app-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(100, 60, 220, 0.45);
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+      .upd-avail-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .upd-avail-name {
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: #e0d8ff;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        letter-spacing: -0.01em;
+      }
+      .upd-avail-meta {
+        font-size: 0.72rem;
+        color: rgba(160, 148, 210, 0.7);
+        margin-top: 2px;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+      }
+      .upd-avail-dot { opacity: 0.4; }
+      .upd-avail-btns {
+        display: flex;
+        gap: 7px;
+        flex-shrink: 0;
+      }
+      .upd-btn-later {
+        font-size: 0.76rem !important;
+        padding: 5px 12px !important;
+        color: rgba(160, 148, 210, 0.8) !important;
+      }
+      .upd-btn-now {
+        font-size: 0.76rem !important;
+        padding: 5px 13px !important;
+        background: rgba(120, 80, 255, 0.2) !important;
+        border-color: rgba(120, 80, 255, 0.4) !important;
+        color: #b090ff !important;
+      }
+      .upd-btn-now:hover {
+        background: rgba(120, 80, 255, 0.32) !important;
+        border-color: rgba(120, 80, 255, 0.6) !important;
+      }
+
+      /* Inline progress section */
+      .upd-inline-progress {
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(120, 80, 255, 0.14);
+        animation: updateFadeIn 0.25s ease;
+      }
+      .upd-inline-status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 7px;
+      }
+      .upd-inline-status {
+        font-size: 0.74rem;
+        color: rgba(170, 155, 225, 0.85);
+      }
+      .upd-inline-pct {
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: rgba(160, 140, 220, 0.9);
+        font-variant-numeric: tabular-nums;
+      }
+      .upd-inline-track {
+        width: 100%;
+        height: 5px;
+        background: rgba(255, 255, 255, 0.07);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .upd-inline-bar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #7d5cff 0%, #5b8fff 100%);
+        border-radius: 99px;
+        transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      .upd-inline-bar::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: progressShine 1.8s ease-in-out infinite;
+      }
+      .upd-inline-time {
+        font-size: 0.68rem;
+        color: rgba(130, 118, 180, 0.6);
+        margin-top: 5px;
+        text-align: right;
+      }
+      .upd-panel-error {
+        background: rgba(255, 69, 58, 0.06);
+        border: 1px solid rgba(255, 69, 58, 0.16);
+      }
+
+      /* Version name + badges */
+      .upd-version-name {
+        font-size: 0.84rem; font-weight: 600; color: #ddd4ff; margin-top: 10px; margin-bottom: 8px;
+      }
+      .upd-version-row {
+        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;
+      }
+      .upd-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 3px 9px; border-radius: 99px; font-size: 0.72rem; font-weight: 600;
+      }
+      .upd-badge-version {
+        background: rgba(120, 80, 255, 0.14); border: 1px solid rgba(120, 80, 255, 0.22); color: #a888ff;
+      }
+      .upd-badge-size {
+        background: rgba(50, 120, 255, 0.12); border: 1px solid rgba(50, 120, 255, 0.22); color: #6e9eff;
+      }
+
+      /* Action buttons */
+      .upd-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+      .upd-actions-single { display: block; margin-top: 12px; }
+      .upd-btn-update {
+        background: rgba(52, 199, 89, 0.14) !important;
+        border-color: rgba(52, 199, 89, 0.3) !important;
+        color: #34c759 !important;
+      }
+      .upd-btn-update:hover {
+        background: rgba(52, 199, 89, 0.24) !important;
+        border-color: rgba(52, 199, 89, 0.45) !important;
+      }
 
       .settings-sidebar::-webkit-scrollbar,.settings-main::-webkit-scrollbar{width:4px}
       .settings-sidebar::-webkit-scrollbar-track,.settings-main::-webkit-scrollbar-track{background:transparent}
@@ -4485,45 +4777,89 @@
                 </div>
               </div>
               <div class="setting-card-desc">Keep X-ORBIT Desktop up to date with the latest features and fixes</div>
-              <div id="updateCheckContainer" style="margin-top:14px;">
-                <div id="updateCheckStatus" style="background:linear-gradient(135deg,rgba(110,70,240,0.13),rgba(50,120,240,0.13));padding:26px;border-radius:10px;border:1px solid rgba(110,70,240,0.22);position:relative;overflow:hidden;">
-                  <div style="position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(110,70,240,0.1) 0%,transparent 70%);animation:updatePulse 3s ease-in-out infinite;pointer-events:none;"></div>
-                  <div style="position:relative;text-align:center;">
-                    <i class="fas fa-sync-alt" style="font-size:2.4rem;color:#7d5cff;margin-bottom:10px;display:block;animation:updateSpin 2s linear infinite;"></i>
-                    <div style="color:#d0c8f0;font-size:0.95rem;font-weight:600;margin-bottom:3px;">Checking for Updates</div>
-                    <div style="color:#5850a0;font-size:0.8rem;">Please wait...</div>
-                  </div>
-                </div>
-                <div id="updateAvailable" style="display:none;">
-                  <div style="background:linear-gradient(135deg,rgba(40,202,66,0.11),rgba(50,215,75,0.11));padding:18px;border-radius:10px;border:1px solid rgba(40,202,66,0.28);margin-bottom:12px;">
-                    <div style="color:#28ca42;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:7px;font-size:0.95rem;">
-                      <i class="fas fa-arrow-circle-up" style="animation:updateSuccess 2s ease-in-out infinite;"></i><span>Update Available!</span>
+              <div id="updateCheckContainer" style="margin-top:16px;">
+
+                <!-- Checking state -->
+                <div id="updateCheckStatus" class="upd-panel upd-panel-checking">
+                  <div class="upd-panel-glow"></div>
+                  <div class="upd-body">
+                    <div class="upd-icon upd-icon-checking">
+                      <i class="fas fa-sync-alt" style="animation:updateSpin 1.6s linear infinite;"></i>
                     </div>
-                    <div style="color:#d0c8f0;font-size:0.9rem;margin-bottom:5px;font-weight:600;"><strong id="updateVersionName">X-ORBIT Desktop</strong></div>
-                    <div style="color:#5850a0;font-size:0.8rem;">Version: <span id="updateVersionNumber" style="color:#28ca42;font-weight:600;"></span> &nbsp;·&nbsp; Size: <span id="updateSize" style="color:#9070f0;font-weight:600;">Loading...</span></div>
-                  </div>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
-                    <button class="xorbit-button" id="updateLaterBtn"><i class="fas fa-clock"></i> Update on Close</button>
-                    <button class="xorbit-button" id="updateNowBtn" style="background:linear-gradient(135deg,rgba(40,202,66,0.25),rgba(28,158,52,0.2));border-color:rgba(40,202,66,0.38);color:#50d870;"><i class="fas fa-download"></i> Update Now</button>
+                    <div class="upd-title upd-title-checking">Checking for Updates</div>
+                    <div class="upd-subtitle">Connecting to update servers&hellip;</div>
                   </div>
                 </div>
+
+                <!-- Update available state -->
+                <div id="updateAvailable" style="display:none;">
+                  <div class="upd-avail-card">
+                    <div class="upd-panel-glow"></div>
+                    <!-- Row: icon + info + buttons -->
+                    <div class="upd-avail-row">
+                      <div class="upd-app-icon">
+                        <img src="https://codehs.com/uploads/42ce6a1e246002918d2346eb0a2ce1ce" alt="X-ORBIT" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">
+                      </div>
+                      <div class="upd-avail-info">
+                        <div class="upd-avail-name" id="updateVersionName">X-ORBIT Desktop</div>
+                        <div class="upd-avail-meta">
+                          <span id="updateVersionNumber"></span>
+                          <span class="upd-avail-dot">·</span>
+                          <span id="updateSize">Loading…</span>
+                        </div>
+                      </div>
+                      <div class="upd-avail-btns">
+                        <button class="xorbit-button upd-btn-later" id="updateLaterBtn">Later</button>
+                        <button class="xorbit-button upd-btn-now" id="updateNowBtn"><i class="fas fa-arrow-down"></i> Update</button>
+                      </div>
+                    </div>
+                    <!-- Inline progress — hidden until Update is clicked -->
+                    <div id="updateInlineProgress" class="upd-inline-progress" style="display:none;">
+                      <div class="upd-inline-status-row">
+                        <span class="upd-inline-status" id="updateProgressStatus">Preparing…</span>
+                        <span class="upd-inline-pct" id="updateProgressPercent">0%</span>
+                      </div>
+                      <div class="upd-inline-track">
+                        <div class="upd-inline-bar" id="updateProgressBar"></div>
+                      </div>
+                      <div class="upd-inline-time" id="updateProgressTime"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Up to date state -->
                 <div id="upToDate" style="display:none;">
-                  <div style="background:linear-gradient(135deg,rgba(40,202,66,0.11),rgba(50,215,75,0.11));padding:26px;border-radius:10px;border:1px solid rgba(40,202,66,0.28);text-align:center;">
-                    <i class="fas fa-check-circle" style="font-size:2.8rem;color:#28ca42;margin-bottom:10px;display:block;animation:updateSuccess 2s ease-in-out infinite;"></i>
-                    <div style="color:#28ca42;font-weight:700;margin-bottom:6px;font-size:1.1rem;">You're up to date!</div>
-                    <div style="color:#d0c8f0;font-size:0.88rem;font-weight:600;">X-ORBIT Desktop v5.1.3B Ventas</div>
-                    <div style="color:#5850a0;font-size:0.78rem;margin-top:3px;">You have the latest version installed</div>
+                  <div class="upd-panel upd-panel-ok">
+                    <div class="upd-panel-glow"></div>
+                    <div class="upd-body">
+                      <div class="upd-icon upd-icon-ok">
+                        <i class="fas fa-check" style="animation:updateSuccess 2.5s ease-in-out infinite;"></i>
+                      </div>
+                      <div class="upd-title upd-title-ok">You're up to date!</div>
+                      <div class="upd-subtitle">X-ORBIT Desktop v5.2.3B Ventas &mdash; latest version installed</div>
+                    </div>
                   </div>
-                  <button class="xorbit-button" id="recheckUpdateBtn" style="width:100%;margin-top:11px;"><i class="fas fa-sync"></i> Check Again</button>
+                  <div class="upd-actions-single">
+                    <button class="xorbit-button" id="recheckUpdateBtn" style="width:100%;"><i class="fas fa-sync"></i> Check Again</button>
+                  </div>
                 </div>
+
+                <!-- Error state -->
                 <div id="updateError" style="display:none;">
-                  <div style="background:rgba(255,60,60,0.09);padding:18px;border-radius:10px;border:1px solid rgba(255,60,60,0.26);text-align:center;">
-                    <i class="fas fa-exclamation-triangle" style="font-size:2rem;color:#ff5757;margin-bottom:10px;display:block;"></i>
-                    <div style="color:#ff5757;font-weight:600;margin-bottom:5px;">Update Check Failed</div>
-                    <div style="color:#5850a0;font-size:0.8rem;">Unable to connect to update servers</div>
+                  <div class="upd-panel upd-panel-error">
+                    <div class="upd-body">
+                      <div class="upd-icon upd-icon-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                      </div>
+                      <div class="upd-title upd-title-error">Update Check Failed</div>
+                      <div class="upd-subtitle">Unable to reach update servers</div>
+                    </div>
                   </div>
-                  <button class="xorbit-button danger" id="retryUpdateBtn" style="width:100%;margin-top:11px;"><i class="fas fa-redo"></i> Retry</button>
+                  <div class="upd-actions-single">
+                    <button class="xorbit-button danger" id="retryUpdateBtn" style="width:100%;"><i class="fas fa-redo"></i> Retry</button>
+                  </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -4555,7 +4891,7 @@
                     <option value="welcome">Welcome Screen</option>
                     <option value="none">None (Disabled)</option>
                     <option value="browser">Browser</option>
-                    <option value="terminal">Terminal</option>
+                    <option value="terminal">Minecraft</option>
                     <option value="settings">Settings</option>
                     <option value="files">File Manager</option>
                   </select>
@@ -4640,6 +4976,16 @@
               </div>
               <input type="file" id="wallpaperUpload" accept="image/*" style="display:none;">
               <img id="wallpaperPreview" class="wallpaper-preview" alt="Wallpaper preview">
+              <div class="wallpaper-presets-label">Default Wallpapers</div>
+              <div class="wallpaper-presets">
+                <img class="wallpaper-preset-thumb" src="https://codehs.com/uploads/d91102c835effc9c3856c7daef320895" onclick="setPresetWallpaper(this.src)" title="Preset 1">
+                <img class="wallpaper-preset-thumb" src="https://codehs.com/uploads/33f4df933a540b5e1647a28a506c8e79" onclick="setPresetWallpaper(this.src)" title="Preset 2">
+                <img class="wallpaper-preset-thumb" src="https://codehs.com/uploads/d94bb7b7aa8af986990f1fa97215c813" onclick="setPresetWallpaper(this.src)" title="Preset 3">
+                <img class="wallpaper-preset-thumb" src="https://codehs.com/uploads/e2f2a83d14c5aee58f6ab7f474918fe0" onclick="setPresetWallpaper(this.src)" title="Preset 4">
+                <img class="wallpaper-preset-thumb" src="https://codehs.com/uploads/889639ce12e33851cc220a16dcdc8644" onclick="setPresetWallpaper(this.src)" title="Preset 5">
+                <img class="wallpaper-preset-thumb" src="https://codehs.com/uploads/3ecd035b21f16d948c4dc9bcbfc97348" onclick="setPresetWallpaper(this.src)" title="Preset 6">
+                <img class="wallpaper-preset-thumb" src="https://codehs.com/uploads/84055eb5a4bb26ebb3c8bb1ae9776efb" onclick="setPresetWallpaper(this.src)" title="Preset 7">
+              </div>
             </div>
             <div class="settings-subsection-grid">
               <div class="setting-card">
@@ -4735,6 +5081,16 @@
                 </div>
                 <div class="setting-card-desc">Enable drop shadows to add depth to windows</div>
               </div>
+              <div class="setting-card">
+                <div class="setting-card-header">
+                  <div class="setting-card-title">
+                    <div class="setting-card-icon"><i class="fas fa-water"></i></div>
+                    <div><div class="setting-card-label">Jelly Mode</div></div>
+                  </div>
+                  <div class="xorbit-toggle" id="jellyModeToggle"></div>
+                </div>
+                <div class="setting-card-desc">Windows wobble and jiggle as they are dragged</div>
+              </div>
             </div>
           </div>
         </div>
@@ -4803,6 +5159,24 @@
 
           <div class="settings-subsection">
             <div class="settings-subsection-title">Maintenance</div>
+
+            <!-- Data & Backup -->
+            <div class="setting-card" style="margin-bottom:12px;">
+              <div class="setting-card-header">
+                <div class="setting-card-title">
+                  <div class="setting-card-icon"><i class="fas fa-box-archive"></i></div>
+                  <div><div class="setting-card-label">Data &amp; Backup</div></div>
+                </div>
+              </div>
+              <div class="setting-card-desc">Export your settings and wallpaper as a backup file, or import one to restore them instantly.</div>
+              <div class="backup-actions">
+                <button class="xorbit-button" onclick="exportBackup()"><i class="fas fa-download"></i> Export Backup</button>
+                <button class="xorbit-button" onclick="document.getElementById('backupImportInput').click()"><i class="fas fa-upload"></i> Import Backup</button>
+              </div>
+              <input type="file" id="backupImportInput" accept=".json" style="display:none;" onchange="importBackup(event)">
+              <div class="backup-note"><i class="fas fa-shield-alt" style="color:#7d5cff;margin-right:4px;"></i>Device ID and login session are never exported &mdash; those stay computer-specific.</div>
+            </div>
+
             <div class="setting-card">
               <div class="setting-card-header">
                 <div class="setting-card-title">
@@ -4832,7 +5206,7 @@
           <div class="about-hero">
             <div class="about-logo-ring"><i class="fas fa-globe"></i></div>
             <div class="about-os-name">X-ORBIT Desktop</div>
-            <div class="about-version-badge"><i class="fas fa-tag"></i> v5.1.3B Ventas</div>
+            <div class="about-version-badge"><i class="fas fa-tag"></i> v5.2.3B Ventas</div>
             <div class="about-description">
               X-ORBIT Desktop is a web-based proxy OS built for students. X-ORBIT allows students and people around the world to browse the world wide web without restrictions or data leaks.
             </div>
@@ -4841,7 +5215,7 @@
           <div class="about-info-grid">
             <div class="about-info-card">
               <div class="about-info-label">Version</div>
-              <div class="about-info-value">v5.1.3B Ventas</div>
+              <div class="about-info-value">v5.2.3B Ventas</div>
             </div>
             <div class="about-info-card">
               <div class="about-info-label">Build</div>
@@ -4951,6 +5325,7 @@
           const snappingToggle =
             settingsContent.querySelector("#snappingToggle");
           const shadowsToggle = settingsContent.querySelector("#shadowsToggle");
+          const jellyModeToggle = settingsContent.querySelector("#jellyModeToggle");
           const launchFullscreenToggle = settingsContent.querySelector(
             "#launchFullscreenToggle"
           );
@@ -4989,6 +5364,8 @@
             snappingToggle.classList.toggle("active", settings.windowSnapping);
           if (shadowsToggle)
             shadowsToggle.classList.toggle("active", settings.windowShadows);
+          if (jellyModeToggle)
+            jellyModeToggle.classList.toggle("active", settings.jellyMode);
           if (launchFullscreenToggle)
             launchFullscreenToggle.classList.toggle(
               "active",
@@ -5085,6 +5462,9 @@
               case "shadows":
                 settings.windowShadows = !isActive;
                 break;
+              case "jellyMode":
+                settings.jellyMode = !isActive;
+                break;
               case "launchFullscreen":
                 settings.launchFullscreen = !isActive;
                 console.log("Updated launchFullscreen to:", settings.launchFullscreen);
@@ -5175,9 +5555,9 @@
         const resetButton = settingsContent.querySelector("#resetButton");
         if (resetButton) {
           resetButton.addEventListener("click", function () {
-            if (
-              confirm("Reset all settings to default? This cannot be undone.")
-            ) {
+            xModal.confirm(
+              "This will restore all settings to factory defaults. This cannot be undone.",
+              () => {
               settings = {
                 theme: "dark",
                 transparency: true,
@@ -5194,13 +5574,16 @@
                 dockTooltips: true,
                 windowSnapping: true,
                 windowShadows: true,
+                jellyMode: false,
                 launchFullscreen: false,
                 customWallpaper: null,
                 startupWindows: "welcome",
               };
               loadSettingsUI();
               saveSettings();
-            }
+            },
+            { title: "Reset All Settings?", icon: '<i class="fas fa-undo-alt" style="color:#ff453a"></i>', confirmText: "Reset", danger: true }
+            );
           });
         }
 
@@ -6093,7 +6476,10 @@
       function killAllWindows() {
         if (activeWindows.size === 0) return;
         
-        if (confirm(`Close all ${activeWindows.size} open window${activeWindows.size !== 1 ? 's' : ''}?`)) {
+        const _winCount = activeWindows.size;
+        xModal.confirm(
+          `This will close all ${_winCount} open window${_winCount !== 1 ? 's' : ''}. Any unsaved work will be lost.`,
+          () => {
           activeWindows.forEach((windowId, title) => {
             const windowEl = document.getElementById(windowId);
             if (windowEl) {
@@ -6104,7 +6490,9 @@
             }
           });
           refreshTaskManager();
-        }
+        },
+        { title: "Close All Windows?", icon: '<i class="fas fa-window-restore" style="color:#9070ff"></i>', confirmText: "Close All", danger: true }
+        );
       }
 
       // Refresh the task manager window content
@@ -6422,19 +6810,23 @@
 
       function checkForUpdates() {
         const updateContent = `
-    <div style="text-align: center; padding: 40px 30px;">
-      <div style="margin-bottom: 24px;">
-        <i class="fas fa-download" style="font-size: 2.5rem; color: #7d5cff; margin-bottom: 16px;"></i>
-        <h2 style="color: #e8f0ff; margin-bottom: 16px;">Check for Updates</h2>
+    <div style="padding: 32px 28px 28px; display:flex; flex-direction:column; align-items:center; font-family: system-ui, -apple-system, sans-serif;">
+      <div style="width:52px;height:52px;border-radius:50%;background:rgba(120,80,255,0.12);border:1px solid rgba(120,80,255,0.22);display:flex;align-items:center;justify-content:center;margin-bottom:16px;">
+        <i class="fas fa-arrow-down" style="font-size:1.25rem;color:#8b6fff;"></i>
       </div>
-      
-      <div id="updateStatus" style="background: rgba(120, 80, 255, 0.1); border-radius: 16px; padding: 24px; margin-bottom: 24px; border: 1px solid rgba(120, 80, 255, 0.2);">
-        <div style="color: #a8b4d9; margin-bottom: 16px;">
-          <i class="fas fa-spinner fa-spin" style="margin-right: 8px;"></i>
-          Checking for updates...
+      <div style="font-size:0.95rem;font-weight:600;color:#e8e0ff;margin-bottom:4px;letter-spacing:-0.01em;">Software Update</div>
+      <div style="font-size:0.78rem;color:rgba(160,148,210,0.75);margin-bottom:24px;">X-ORBIT Desktop</div>
+
+      <div id="updateStatus" style="width:100%;">
+        <div style="font-size:0.78rem;color:rgba(160,148,210,0.8);text-align:center;margin-bottom:14px;">
+          <i class="fas fa-spinner fa-spin" style="margin-right:6px;"></i>Checking for updates…
         </div>
-        <div style="width: 100%; height: 4px; background: rgba(120, 80, 255, 0.2); border-radius: 2px; overflow: hidden;">
-          <div style="width: 0%; height: 100%; background: linear-gradient(90deg, #7d5cff, #3c82ff); border-radius: 2px; transition: width 2s ease;" id="updateProgress"></div>
+        <div style="width:100%;height:6px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden;">
+          <div id="updateProgress" style="width:0%;height:100%;background:linear-gradient(90deg,#7d5cff,#5b8fff);border-radius:99px;transition:width 2s cubic-bezier(0.4,0,0.2,1);"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:7px;">
+          <span style="font-size:0.7rem;color:rgba(140,128,190,0.6);">Connecting to server…</span>
+          <span style="font-size:0.7rem;color:rgba(140,128,190,0.6);" id="updateProgressPct">0%</span>
         </div>
       </div>
     </div>
@@ -6452,18 +6844,23 @@
         setTimeout(() => {
           const progressBar = windowEl.querySelector("#updateProgress");
           const statusDiv = windowEl.querySelector("#updateStatus");
+          const pctLabel = windowEl.querySelector("#updateProgressPct");
 
           if (progressBar) progressBar.style.width = "100%";
+          if (pctLabel) {
+            let p = 0;
+            const tick = setInterval(() => { p = Math.min(p + 5, 100); pctLabel.textContent = p + "%"; if (p >= 100) clearInterval(tick); }, 100);
+          }
 
           setTimeout(() => {
             if (statusDiv) {
               statusDiv.innerHTML = `
-          <div style="color: #28ca42; margin-bottom: 8px;">
-            <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
-            You're up to date!
-          </div>
-          <div style="color: #a8b4d9; font-size: 0.9rem;">
-            X-ORBIT Desktop v5.1.3B is the latest version.
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:4px;">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(52,199,89,0.12);border:1px solid rgba(52,199,89,0.25);display:flex;align-items:center;justify-content:center;">
+              <i class="fas fa-check" style="color:#34c759;font-size:1rem;"></i>
+            </div>
+            <div style="font-size:0.9rem;font-weight:600;color:#34c759;letter-spacing:-0.01em;">You're up to date</div>
+            <div style="font-size:0.76rem;color:rgba(160,148,210,0.7);">X-ORBIT Desktop v5.2.3B Ventas is the latest version.</div>
           </div>
         `;
             }
@@ -6474,107 +6871,68 @@
       }
 
       function restartDesktop() {
-        if (
-          confirm(
-            "Are you sure you want to restart the desktop environment? All open windows will be closed."
-          )
-        ) {
-          // Close all windows
-          activeWindows.forEach((windowId) => {
-            const windowEl = document.getElementById(windowId);
-            if (windowEl) windowEl.remove();
-          });
-          activeWindows.clear();
-
-          // Show restart animation
-          const restartDiv = document.createElement("div");
-          restartDiv.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(10, 5, 25, 0.9);
-        backdrop-filter: blur(60px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        color: #e8f0ff;
-        flex-direction: column;
-        gap: 20px;
-      ">
-        <i class="fas fa-sync fa-spin" style="font-size: 3rem; color: #7d5cff;"></i>
-        <div style="font-size: 1.2rem; font-weight: 500;">Restarting Desktop...</div>
-      </div>
-    `;
-          document.body.appendChild(restartDiv);
-
-          setTimeout(() => {
-            restartDiv.remove();
-            initDesktop();
-          }, 2000);
-        }
-
         document.getElementById("xorbitDropdown").classList.remove("show");
+        xModal.confirm(
+          "All open windows will be closed and the desktop will reload.",
+          () => {
+            activeWindows.forEach((windowId) => {
+              const windowEl = document.getElementById(windowId);
+              if (windowEl) windowEl.remove();
+            });
+            activeWindows.clear();
+            const restartDiv = document.createElement("div");
+            restartDiv.innerHTML = `
+        <div style="position:fixed;inset:0;background:rgba(10,5,25,0.9);backdrop-filter:blur(60px);display:flex;align-items:center;justify-content:center;z-index:10000;color:#e8f0ff;flex-direction:column;gap:20px;">
+          <i class="fas fa-sync fa-spin" style="font-size:3rem;color:#7d5cff;"></i>
+          <div style="font-size:1.2rem;font-weight:500;">Restarting Desktop...</div>
+        </div>`;
+            document.body.appendChild(restartDiv);
+            setTimeout(() => { restartDiv.remove(); initDesktop(); }, 2000);
+          },
+          { title: "Restart Desktop?", icon: '<i class="fas fa-sync-alt" style="color:#9070ff"></i>', confirmText: "Restart" }
+        );
       }
 
       function logout() {
-        if (
-          confirm(
-            "Are you sure you want to logout? All unsaved work will be lost."
-          )
-        ) {
-          // Stop ban checking
+        document.getElementById("xorbitDropdown").classList.remove("show");
+
+        function doLogout() {
           stopBanChecking();
           stopAutomaticUpdateChecking();
-
-          // Clear all windows
           activeWindows.forEach((windowId) => {
             const windowEl = document.getElementById(windowId);
             if (windowEl) windowEl.remove();
           });
           activeWindows.clear();
-
-          // Reset authentication
           isAuthenticated = false;
-
-          // Show logout animation and return to auth screen
           const logoutDiv = document.createElement("div");
           logoutDiv.innerHTML = `
-      <div style="
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(10, 5, 25, 0.9);
-        backdrop-filter: blur(60px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 10000;
-        color: #e8f0ff;
-        flex-direction: column;
-        gap: 20px;
-      ">
-        <i class="fas fa-sign-out-alt" style="font-size: 3rem; color: #ff6b6b;"></i>
-        <div style="font-size: 1.2rem; font-weight: 500;">Logging out...</div>
-      </div>
-    `;
+        <div style="position:fixed;inset:0;background:rgba(10,5,25,0.9);backdrop-filter:blur(60px);display:flex;align-items:center;justify-content:center;z-index:10000;color:#e8f0ff;flex-direction:column;gap:20px;">
+          <i class="fas fa-sign-out-alt" style="font-size:3rem;color:#ff6b6b;"></i>
+          <div style="font-size:1.2rem;font-weight:500;">Logging out...</div>
+        </div>`;
           document.body.appendChild(logoutDiv);
-
           setTimeout(() => {
             logoutDiv.remove();
             const welcomeOverlay = document.getElementById("welcomeOverlay");
-            if (welcomeOverlay) {
-              welcomeOverlay.style.display = "flex";
-            }
+            if (welcomeOverlay) welcomeOverlay.style.display = "flex";
           }, 1500);
         }
 
-        document.getElementById("xorbitDropdown").classList.remove("show");
+        if (pendingUpdateOnClose && latestUpdateData) {
+          xModal.confirm(
+            "An update is ready to install. Would you like to install it before logging out?",
+            () => performUpdate(),
+            { title: "Update Available", icon: '<i class="fas fa-arrow-circle-up" style="color:#9070ff"></i>', confirmText: "Install Update" }
+          );
+          return;
+        }
+
+        xModal.confirm(
+          "All unsaved work will be lost.",
+          () => doLogout(),
+          { title: "Log Out?", icon: '<i class="fas fa-sign-out-alt" style="color:#ff453a"></i>', confirmText: "Log Out", danger: true }
+        );
       }
 
       // Helper function to create custom content windows
@@ -7065,8 +7423,8 @@
       // ============================================
 
       // Add these global variables at the top with your other global variables:
-      const CURRENT_VERSION = "v5.1.3B";
-      const CURRENT_VERSION_NAME = "X-ORBIT Desktop v5.1.3B Ventas";
+      const CURRENT_VERSION = "v5.2.3B";
+      const CURRENT_VERSION_NAME = "X-ORBIT Desktop v5.2.3B Ventas";
       let pendingUpdateOnClose = false;
       let latestUpdateData = null;
 
@@ -7205,10 +7563,10 @@
         if (updateLaterBtn) {
           updateLaterBtn.addEventListener("click", function () {
             pendingUpdateOnClose = true;
-            updateLaterBtn.innerHTML =
-              '<i class="fas fa-check"></i> Will Update on Close';
-            updateLaterBtn.style.background = "rgba(40, 202, 66, 0.2)";
-            updateLaterBtn.style.borderColor = "rgba(40, 202, 66, 0.5)";
+            updateLaterBtn.innerHTML = '<i class="fas fa-check"></i> Scheduled';
+            updateLaterBtn.style.background = "rgba(120, 80, 255, 0.18)";
+            updateLaterBtn.style.borderColor = "rgba(120, 80, 255, 0.4)";
+            updateLaterBtn.style.color = "#a888ff";
             updateLaterBtn.disabled = true;
 
             // Show confirmation
@@ -7236,64 +7594,23 @@
       }
 
       function performUpdate() {
-        // Find the update available container
-        const updateAvailableDiv = document.getElementById("updateAvailable");
-        if (!updateAvailableDiv) return;
+        // Show inline progress section
+        const inlineProgress = document.getElementById("updateInlineProgress");
+        if (inlineProgress) inlineProgress.style.display = "block";
 
-        // Make the parent position relative
-        updateAvailableDiv.style.position = "relative";
+        // Hide the action buttons
+        const nowBtn = document.getElementById("updateNowBtn");
+        const laterBtn = document.getElementById("updateLaterBtn");
+        if (nowBtn) nowBtn.style.display = "none";
+        if (laterBtn) laterBtn.style.display = "none";
 
-        // Create the progress overlay
-        const progressOverlay = document.createElement("div");
-        progressOverlay.className = "update-progress-overlay";
-        progressOverlay.innerHTML = `
-    <div class="update-cancel-btn" id="updateCancelBtn">
-      <i class="fas fa-times"></i>
-    </div>
-    <i class="fas fa-download update-progress-icon" id="updateProgressIcon"></i>
-    <div class="update-progress-title">Downloading Update</div>
-    <div class="update-progress-status" id="updateProgressStatus">Initializing download...</div>
-    <div class="update-progress-row">
-      <div class="update-progress-bar-container">
-        <div class="update-progress-bar" id="updateProgressBar"></div>
-      </div>
-      <div class="update-progress-percent" id="updateProgressPercent">0%</div>
-    </div>
-    <div class="update-progress-time" id="updateProgressTime">Time remaining: Calculating...</div>
-  `;
+        const progressBar = document.getElementById("updateProgressBar");
+        const progressPercent = document.getElementById("updateProgressPercent");
+        const progressStatus = document.getElementById("updateProgressStatus");
+        const progressTime = document.getElementById("updateProgressTime");
 
-        updateAvailableDiv.appendChild(progressOverlay);
-
-        // Show overlay with animation
-        setTimeout(() => {
-          progressOverlay.classList.add("show");
-        }, 50);
-
-        const progressBar = progressOverlay.querySelector("#updateProgressBar");
-        const progressPercent = progressOverlay.querySelector(
-          "#updateProgressPercent"
-        );
-        const progressStatus = progressOverlay.querySelector(
-          "#updateProgressStatus"
-        );
-        const progressTime = progressOverlay.querySelector(
-          "#updateProgressTime"
-        );
-        const progressIcon = progressOverlay.querySelector(
-          "#updateProgressIcon"
-        );
-        const cancelBtn = progressOverlay.querySelector("#updateCancelBtn");
-
-        // Cancel button handler
+        // Cancel not needed inline — no cancelBtn
         let updateCancelled = false;
-        if (cancelBtn) {
-          cancelBtn.addEventListener("click", function () {
-            if (confirm("Cancel the update? You can install it later.")) {
-              updateCancelled = true;
-              progressOverlay.remove();
-            }
-          });
-        }
 
         // Realistic 5-minute update process with detailed steps
         const updateSteps = [
@@ -7451,15 +7768,10 @@
           if (currentStep >= updateSteps.length) {
             // Update complete
             setTimeout(() => {
-              if (progressIcon) {
-                progressIcon.className =
-                  "fas fa-check-circle update-progress-icon success";
-              }
               if (progressStatus)
                 progressStatus.textContent = "Update installed successfully!";
               if (progressTime)
-                progressTime.textContent = "Restarting system...";
-              if (cancelBtn) cancelBtn.style.display = "none";
+                progressTime.textContent = "Restarting…";
 
               // Reload the page after 3 seconds
               setTimeout(() => {
@@ -7478,8 +7790,7 @@
             progressPercent.textContent = step.progress + "%";
           if (progressStatus) progressStatus.textContent = step.status;
           if (progressTime && remainingTime > 0) {
-            progressTime.textContent =
-              "Time remaining: " + formatTime(remainingTime);
+            progressTime.textContent = formatTime(remainingTime) + " remaining";
           }
 
           currentStep++;
@@ -7489,6 +7800,144 @@
         // Start update process
         setTimeout(nextUpdateStep, 500);
       }
+      // ── Modal System ───────────────────────────────────────────────────
+      const xModal = {
+        _close() {
+          const el = document.getElementById("xModal");
+          if (el) el.classList.remove("show");
+        },
+        _show(icon, title, message, buttons) {
+          const overlay = document.getElementById("xModal");
+          const iconEl   = document.getElementById("xModalIcon");
+          const titleEl  = document.getElementById("xModalTitle");
+          const msgEl    = document.getElementById("xModalMessage");
+          const actionsEl = document.getElementById("xModalActions");
+          if (!overlay || !iconEl || !titleEl || !msgEl || !actionsEl) return;
+
+          iconEl.innerHTML      = icon;
+          titleEl.textContent   = title;
+          msgEl.textContent     = message;
+          actionsEl.innerHTML   = "";
+
+          buttons.forEach(btn => {
+            const el = document.createElement("button");
+            el.className = "xorbit-button" +
+              (btn.danger  ? " danger"             : "") +
+              (btn.primary ? " xmodal-btn-primary"  : "");
+            el.textContent = btn.label;
+            el.type = "button";
+            el.addEventListener("click", function(e) {
+              e.stopPropagation();
+              xModal._close();
+              if (btn.action) btn.action();
+            });
+            actionsEl.appendChild(el);
+          });
+
+          overlay.classList.add("show");
+        },
+        alert(message, { title = "Notice", icon = '<i class="fas fa-info-circle" style="color:#9070ff"></i>' } = {}) {
+          xModal._show(icon, title, message, [{ label: "OK", primary: true }]);
+        },
+        confirm(message, onConfirm, { title = "Confirm", icon = '<i class="fas fa-question-circle" style="color:#9070ff"></i>', confirmText = "Confirm", danger = false } = {}) {
+          xModal._show(icon, title, message, [
+            { label: "Cancel" },
+            { label: confirmText, primary: !danger, danger, action: onConfirm }
+          ]);
+        }
+      };
+      // ───────────────────────────────────────────────────────────────────
+
+      // ── Data & Backup ──────────────────────────────────────────────────
+      // Fields that must never leave the device
+      const DEVICE_ONLY_FIELDS = [
+        "deviceId", "device_id", "uuid", "UUID", "machineId", "machine_id",
+        "fingerprint", "deviceFingerprint", "hardwareId", "hardware_id",
+        "sessionToken", "session_token", "token", "authToken", "auth_token",
+        "sessionId", "session_id", "refreshToken", "refresh_token"
+      ];
+
+      function exportBackup() {
+        // Grab and sanitize settings — strip any device-only fields
+        let settingsData = {};
+        try {
+          settingsData = JSON.parse(localStorage.getItem("xorbit-settings") || "{}");
+        } catch(e) {}
+        DEVICE_ONLY_FIELDS.forEach(f => delete settingsData[f]);
+
+        // Grab safe user identity — username + email only, no session data
+        let safeIdentity = null;
+        try {
+          const raw = sessionStorage.getItem("xorbit_auth_session") || localStorage.getItem("xorbit_auth_session");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            safeIdentity = {
+              username: parsed.username || parsed.name || null,
+              email:    parsed.email || null
+            };
+          }
+        } catch(e) {}
+
+        const backup = {
+          _xorbit_backup: true,
+          version: "1.0",
+          exportedAt: new Date().toISOString(),
+          settings: settingsData,
+          tutorialCompleted: localStorage.getItem("xorbit-tutorial-completed") || null,
+          userIdentity: safeIdentity   // display info only — no tokens, no device IDs
+        };
+
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement("a");
+        a.href     = url;
+        a.download = "xorbit-backup.json";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const backup = JSON.parse(e.target.result);
+
+            if (!backup._xorbit_backup || !backup.settings) {
+              xModal.alert("This doesn't look like a valid X-ORBIT backup file.", { title: "Invalid Backup", icon: '<i class="fas fa-exclamation-triangle" style="color:#ff453a"></i>' });
+              return;
+            }
+
+            // Strip device fields again in case the file was manually edited
+            DEVICE_ONLY_FIELDS.forEach(f => delete backup.settings[f]);
+
+            // Restore settings
+            localStorage.setItem("xorbit-settings", JSON.stringify(backup.settings));
+            settings = { ...settings, ...backup.settings };
+
+            // Restore tutorial state
+            if (backup.tutorialCompleted) {
+              localStorage.setItem("xorbit-tutorial-completed", backup.tutorialCompleted);
+            }
+
+            // Apply everything immediately — never touch auth session or device data
+            applySettings();
+            if (backup.settings.customWallpaper) {
+              applyWallpaper(backup.settings.customWallpaper);
+            }
+
+            xModal.alert("Your settings and wallpaper have been applied successfully.", { title: "Backup Restored", icon: '<i class="fas fa-check-circle" style="color:#34c759"></i>' });
+          } catch(err) {
+            xModal.alert("The file may be corrupted or not a valid X-ORBIT backup.", { title: "Import Failed", icon: '<i class="fas fa-exclamation-triangle" style="color:#ff453a"></i>' });
+          }
+          event.target.value = "";
+        };
+        reader.readAsText(file);
+      }
+      // ───────────────────────────────────────────────────────────────────
+
       // REPLACE YOUR EXISTING logout() function with this one:
       function logout() {
         // Check if there's a pending update
