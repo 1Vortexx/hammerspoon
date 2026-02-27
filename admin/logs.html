@@ -4,417 +4,428 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>X-ORBIT Logs Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+:root {
+    --bg:           #000;
+    --surface:      #070707;
+    --surface-2:    #050505;
+    --border:       #1a1a1a;
+    --border-hi:    #2a2a2a;
+    --text:         #fff;
+    --text-dim:     #ccc;
+    --text-muted:   #888;
+    --text-faint:   #555;
+    --text-ghost:   #444;
+    --text-dead:    #333;
 }
 
 body {
-    font-family: 'Inter', sans-serif;
-    background: #0a0a0f;
-    color: #fff;
-    overflow-x: hidden;
+    font-family: 'Share Tech Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.5;
+    height: 100vh;
+    overflow: hidden;
 }
 
+/* ════════════════════════════════════════════════
+   BLOCKED PAGE
+════════════════════════════════════════════════ */
 .blocked-page {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #16213e 100%);
+    inset: 0;
+    background: var(--bg);
     justify-content: center;
     align-items: center;
     z-index: 9999;
 }
 
-.blocked-page.show {
-    display: flex;
-}
+.blocked-page.show { display: flex; }
 
 .blocked-content {
     text-align: center;
-    padding: 3rem;
-    background: rgba(15, 15, 35, 0.95);
-    border: 2px solid rgba(239, 68, 68, 0.5);
-    border-radius: 24px;
-    max-width: 500px;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 100px rgba(239, 68, 68, 0.3);
+    padding: 48px;
+    background: var(--surface);
+    border: 1px solid rgba(248,113,113,0.25);
+    max-width: 440px;
 }
 
 .blocked-icon {
-    width: 80px;
-    height: 80px;
-    margin: 0 auto 1.5rem;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40px;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { box-shadow: 0 0 40px rgba(239, 68, 68, 0.5); transform: scale(1); }
-    50% { box-shadow: 0 0 60px rgba(239, 68, 68, 0.7); transform: scale(1.05); }
+    font-size: 2.5rem;
+    color: #f87171;
+    margin-bottom: 20px;
+    opacity: 0.7;
 }
 
 .blocked-content h1 {
-    font-size: 2rem;
-    color: #fca5a5;
-    margin-bottom: 1rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 900;
+    color: #f87171;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
 }
 
 .blocked-content p {
-    color: #fecaca;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
+    font-size: 0.78rem;
+    color: var(--text-faint);
+    line-height: 1.7;
+    margin-bottom: 10px;
 }
 
-.logs-container {
-    display: none;
-    height: 100vh;
-    flex-direction: column;
-    background: rgba(15, 15, 35, 0.4);
-}
-
-.logs-container.show {
-    display: flex;
-}
-
-.logs-header {
-    padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid rgba(147, 51, 234, 0.2);
-}
-
-.logs-tabs {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.log-tab-btn {
-    flex: 1;
-    padding: 0.875rem 1.25rem;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(147, 51, 234, 0.2);
-    border-radius: 10px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-    color: #a1a1aa;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.log-tab-btn:hover {
-    border-color: #9333ea;
-    background: rgba(147, 51, 234, 0.05);
-    color: #9333ea;
-}
-
-.log-tab-btn.active {
-    background: linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #EC4899 100%);
-    color: white;
-    border: none;
-}
-
-.filters-row {
-    display: flex;
-    gap: 1rem;
-    align-items: center;
-}
-
-.filter-group {
-    flex: 1;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.filter-group label {
-    font-size: 0.875rem;
-    color: #a1a1aa;
-    white-space: nowrap;
-}
-
-.filter-group input,
-.filter-group select {
-    flex: 1;
-    padding: 0.625rem 0.875rem;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(147, 51, 234, 0.3);
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.875rem;
-}
-
-.filter-group input:focus,
-.filter-group select:focus {
-    outline: none;
-    border-color: #9333ea;
-    background: rgba(147, 51, 234, 0.05);
-}
-
-.refresh-btn {
-    padding: 0.625rem 1.25rem;
-    background: linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #EC4899 100%);
-    border: none;
-    color: white;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    white-space: nowrap;
-}
-
-.refresh-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
-}
-
-.logs-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
-}
-
-.logs-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.logs-content::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-}
-
-.logs-content::-webkit-scrollbar-thumb {
-    background: rgba(147, 51, 234, 0.3);
-    border-radius: 10px;
-}
-
-.logs-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.logs-table thead {
-    position: sticky;
-    top: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 10;
-}
-
-.logs-table th {
-    padding: 1rem;
-    text-align: left;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #a1a1aa;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid rgba(147, 51, 234, 0.2);
-}
-
-.logs-table td {
-    padding: 1rem;
-    border-bottom: 1px solid rgba(147, 51, 234, 0.1);
-    font-size: 0.875rem;
-}
-
-.logs-table tbody tr {
-    background: rgba(0, 0, 0, 0.2);
-    transition: all 0.3s;
-}
-
-.logs-table tbody tr:hover {
-    background: rgba(147, 51, 234, 0.05);
-    border-left: 3px solid #9333ea;
-}
-
-.success-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.875rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: rgba(16, 185, 129, 0.2);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    white-space: nowrap;
-}
-
-.success-badge i { font-size: 0.875rem; }
-
-.failed-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.375rem 0.875rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    white-space: nowrap;
-}
-
-.failed-badge i { font-size: 0.875rem; }
-
-.action-badge {
-    display: inline-block;
-    padding: 0.375rem 0.875rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    background: rgba(59, 130, 246, 0.2);
-    color: #3b82f6;
-    border: 1px solid rgba(59, 130, 246, 0.3);
-    white-space: nowrap;
-}
-
-/* ── Device UUID badge ── */
-.uuid-badge {
-    display: inline-block;
-    padding: 0.25rem 0.625rem;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 1.5px;
-    background: rgba(147, 51, 234, 0.15);
-    color: #c084fc;
-    border: 1px solid rgba(147, 51, 234, 0.3);
-}
-
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    color: #a1a1aa;
-    padding: 3rem;
-}
-
-.empty-state i {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #EC4899 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    opacity: 0.5;
-}
-
-.loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    color: #9333ea;
-}
-
-.loading i { animation: spin 1s linear infinite; }
-
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.log-count {
-    padding: 0.625rem 1rem;
-    background: rgba(147, 51, 234, 0.1);
-    border: 1px solid rgba(147, 51, 234, 0.3);
-    border-radius: 8px;
-    font-size: 0.875rem;
-    color: #9333ea;
-    font-weight: 600;
-    white-space: nowrap;
-}
-
+/* ════════════════════════════════════════════════
+   NEW LOGS NOTIFICATION
+════════════════════════════════════════════════ */
 .new-logs-notification {
     position: fixed;
-    top: 20px;
+    top: 0;
     left: 50%;
-    transform: translateX(-50%) translateY(-100px);
-    background: linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #EC4899 100%);
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(147, 51, 234, 0.5);
+    transform: translateX(-50%) translateY(-60px);
+    background: var(--text);
+    color: var(--bg);
+    padding: 10px 20px;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 12px;
     z-index: 1000;
-    transition: transform 0.4s ease;
+    transition: transform 0.3s ease;
     cursor: pointer;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .new-logs-notification.show {
     transform: translateX(-50%) translateY(0);
 }
 
-.new-logs-notification:hover {
-    box-shadow: 0 15px 50px rgba(147, 51, 234, 0.7);
-    transform: translateX(-50%) translateY(-2px);
-}
+.new-logs-notification i { font-size: 0.8rem; }
 
-.new-logs-notification i {
-    font-size: 1.25rem;
-    animation: bounce 1s ease-in-out infinite;
-}
+.notification-text { display: flex; flex-direction: column; gap: 1px; }
+.notification-title { font-size: 0.62rem; }
+.notification-subtitle { font-size: 0.56rem; opacity: 0.6; font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
+.notification-close {
+    padding: 3px 8px;
+    background: var(--bg);
+    border: none;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: opacity 0.15s;
 }
+.notification-close:hover { opacity: 0.7; }
 
-.new-logs-notification .notification-text {
-    display: flex;
+/* ════════════════════════════════════════════════
+   LOGS CONTAINER
+════════════════════════════════════════════════ */
+.logs-container {
+    display: none;
+    height: 100vh;
     flex-direction: column;
 }
 
-.new-logs-notification .notification-title {
-    font-weight: 700;
-    font-size: 0.95rem;
+.logs-container.show { display: flex; }
+
+/* ─── TOP BAR ───────────────────────────────────── */
+.logs-header {
+    display: flex;
+    align-items: stretch;
+    height: 50px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    flex-shrink: 0;
 }
 
-.new-logs-notification .notification-subtitle {
-    font-size: 0.8rem;
-    opacity: 0.9;
+.logs-brand {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.82rem;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: 3px;
+    padding: 0 24px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
-.notification-close {
-    margin-left: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    background: rgba(255, 255, 255, 0.2);
+.logs-brand span {
+    background: var(--text);
+    color: var(--bg);
+    padding: 0 5px;
+}
+
+/* nav tabs */
+.logs-tabs {
+    display: flex;
+    align-items: stretch;
+    border-right: 1px solid var(--border);
+}
+
+.log-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 20px;
+    background: transparent;
     border: none;
-    border-radius: 6px;
-    color: white;
+    border-right: 1px solid var(--border);
+    border-bottom: 2px solid transparent;
     cursor: pointer;
-    font-size: 0.75rem;
-    transition: all 0.3s;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-ghost);
+    transition: color 0.15s, background 0.15s, border-bottom-color 0.15s;
+    white-space: nowrap;
+}
+.log-tab-btn:last-child { border-right: none; }
+.log-tab-btn:hover { color: var(--text-muted); background: #080808; }
+.log-tab-btn.active {
+    color: var(--text);
+    background: var(--bg);
+    border-bottom-color: var(--text);
 }
 
-.notification-close:hover {
-    background: rgba(255, 255, 255, 0.3);
+/* inline stats */
+.logs-top-stats {
+    display: flex;
+    align-items: stretch;
+    border-right: 1px solid var(--border);
+}
+
+.logs-top-stat {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 0 16px;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+}
+.logs-top-stat:last-child { border-right: none; }
+
+.logs-top-stat-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.logs-top-stat-lbl {
+    font-size: 0.58rem;
+    color: var(--text-ghost);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.top-bar-spacer { flex: 1; }
+
+/* right side */
+.logs-header-right {
+    display: flex;
+    align-items: stretch;
+    border-left: 1px solid var(--border);
+}
+
+.log-count {
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    font-size: 0.72rem;
+    color: var(--text-faint);
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.refresh-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 18px;
+    background: transparent;
+    border: none;
+    color: var(--text-ghost);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+    white-space: nowrap;
+}
+.refresh-btn:hover { color: var(--text); background: #080808; }
+
+/* ─── FILTER BAR ────────────────────────────────── */
+.logs-filter-bar {
+    display: flex;
+    align-items: stretch;
+    height: 42px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    flex-shrink: 0;
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    border-right: 1px solid var(--border);
+    padding: 0 14px;
+    gap: 8px;
+}
+
+.filter-item label {
+    font-size: 0.58rem;
+    color: var(--text-ghost);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.filter-item input,
+.filter-item select {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.78rem;
+    outline: none;
+    min-width: 0;
+}
+
+.filter-item input { width: 220px; }
+.filter-item input::placeholder { color: var(--text-ghost); }
+.filter-item select option { background: var(--surface); }
+
+/* ─── TABLE AREA ────────────────────────────────── */
+.logs-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.logs-content::-webkit-scrollbar { width: 3px; }
+.logs-content::-webkit-scrollbar-track { background: transparent; }
+.logs-content::-webkit-scrollbar-thumb { background: var(--border-hi); }
+
+.logs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.logs-table thead {
+    position: sticky;
+    top: 0;
+    background: var(--surface);
+    z-index: 10;
+}
+
+.logs-table th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.58rem;
+    font-weight: 700;
+    color: var(--text-ghost);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.logs-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    vertical-align: middle;
+}
+
+.logs-table tbody tr {
+    transition: background 0.12s;
+    position: relative;
+}
+
+.logs-table tbody tr:hover td { background: #080808; }
+.logs-table tbody tr:hover td:first-child { border-left: 2px solid var(--text-faint); padding-left: 12px; }
+
+/* status badges */
+.success-badge,
+.failed-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid;
+    white-space: nowrap;
+}
+
+.success-badge { color: #6ee7b7; border-color: rgba(110,231,183,0.3); background: rgba(110,231,183,0.05); }
+.failed-badge  { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.05); }
+.success-badge i, .failed-badge i { font-size: 0.6rem; }
+
+.uuid-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+}
+
+/* column-specific text colors */
+.col-ts     { color: var(--text-ghost); font-size: 0.72rem; white-space: nowrap; }
+.col-user   { color: var(--text-dim); font-weight: bold; }
+.col-email  { color: var(--text-faint); }
+.col-reason { color: #f87171; font-size: 0.72rem; }
+.col-ua     { color: var(--text-ghost); font-size: 0.68rem; }
+
+/* empty / loading */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 32px;
+    gap: 12px;
+    color: var(--text-ghost);
+}
+
+.empty-state i { font-size: 2rem; color: var(--border-hi); }
+.empty-state p { font-size: 0.72rem; letter-spacing: 1px; text-transform: uppercase; }
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    gap: 10px;
+    color: var(--text-ghost);
+    font-size: 0.75rem;
+}
+.loading i { animation: spin 1s linear infinite; }
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
 }
 </style>
 </head>
@@ -423,12 +434,10 @@ body {
 <!-- Blocked Access Page -->
 <div class="blocked-page" id="blockedPage">
     <div class="blocked-content">
-        <div class="blocked-icon">
-            <i class="fas fa-shield-alt"></i>
-        </div>
+        <div class="blocked-icon"><i class="fas fa-lock"></i></div>
         <h1>Access Denied</h1>
-        <p>This page can only be accessed through the X-ORBIT Admin Dashboard. Direct access is not permitted for security reasons.</p>
-        <p style="font-size: 0.875rem; opacity: 0.7;">If you believe this is an error, please contact your system administrator.</p>
+        <p>This page can only be accessed through the X-ORBIT Admin Dashboard. Direct access is not permitted.</p>
+        <p>If you believe this is an error, contact your system administrator.</p>
     </div>
 </div>
 
@@ -436,45 +445,75 @@ body {
 <div class="new-logs-notification" id="newLogsNotification" onclick="refreshFromNotification()">
     <i class="fas fa-bell"></i>
     <div class="notification-text">
-        <div class="notification-title">New logs available!</div>
-        <div class="notification-subtitle">Click to refresh and view updates</div>
+        <div class="notification-title">New logs available</div>
+        <div class="notification-subtitle">Click to refresh</div>
     </div>
     <button class="notification-close" onclick="dismissNotification(event)">Dismiss</button>
 </div>
 
 <!-- Logs Container -->
 <div class="logs-container" id="logsContainer">
-    <div class="logs-header">
-        <div class="logs-tabs">
+
+    <!-- TOP BAR -->
+    <header class="logs-header">
+        <div class="logs-brand">X-<span>ORBIT</span></div>
+
+        <nav class="logs-tabs">
             <button class="log-tab-btn active" data-tab="login_attempts" onclick="switchLogTab('login_attempts')">
-                <i class="fas fa-sign-in-alt"></i> Login Attempts
+                <i class="fas fa-terminal"></i> Login Attempts
             </button>
+        </nav>
+
+        <div class="logs-top-stats">
+            <div class="logs-top-stat">
+                <span class="logs-top-stat-num" id="statTotal">0</span>
+                <span class="logs-top-stat-lbl">Total</span>
+            </div>
+            <div class="logs-top-stat">
+                <span class="logs-top-stat-num" id="statSuccess">0</span>
+                <span class="logs-top-stat-lbl">Success</span>
+            </div>
+            <div class="logs-top-stat">
+                <span class="logs-top-stat-num" id="statFailed">0</span>
+                <span class="logs-top-stat-lbl">Failed</span>
+            </div>
+            <div class="logs-top-stat">
+                <span class="logs-top-stat-num" id="statToday">0</span>
+                <span class="logs-top-stat-lbl">Today</span>
+            </div>
         </div>
-        <div class="filters-row">
-            <div class="filter-group">
-                <label>Search:</label>
-                <input type="text" id="searchFilter" placeholder="Username, email, UUID..." oninput="applyFilters()">
-            </div>
-            <div class="filter-group">
-                <label>Filter:</label>
-                <select id="successFilter" onchange="applyFilters()">
-                    <option value="all">All Attempts</option>
-                    <option value="true">Successful Only</option>
-                    <option value="false">Failed Only</option>
-                </select>
-            </div>
-            <div class="log-count" id="logCount">0 logs</div>
+
+        <div class="top-bar-spacer"></div>
+
+        <div class="logs-header-right">
+            <span class="log-count" id="logCount">0 logs</span>
             <button class="refresh-btn" onclick="refreshLogs()">
                 <i class="fas fa-sync-alt"></i> Refresh
             </button>
         </div>
-    </div>
+    </header>
 
-    <div class="logs-content" id="logsContent">
-        <div class="loading">
-            <i class="fas fa-circle-notch fa-2x"></i>
+    <!-- FILTER BAR -->
+    <div class="logs-filter-bar">
+        <div class="filter-item">
+            <label>Search</label>
+            <input type="text" id="searchFilter" placeholder="username, email, UUID…" oninput="applyFilters()">
+        </div>
+        <div class="filter-item">
+            <label>Status</label>
+            <select id="successFilter" onchange="applyFilters()">
+                <option value="all">All</option>
+                <option value="true">Success</option>
+                <option value="false">Failed</option>
+            </select>
         </div>
     </div>
+
+    <!-- TABLE -->
+    <div class="logs-content" id="logsContent">
+        <div class="loading"><i class="fas fa-circle-notch"></i> Loading logs…</div>
+    </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -543,7 +582,7 @@ async function loadLogs() {
     if (!isAuthenticated) { showBlockedPage(); return; }
 
     const logsContent = document.getElementById('logsContent');
-    logsContent.innerHTML = '<div class="loading"><i class="fas fa-circle-notch fa-2x"></i></div>';
+    logsContent.innerHTML = '<div class="loading"><i class="fas fa-circle-notch"></i> Loading logs…</div>';
 
     try {
         const result = await supabaseClient
@@ -557,6 +596,7 @@ async function loadLogs() {
         allLogs = result.data || [];
         if (allLogs.length > 0) latestLogTimestamp = allLogs[0].attempt_timestamp;
 
+        updateStats(allLogs);
         displayLogs(allLogs);
         updateLogCount(allLogs.length);
     } catch (error) {
@@ -565,7 +605,7 @@ async function loadLogs() {
             <div class="empty-state">
                 <i class="fas fa-exclamation-triangle"></i>
                 <p>Failed to load logs</p>
-                <p style="font-size: 0.875rem; opacity: 0.7;">${error.message}</p>
+                <p style="font-size:0.68rem;color:var(--text-ghost);">${error.message}</p>
             </div>`;
     }
 }
@@ -612,6 +652,18 @@ function dismissNotification(event) {
     document.getElementById('newLogsNotification').classList.remove('show');
 }
 
+function updateStats(logs) {
+    const today = new Date().toDateString();
+    const success = logs.filter(l => l.success).length;
+    const failed  = logs.filter(l => !l.success).length;
+    const todayCount = logs.filter(l => new Date(l.attempt_timestamp).toDateString() === today).length;
+
+    document.getElementById('statTotal').textContent   = logs.length;
+    document.getElementById('statSuccess').textContent = success;
+    document.getElementById('statFailed').textContent  = failed;
+    document.getElementById('statToday').textContent   = todayCount;
+}
+
 function displayLogs(logs) {
     const logsContent = document.getElementById('logsContent');
 
@@ -629,10 +681,10 @@ function displayLogs(logs) {
             <thead>
                 <tr>
                     <th>Timestamp</th>
+                    <th>Status</th>
                     <th>Username</th>
                     <th>Email</th>
-                    <th>Status</th>
-                    <th>Client Name</th>
+                    <th>Client</th>
                     <th>Device UUID</th>
                     <th>Failure Reason</th>
                     <th>User Agent</th>
@@ -641,21 +693,19 @@ function displayLogs(logs) {
             <tbody>
                 ${logs.map(log => `
                     <tr>
-                        <td>${formatTimestamp(log.attempt_timestamp)}</td>
-                        <td><strong>${log.attempted_username || 'N/A'}</strong></td>
-                        <td>${log.attempted_email || 'N/A'}</td>
+                        <td class="col-ts">${formatTimestamp(log.attempt_timestamp)}</td>
                         <td>
                             <span class="${log.success ? 'success-badge' : 'failed-badge'}">
-                                <i class="fas fa-${log.success ? 'check-circle' : 'times-circle'}"></i>
+                                <i class="fas fa-${log.success ? 'check' : 'times'}"></i>
                                 ${log.success ? 'Success' : 'Failed'}
                             </span>
                         </td>
-                        <td>${log.client_name || 'N/A'}</td>
-                        <td>${log.device_uuid
-                            ? `<span class="uuid-badge">${log.device_uuid}</span>`
-                            : '<span style="opacity:0.4;">—</span>'}</td>
-                        <td style="color: #ef4444;">${log.failure_reason || '-'}</td>
-                        <td style="font-size: 0.75rem; opacity: 0.7;">${truncate(log.user_agent, 40)}</td>
+                        <td class="col-user">${log.attempted_username || '—'}</td>
+                        <td class="col-email">${log.attempted_email || '—'}</td>
+                        <td>${log.client_name || '—'}</td>
+                        <td>${log.device_uuid ? `<span class="uuid-badge">${log.device_uuid}</span>` : '<span style="opacity:0.3;">—</span>'}</td>
+                        <td class="col-reason">${log.failure_reason || '—'}</td>
+                        <td class="col-ua">${truncate(log.user_agent, 40)}</td>
                     </tr>
                 `).join('')}
             </tbody>
@@ -709,7 +759,7 @@ function formatTimestamp(timestamp) {
 
 function truncate(text, maxLength) {
     if (!text) return '';
-    return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    return text.length > maxLength ? text.substring(0, maxLength) + '…' : text;
 }
 
 function updateLogCount(count) {
