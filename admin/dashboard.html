@@ -4,1041 +4,1218 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-ORBIT Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary-gradient: linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #EC4899 100%);
-            --dark-bg: #0a0a0f;
-            --card-bg: rgba(17, 17, 28, 0.95);
-            --card-border: rgba(147, 51, 234, 0.2);
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --purple-glow: 0 0 20px rgba(147, 51, 234, 0.5);
-            --pink-glow: 0 0 20px rgba(236, 72, 153, 0.5);
-            --accent-purple: #9333EA;
-            --accent-pink: #EC4899;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
-            --sidebar-bg: rgba(17, 17, 28, 0.98);
+            --bg:           #000;
+            --surface:      #070707;
+            --surface-2:    #050505;
+            --border:       #1a1a1a;
+            --border-hi:    #2a2a2a;
+            --text:         #fff;
+            --text-dim:     #ccc;
+            --text-muted:   #888;
+            --text-faint:   #555;
+            --text-ghost:   #444;
+            --text-dead:    #333;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            position: relative;
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 50% 100%, rgba(107, 70, 193, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
+        /* ════════════════════════════════════════════════
+           LOGIN
+        ════════════════════════════════════════════════ */
         #loginScreen {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #loginScreen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+            background-size: 52px 52px;
+            pointer-events: none;
+        }
+
+        .login-wrap {
             position: relative;
             z-index: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 740px;
+            max-width: 95vw;
+            border: 1px solid var(--border-hi);
         }
 
-        .login-box {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), var(--purple-glow);
-            width: 450px;
-            max-width: 90%;
-            backdrop-filter: blur(10px);
+        .login-brand {
+            padding: 56px 44px;
+            border-right: 1px solid var(--border);
+            background: var(--surface-2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .login-box h1 {
-            text-align: center;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 35px;
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+        .login-brand-top {}
+
+        .login-eyebrow {
+            font-size: 0.58rem;
+            color: var(--text-ghost);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .login-box h1 i {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .login-eyebrow::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
         }
 
-        .form-group {
-            margin-bottom: 25px;
+        .login-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 4px;
+            line-height: 1;
+            margin-bottom: 10px;
         }
+
+        .login-logo span {
+            background: var(--text);
+            color: var(--bg);
+            padding: 0 8px;
+        }
+
+        .login-tagline {
+            font-size: 0.68rem;
+            color: var(--text-faint);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .login-brand-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .login-feature {
+            font-size: 0.65rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-feature::before {
+            content: '→';
+            color: var(--text-dead);
+        }
+
+        .login-form-panel {
+            padding: 56px 44px;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-form-heading {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-faint);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+        }
+
+        .error-message {
+            background: rgba(239,68,68,0.07);
+            color: #f87171;
+            border: 1px solid rgba(239,68,68,0.2);
+            padding: 10px 12px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 0.78rem;
+        }
+        .error-message.show { display: block; }
+
+        .form-group { margin-bottom: 18px; }
 
         .form-group label {
             display: block;
-            margin-bottom: 10px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 13px;
+            margin-bottom: 7px;
+            color: var(--text-ghost);
+            font-size: 0.6rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 2px;
         }
 
         .form-group input {
             width: 100%;
-            padding: 15px 18px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus {
+            padding: 11px 13px;
+            background: var(--bg);
+            border: 1px solid var(--border-hi);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.88rem;
             outline: none;
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.05);
-            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+            transition: border-color 0.2s;
         }
-
-        .form-group input::placeholder {
-            color: rgba(161, 161, 170, 0.5);
-        }
+        .form-group input:focus { border-color: var(--text-faint); }
+        .form-group input::placeholder { color: var(--border-hi); }
 
         .login-btn {
             width: 100%;
-            padding: 18px;
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
+            padding: 13px;
+            background: var(--text);
+            border: 1px solid var(--text);
+            color: var(--bg);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .login-btn:hover::before {
-            left: 100%;
-        }
-
-        .login-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-            font-weight: 500;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        #dashboard {
-            display: none;
-            height: 100vh;
-            flex-direction: column;
-            position: relative;
-            z-index: 1;
-        }
-
-        .dashboard-header {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--card-border);
-            color: white;
-            padding: 20px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .dashboard-header h2 {
-            font-size: 26px;
-            font-weight: 800;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            color: var(--text-secondary);
-        }
-
-        .user-info #adminName {
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-
-        .logout-btn {
-            background: rgba(147, 51, 234, 0.1);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            color: var(--accent-purple);
-            padding: 10px 20px;
-            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .logout-btn:hover {
-            background: var(--primary-gradient);
-            color: white;
-            border-color: transparent;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(147, 51, 234, 0.3);
-        }
-
-        .dashboard-content {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 380px;
-            background: var(--sidebar-bg);
-            border-right: 1px solid var(--card-border);
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease, width 0.3s ease;
-        }
-
-        .sidebar.collapsed {
-            transform: translateX(-380px);
-            width: 0;
-        }
-
-        .sidebar-header {
-            padding: 25px;
-            border-bottom: 1px solid var(--card-border);
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .sidebar-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(147, 51, 234, 0.2);
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            color: var(--text-secondary);
-            font-size: 13px;
+            transition: background 0.2s, color 0.2s;
+            margin-top: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
+        }
+        .login-btn:hover:not(:disabled) { background: var(--bg); color: var(--text); }
+        .login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ════════════════════════════════════════════════
+           DASHBOARD SHELL
+        ════════════════════════════════════════════════ */
+        #dashboard {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
         }
 
-        .tab-btn:hover {
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.05);
-            color: var(--accent-purple);
+        /* ─── TOP BAR ───────────────────────────────────── */
+        .top-bar {
+            display: flex;
+            align-items: stretch;
+            height: 50px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-2);
+            flex-shrink: 0;
         }
 
-        .tab-btn.active {
-            background: var(--primary-gradient);
-            color: white;
+        .top-bar-brand {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.82rem;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 3px;
+            padding: 0 24px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .top-bar-brand span {
+            background: var(--text);
+            color: var(--bg);
+            padding: 0 5px;
+        }
+
+        /* nav tabs */
+        .top-nav {
+            display: flex;
+            align-items: stretch;
+            border-right: 1px solid var(--border);
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0 20px;
+            background: transparent;
             border: none;
+            border-right: 1px solid var(--border);
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-ghost);
+            transition: color 0.15s, background 0.15s, border-bottom-color 0.15s;
+            white-space: nowrap;
+        }
+        .nav-tab:last-child { border-right: none; }
+        .nav-tab:hover { color: var(--text-muted); background: #080808; }
+        .nav-tab.active {
+            color: var(--text);
+            background: var(--bg);
+            border-bottom-color: var(--text);
         }
 
-        .search-box {
+        .nav-count {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            background: var(--border-hi);
+            color: var(--text-ghost);
+            padding: 1px 5px;
+            line-height: 1.4;
+        }
+        .nav-tab.active .nav-count {
+            background: var(--text);
+            color: var(--bg);
+        }
+
+        /* inline stats */
+        .top-stats {
+            display: flex;
+            align-items: stretch;
+            border-right: 1px solid var(--border);
+        }
+
+        .top-stat {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 0 16px;
+            border-right: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .top-stat:last-child { border-right: none; }
+
+        .top-stat-num {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .top-stat-lbl {
+            font-size: 0.58rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .top-bar-spacer { flex: 1; }
+
+        /* right side */
+        .top-bar-right {
+            display: flex;
+            align-items: stretch;
+            border-left: 1px solid var(--border);
+        }
+
+        .top-bar-admin {
+            display: flex;
+            align-items: center;
+            padding: 0 18px;
+            font-size: 0.72rem;
+            color: var(--text-faint);
+            border-right: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 18px;
+            background: transparent;
+            border: none;
+            color: var(--text-ghost);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.56rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: color 0.15s, background 0.15s;
+            white-space: nowrap;
+        }
+        .logout-btn:hover { color: var(--text); background: #080808; }
+
+        /* ════════════════════════════════════════════════
+           WORKSPACE
+        ════════════════════════════════════════════════ */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ─── TICKET PANEL ──────────────────────────────── */
+        .ticket-panel {
+            width: 290px;
+            flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            background: var(--surface-2);
+            transition: width 0.25s ease, opacity 0.25s ease;
+            overflow: hidden;
+        }
+
+        .ticket-panel.hidden {
+            width: 0;
+            opacity: 0;
+        }
+
+        .panel-search {
             position: relative;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
 
-        .search-box input {
+        .panel-search input {
             width: 100%;
-            padding: 12px 40px 12px 15px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .search-box input:focus {
+            padding: 13px 36px 13px 16px;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.78rem;
             outline: none;
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.05);
-            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+            letter-spacing: 1px;
+            transition: background 0.15s;
         }
+        .panel-search input:focus { background: #080808; }
+        .panel-search input::placeholder { color: var(--text-ghost); }
 
-        .search-box input::placeholder {
-            color: rgba(161, 161, 170, 0.5);
-        }
-
-        .search-box i {
+        .panel-search i {
             position: absolute;
-            right: 15px;
+            right: 13px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--accent-purple);
+            color: var(--text-ghost);
+            font-size: 0.68rem;
+            pointer-events: none;
         }
 
         .ticket-list {
             flex: 1;
             overflow-y: auto;
-            background: rgba(0, 0, 0, 0.2);
         }
-
-        .ticket-list::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .ticket-list::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .ticket-list::-webkit-scrollbar-thumb {
-            background: rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-        }
-
-        .ticket-list::-webkit-scrollbar-thumb:hover {
-            background: rgba(147, 51, 234, 0.5);
-        }
+        .ticket-list::-webkit-scrollbar { width: 3px; }
+        .ticket-list::-webkit-scrollbar-track { background: transparent; }
+        .ticket-list::-webkit-scrollbar-thumb { background: var(--border-hi); }
 
         .ticket-item {
-            padding: 18px 22px;
-            border-bottom: 1px solid rgba(147, 51, 234, 0.1);
+            padding: 13px 16px 13px 18px;
+            border-bottom: 1px solid var(--border);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.12s;
             position: relative;
         }
 
         .ticket-item::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.05));
-            transition: width 0.3s;
+            left: 0; top: 0; bottom: 0;
+            width: 2px;
+            background: transparent;
+            transition: background 0.12s;
         }
 
-        .ticket-item:hover::before {
-            width: 100%;
-        }
+        .ticket-item:hover { background: #080808; }
+        .ticket-item:hover::before { background: var(--text-faint); }
+        .ticket-item.active { background: #0a0a0a; }
+        .ticket-item.active::before { background: var(--text); }
 
-        .ticket-item:hover {
-            background: rgba(147, 51, 234, 0.05);
-            border-left: 3px solid var(--accent-purple);
-            padding-left: 19px;
-        }
-
-        .ticket-item.active {
-            background: rgba(147, 51, 234, 0.1);
-            border-left: 3px solid var(--accent-purple);
-            padding-left: 19px;
-            box-shadow: 0 0 20px rgba(147, 51, 234, 0.1);
-        }
-
-        .ticket-header {
+        .ticket-row-top {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            justify-content: space-between;
+            margin-bottom: 5px;
         }
 
-        .ticket-number {
-            font-weight: 600;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 13px;
+        .ticket-id {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: var(--text-faint);
+            letter-spacing: 1px;
         }
 
-        .ticket-status {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
-
-        .status-open { 
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-        .status-in_progress { 
-            background: rgba(59, 130, 246, 0.2);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        .status-waiting_response { 
-            background: rgba(236, 72, 153, 0.2);
-            color: #ec4899;
-            border: 1px solid rgba(236, 72, 153, 0.3);
-        }
-        .status-resolved { 
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        .status-closed { 
-            background: rgba(107, 114, 128, 0.2);
-            color: #6b7280;
-            border: 1px solid rgba(107, 114, 128, 0.3);
-        }
+        .dot-open             { background: #fbbf24; }
+        .dot-in_progress      { background: #60a5fa; }
+        .dot-waiting_response { background: #f9a8d4; }
+        .dot-resolved         { background: #6ee7b7; }
+        .dot-closed           { background: var(--border-hi); }
 
         .ticket-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            color: var(--text-primary);
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .ticket-subject {
-            font-size: 13px;
-            color: var(--text-secondary);
+            font-size: 0.7rem;
+            color: var(--text-faint);
             margin-bottom: 5px;
-            opacity: 0.8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .ticket-time {
-            font-size: 12px;
-            color: var(--text-secondary);
-            opacity: 0.6;
+            font-size: 0.6rem;
+            color: var(--text-ghost);
         }
 
-        .chat-area {
+        /* ════════════════════════════════════════════════
+           CHAT / CONTENT PANEL
+        ════════════════════════════════════════════════ */
+        .chat-panel {
             flex: 1;
             display: flex;
             flex-direction: column;
-            background: var(--card-bg);
-            border-left: 1px solid var(--card-border);
-            position: relative;
+            background: var(--bg);
+            overflow: hidden;
+            min-width: 0;
         }
 
-        .sidebar-toggle {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 100;
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: none;
+        /* empty state */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(147, 51, 234, 0.4);
-        }
-
-        .sidebar-toggle:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(147, 51, 234, 0.5);
-        }
-
-        .sidebar-toggle.visible {
-            display: flex;
-        }
-
-        .chat-header {
-            padding: 25px;
-            border-bottom: 1px solid var(--card-border);
-            background: rgba(0, 0, 0, 0.3);
-        }
-
-        .chat-ticket-info h3 {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
-            font-size: 20px;
-            font-weight: 700;
-        }
-
-        .chat-ticket-meta {
-            display: flex;
-            gap: 25px;
-            font-size: 14px;
-            color: var(--text-secondary);
-            margin-bottom: 15px;
-        }
-
-        .chat-ticket-meta i {
-            color: var(--accent-purple);
-            margin-right: 6px;
-        }
-
-        .ticket-actions {
-            display: flex;
             gap: 12px;
-            margin-top: 15px;
         }
 
-        .action-btn {
-            padding: 10px 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            border-radius: 8px;
-            color: var(--text-primary);
+        .empty-state i {
+            font-size: 32px;
+            color: var(--border-hi);
+        }
+
+        .empty-state p {
+            font-size: 0.7rem;
+            color: var(--text-ghost);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ─── INFO BAR ──────────────────────────────────── */
+        .chat-info-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 46px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            flex-shrink: 0;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        .chat-info-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            overflow: hidden;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-tid {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.62rem;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 2px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .chat-sep { color: var(--border-hi); font-size: 0.8rem; flex-shrink: 0; }
+
+        .chat-uname {
+            font-size: 0.78rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .chat-email {
+            font-size: 0.7rem;
+            color: var(--text-faint);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-cat {
+            font-size: 0.6rem;
+            color: var(--text-ghost);
+            border: 1px solid var(--border-hi);
+            padding: 2px 7px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .chat-info-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .action-select {
+            padding: 5px 9px;
+            background: var(--bg);
+            border: 1px solid var(--border-hi);
+            color: var(--text-dim);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            outline: none;
             cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-            font-weight: 500;
+            transition: border-color 0.15s;
         }
+        .action-select:hover { border-color: var(--text-faint); }
+        .action-select option { background: var(--surface); color: var(--text); }
 
-        .action-btn:hover {
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.1);
-            color: var(--accent-purple);
-        }
-
-        .action-btn option {
-            background: var(--card-bg);
-            color: var(--text-primary);
-        }
-
+        /* ─── MESSAGES ──────────────────────────────────── */
         .messages-container {
             flex: 1;
             overflow-y: auto;
-            padding: 25px;
-            background: rgba(0, 0, 0, 0.2);
+            padding: 24px 28px;
         }
-
-        .messages-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .messages-container::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .messages-container::-webkit-scrollbar-thumb {
-            background: rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-        }
-
-        .messages-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(147, 51, 234, 0.5);
-        }
+        .messages-container::-webkit-scrollbar { width: 3px; }
+        .messages-container::-webkit-scrollbar-track { background: transparent; }
+        .messages-container::-webkit-scrollbar-thumb { background: var(--border-hi); }
 
         .message {
-            max-width: 70%;
-            margin-bottom: 20px;
-            animation: fadeIn 0.3s;
+            max-width: 64%;
+            margin-bottom: 18px;
+            animation: msgIn 0.18s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes msgIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .message.user {
-            margin-left: auto;
-            text-align: right;
-        }
+        .message.user { margin-left: auto; text-align: right; }
 
-        .message-header {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            font-weight: 500;
+        .msg-sender {
+            font-size: 0.58rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
-        .message-bubble {
+        .msg-bubble {
             display: inline-block;
-            padding: 14px 18px;
-            border-radius: 16px;
-            line-height: 1.5;
-            font-size: 15px;
+            padding: 10px 14px;
+            line-height: 1.6;
+            font-size: 0.85rem;
         }
 
-        .message.user .message-bubble {
-            background: rgba(147, 51, 234, 0.2);
-            color: var(--text-primary);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            border-bottom-right-radius: 4px;
+        .message.user .msg-bubble {
+            background: #0a0a0a;
+            color: var(--text-dim);
+            border: 1px solid var(--border-hi);
         }
 
-        .message.staff .message-bubble {
-            background: var(--primary-gradient);
-            color: white;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 5px 15px rgba(147, 51, 234, 0.3);
+        .message.staff .msg-bubble {
+            background: var(--text);
+            color: var(--bg);
         }
 
         .message.system {
             max-width: 100%;
             text-align: center;
-            margin: 25px 0;
+            margin: 14px 0;
         }
 
-        .message.system .message-bubble {
-            background: rgba(251, 191, 36, 0.1);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            padding: 10px 20px;
-            font-size: 13px;
+        .message.system .msg-bubble {
+            background: transparent;
+            color: var(--text-ghost);
+            border: 1px solid var(--border);
+            padding: 5px 14px;
+            font-size: 0.68rem;
             font-style: italic;
-            border-radius: 10px;
-            display: inline-block;
         }
 
-        .message-time {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-top: 6px;
+        .msg-time {
+            font-size: 0.58rem;
+            color: var(--text-ghost);
+            margin-top: 4px;
             opacity: 0.6;
         }
 
+        /* ─── INPUT AREA ────────────────────────────────── */
         .message-input-area {
-            padding: 20px;
-            border-top: 1px solid var(--card-border);
-            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--border);
+            background: var(--surface);
+            flex-shrink: 0;
         }
 
-        .message-input-container {
+        .input-hint {
+            padding: 6px 16px 0;
+            font-size: 0.56rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .input-row {
             display: flex;
-            gap: 12px;
+            align-items: stretch;
         }
 
         .message-input {
             flex: 1;
-            padding: 14px 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-            color: var(--text-primary);
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            border-right: 1px solid var(--border);
+            color: var(--text);
             resize: none;
-            font-family: inherit;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .message-input:focus {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.88rem;
             outline: none;
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.05);
-            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+            line-height: 1.5;
         }
-
-        .message-input::placeholder {
-            color: rgba(161, 161, 170, 0.5);
-        }
+        .message-input::placeholder { color: var(--border-hi); }
 
         .send-btn {
-            padding: 14px 28px;
-            background: var(--primary-gradient);
+            padding: 0 28px;
+            background: var(--text);
             border: none;
-            color: white;
-            border-radius: 10px;
+            color: var(--bg);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
+            transition: background 0.15s;
         }
+        .send-btn:hover:not(:disabled) { background: var(--text-dim); }
+        .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .send-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
-        }
-
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: var(--text-secondary);
-        }
-
-        .empty-state i {
-            font-size: 72px;
-            margin-bottom: 24px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0.5;
-        }
-
-        .empty-state p {
-            font-size: 16px;
-        }
-
-        .stats-bar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            padding: 20px 25px;
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--card-border);
-            position: sticky;
-            top: 71px;
-            z-index: 99;
-            backdrop-filter: blur(10px);
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(147, 51, 234, 0.2);
-            border-radius: 12px;
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.05);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(147, 51, 234, 0.2);
-        }
-
-        .stat-number {
-            font-size: 28px;
-            font-weight: 700;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 5px;
-            font-weight: 500;
-        }
-
-        /* Logs container styles */
+        /* ════════════════════════════════════════════════
+           LOGS IFRAME
+        ════════════════════════════════════════════════ */
         #logsContent {
             display: none;
-            height: 100%;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 25px;
-            overflow-y: auto;
+            flex: 1;
+            overflow: hidden;
         }
 
-        #logsContent::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #logsContent::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        #logsContent::-webkit-scrollbar-thumb {
-            background: rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-        }
-
-        #logsContent::-webkit-scrollbar-thumb:hover {
-            background: rgba(147, 51, 234, 0.5);
-        }
-
-        .logs-header {
-            margin-bottom: 25px;
-        }
-
-        .logs-header h3 {
-            font-size: 24px;
-            font-weight: 700;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .log-entry {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-
-        .log-entry:hover {
-            border-color: var(--accent-purple);
-            box-shadow: 0 5px 20px rgba(147, 51, 234, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .log-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .log-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-        }
-
-        .log-status.success {
-            color: var(--success);
-        }
-
-        .log-status.success i {
-            color: var(--success);
-        }
-
-        .log-status.failed {
-            color: var(--error);
-        }
-
-        .log-status.failed i {
-            color: var(--error);
-        }
-
-        .log-time {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .log-details {
-            display: grid;
-            gap: 8px;
-            font-size: 14px;
-        }
-
-        .log-detail-row {
-            display: flex;
-            gap: 10px;
-        }
-
-        .log-detail-label {
-            color: var(--text-secondary);
-            min-width: 100px;
-        }
-
-        .log-detail-value {
-            color: var(--text-primary);
-            font-weight: 500;
+        /* ─── MISC ──────────────────────────────────────── */
+        .no-tickets {
+            padding: 20px 16px;
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
         }
 
         .loading-spinner {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 40px;
-            color: var(--text-secondary);
+            padding: 32px;
+            color: var(--text-ghost);
+            gap: 8px;
+            font-size: 0.72rem;
         }
 
-        .loading-spinner i {
-            font-size: 32px;
-            animation: spin 1s linear infinite;
-        }
+        .loading-spinner i { animation: spin 1s linear infinite; }
 
         @keyframes spin {
             from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        /* ════════════════════════════════════════════════
+           ADMINS PANEL
+        ════════════════════════════════════════════════ */
+        #adminsContent {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .admins-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .admin-create-panel {
+            border-right: 1px solid var(--border);
+            background: var(--surface-2);
+            overflow-y: auto;
+            padding: 28px;
+        }
+
+        .clients-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        .clients-col {
+            padding: 28px 24px;
+            overflow-y: auto;
+            border-right: 1px solid var(--border);
+        }
+        .clients-col:last-child { border-right: none; }
+        .clients-col::-webkit-scrollbar { width: 3px; }
+        .clients-col::-webkit-scrollbar-track { background: transparent; }
+        .clients-col::-webkit-scrollbar-thumb { background: var(--border-hi); }
+
+        .edit-btn {
+            background: transparent;
+            border: 1px solid var(--border-hi);
+            color: var(--text-ghost);
+            padding: 4px 9px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            transition: color 0.15s, border-color 0.15s;
+            flex-shrink: 0;
+        }
+        .edit-btn:hover { color: var(--text); border-color: var(--text-faint); }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border-hi);
+            width: 440px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-ghost);
+            font-size: 1.1rem;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 6px;
+            transition: color 0.15s;
+        }
+        .modal-close:hover { color: var(--text); }
+
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 0 20px 20px; }
+
+        .admin-panel-eyebrow {
+            font-size: 0.58rem;
+            color: var(--text-ghost);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .admin-panel-eyebrow::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .admin-panel-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 2px;
+            margin-bottom: 28px;
+        }
+
+        .admin-form-group { margin-bottom: 16px; }
+
+        .admin-form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-ghost);
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .admin-form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border-hi);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .admin-form-group input:focus { border-color: var(--text-faint); }
+        .admin-form-group input::placeholder { color: var(--border-hi); }
+
+        .admin-create-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--text);
+            border: 1px solid var(--text);
+            color: var(--bg);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .admin-create-btn:hover:not(:disabled) { background: var(--bg); color: var(--text); }
+        .admin-create-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .create-msg {
+            padding: 10px 12px;
+            margin-bottom: 18px;
+            font-size: 0.78rem;
+            border: 1px solid;
+            display: none;
+        }
+        .create-msg.success { background: rgba(110,231,183,0.07); color: #6ee7b7; border-color: rgba(110,231,183,0.2); }
+        .create-msg.error   { background: rgba(239,68,68,0.07);   color: #f87171; border-color: rgba(239,68,68,0.2); }
+
+        .clients-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .client-item {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 18px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: background 0.12s, border-color 0.12s;
+        }
+        .client-item:hover { background: #080808; border-color: var(--border-hi); }
+
+        .client-name  { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 3px; }
+        .client-email { font-size: 0.72rem; color: var(--text-faint); }
+
+        .client-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 3px;
+        }
+
+        .client-ticket-count {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .client-last-seen { font-size: 0.6rem; color: var(--text-ghost); }
+
+        .client-badges { display: flex; gap: 5px; margin-top: 4px; flex-wrap: wrap; }
+
+        .role-badge {
+            font-size: 0.56rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border: 1px solid;
+        }
+        .role-standard { color: var(--text-ghost); border-color: var(--border-hi); }
+        .role-premium  { color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.05); }
+
+        .banned-badge {
+            font-size: 0.56rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border: 1px solid;
+            color: #f87171;
+            border-color: rgba(248,113,113,0.3);
+            background: rgba(248,113,113,0.06);
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
+
+    <!-- ══ LOGIN ═══════════════════════════════════════════ -->
     <div id="loginScreen">
-        <div class="login-box">
-            <h1><i class="fas fa-satellite"></i> X-ORBIT Admin</h1>
-            <div class="error-message" id="loginError"></div>
-            <form onsubmit="handleLogin(event)" id="loginForm">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" required placeholder="Enter your username">
+        <div class="login-wrap">
+            <div class="login-brand">
+                <div class="login-brand-top">
+                    <div class="login-eyebrow">Admin Portal</div>
+                    <div class="login-logo">X-<span>ORBIT</span></div>
+                    <div class="login-tagline">Support Dashboard</div>
                 </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="Enter your password">
+                <div class="login-brand-bottom">
+                    <div class="login-feature">Manage support tickets</div>
+                    <div class="login-feature">View authentication logs</div>
+                    <div class="login-feature">Real-time messaging</div>
                 </div>
-                <button type="submit" class="login-btn" id="loginBtn">Login</button>
-            </form>
+            </div>
+            <div class="login-form-panel">
+
+                <!-- Panel 1: Email + Password -->
+                <div id="loginPanel">
+                    <div class="login-form-heading">Sign in</div>
+                    <div class="error-message" id="loginError"></div>
+                    <form onsubmit="handleLogin(event)" id="loginForm">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" required placeholder="admin@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="login-btn" id="loginBtn">
+                            <i class="fas fa-arrow-right"></i> Login
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Panel 2: TOTP Verify -->
+                <div id="totpPanel" style="display:none;">
+                    <div class="login-form-heading">Two-Factor Auth</div>
+                    <div class="error-message" id="totpError"></div>
+                    <p style="font-size:0.72rem;color:var(--text-faint);margin-bottom:20px;">Enter the 6-digit code from your authenticator app.</p>
+                    <div class="form-group">
+                        <label for="totpCode">Verification Code</label>
+                        <input type="text" id="totpCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+                    </div>
+                    <button type="button" class="login-btn" id="totpBtn" onclick="handleTotpVerify()">
+                        <i class="fas fa-shield-alt"></i> Verify
+                    </button>
+                </div>
+
+                <!-- Panel 3: TOTP Enrollment -->
+                <div id="enrollPanel" style="display:none;">
+                    <div class="login-form-heading">Set Up 2FA</div>
+                    <div class="error-message" id="enrollError"></div>
+                    <p style="font-size:0.72rem;color:var(--text-faint);margin-bottom:16px;">Scan the QR code with your authenticator app.</p>
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <img id="enrollQr" src="" alt="TOTP QR Code" style="width:160px;height:160px;background:#fff;display:block;margin:0 auto 10px;">
+                        <div style="font-size:0.6rem;color:var(--text-ghost);letter-spacing:1px;margin-bottom:4px;">MANUAL ENTRY CODE</div>
+                        <div id="enrollSecret" style="font-size:0.72rem;color:var(--text-faint);word-break:break-all;padding:8px;border:1px solid var(--border-hi);background:var(--bg);"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="enrollCode">Enter 6-Digit Code to Confirm</label>
+                        <input type="text" id="enrollCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+                    </div>
+                    <button type="button" class="login-btn" id="enrollBtn" onclick="handleEnrollVerify()">
+                        <i class="fas fa-check"></i> Activate 2FA
+                    </button>
+                </div>
+
+            </div>
         </div>
     </div>
 
-    <!-- Dashboard -->
+    <!-- ══ DASHBOARD ═══════════════════════════════════════ -->
     <div id="dashboard">
-        <div class="dashboard-header">
-            <h2><i class="fas fa-satellite"></i> X-ORBIT Support Dashboard</h2>
-            <div class="user-info">
-                <span id="adminName">Admin User</span>
+
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <div class="top-bar-brand">X-<span>ORBIT</span></div>
+
+            <nav class="top-nav">
+                <button class="nav-tab active" onclick="switchTab('tickets', event)">
+                    <i class="fas fa-ticket-alt"></i> Tickets
+                    <span class="nav-count" id="navTicketCount">0</span>
+                </button>
+                <button class="nav-tab" onclick="switchTab('logs', event)">
+                    <i class="fas fa-clipboard-list"></i> Logs
+                </button>
+                <button class="nav-tab" onclick="switchTab('admins', event)">
+                    <i class="fas fa-user-shield"></i> Admins
+                </button>
+            </nav>
+
+            <div class="top-stats">
+                <div class="top-stat">
+                    <span class="top-stat-num" id="statOpen">0</span>
+                    <span class="top-stat-lbl">Open</span>
+                </div>
+                <div class="top-stat">
+                    <span class="top-stat-num" id="statInProgress">0</span>
+                    <span class="top-stat-lbl">Prog</span>
+                </div>
+                <div class="top-stat">
+                    <span class="top-stat-num" id="statWaiting">0</span>
+                    <span class="top-stat-lbl">Wait</span>
+                </div>
+                <div class="top-stat">
+                    <span class="top-stat-num" id="statTotal">0</span>
+                    <span class="top-stat-lbl">Active</span>
+                </div>
+            </div>
+
+            <div class="top-bar-spacer"></div>
+
+            <div class="top-bar-right">
+                <span class="top-bar-admin" id="adminName"></span>
                 <button class="logout-btn" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
-        </div>
+        </header>
 
-        <div class="stats-bar">
-            <div class="stat-card">
-                <div class="stat-number" id="statOpen">0</div>
-                <div class="stat-label">Open</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statInProgress">0</div>
-                <div class="stat-label">In Progress</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statWaiting">0</div>
-                <div class="stat-label">Waiting</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="statTotal">0</div>
-                <div class="stat-label">Total Active</div>
-            </div>
-        </div>
+        <!-- WORKSPACE -->
+        <div class="workspace">
 
-        <div class="dashboard-content">
-            <div class="sidebar" id="sidebar">
-                <div class="sidebar-header">
-                    <div class="sidebar-tabs">
-                        <button class="tab-btn active" onclick="switchTab('tickets')">
-                            <i class="fas fa-ticket-alt"></i> Tickets
-                        </button>
-                        <button class="tab-btn" onclick="switchTab('logs')">
-                            <i class="fas fa-clipboard-list"></i> Logs
-                        </button>
-                        <button class="tab-btn" onclick="switchTab('admins')">
-                            <i class="fas fa-user-shield"></i> Admins
-                        </button>
-                    </div>
-                    <div class="search-box">
-                        <input type="text" placeholder="Search tickets..." id="searchInput" oninput="searchTickets()">
-                        <i class="fas fa-search"></i>
-                    </div>
+            <!-- TICKET LIST -->
+            <aside class="ticket-panel" id="ticketPanel">
+                <div class="panel-search">
+                    <input type="text" placeholder="Search tickets…" id="searchInput" oninput="searchTickets()">
+                    <i class="fas fa-search"></i>
                 </div>
-                <div class="ticket-list" id="ticketList">
-                    <!-- Tickets will be loaded here -->
-                </div>
-            </div>
+                <div class="ticket-list" id="ticketList"></div>
+            </aside>
 
-            <div class="chat-area">
-                <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
-                    <i class="fas fa-chevron-right" id="toggleIcon"></i>
-                </button>
+            <!-- CHAT / CONTENT -->
+            <main class="chat-panel">
 
                 <div class="empty-state" id="emptyState">
                     <i class="fas fa-comments"></i>
-                    <p>Select a ticket to view the conversation</p>
+                    <p>Select a ticket to begin</p>
                 </div>
 
-                <div id="chatContent" style="display: none; height: 100%; flex-direction: column;">
-                    <div class="chat-header">
-                        <div class="chat-ticket-info">
-                            <h3 id="chatTicketNumber"></h3>
-                            <div class="chat-ticket-meta">
-                                <span><i class="fas fa-user"></i> <span id="chatUserName"></span></span>
-                                <span><i class="fas fa-envelope"></i> <span id="chatUserEmail"></span></span>
-                                <span><i class="fas fa-tag"></i> <span id="chatCategory"></span></span>
-                            </div>
-                            <div class="ticket-actions">
-                                <select class="action-btn" id="statusSelect" onchange="updateTicketStatus()">
-                                    <option value="open">Open</option>
-                                    <option value="in_progress">In Progress</option>
-                                    <option value="waiting_response">Waiting Response</option>
-                                    <option value="resolved">Resolved</option>
-                                    <option value="closed">Closed</option>
-                                </select>
-                                <select class="action-btn" id="prioritySelect" onchange="updateTicketPriority()">
-                                    <option value="low">Low Priority</option>
-                                    <option value="medium">Medium Priority</option>
-                                    <option value="high">High Priority</option>
-                                    <option value="urgent">Urgent</option>
-                                </select>
-                            </div>
+                <div id="chatContent" style="display:none; flex-direction:column; height:100%; overflow:hidden;">
+
+                    <div class="chat-info-bar">
+                        <div class="chat-info-left">
+                            <span class="chat-tid" id="chatTicketNumber"></span>
+                            <span class="chat-sep">/</span>
+                            <span class="chat-uname" id="chatUserName"></span>
+                            <span class="chat-sep">·</span>
+                            <span class="chat-email" id="chatUserEmail"></span>
+                            <span class="chat-sep">·</span>
+                            <span class="chat-cat" id="chatCategory"></span>
+                        </div>
+                        <div class="chat-info-right">
+                            <select class="action-select" id="statusSelect" onchange="updateTicketStatus()">
+                                <option value="open">Open</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="waiting_response">Waiting Response</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                            <select class="action-select" id="prioritySelect" onchange="updateTicketPriority()">
+                                <option value="low">Low Priority</option>
+                                <option value="medium">Medium Priority</option>
+                                <option value="high">High Priority</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="messages-container" id="messagesContainer">
-                        <!-- Messages will be loaded here -->
-                    </div>
+                    <div class="messages-container" id="messagesContainer"></div>
 
                     <div class="message-input-area">
-                        <div class="message-input-container">
-                            <textarea 
-                                id="messageInput" 
-                                class="message-input" 
-                                placeholder="Type your response..." 
+                        <div class="input-hint">Enter to send · Shift+Enter for new line</div>
+                        <div class="input-row">
+                            <textarea
+                                id="messageInput"
+                                class="message-input"
+                                placeholder="Type your response…"
                                 rows="3"
                                 onkeydown="handleMessageKeydown(event)"
                             ></textarea>
@@ -1047,12 +1224,121 @@
                             </button>
                         </div>
                     </div>
+
                 </div>
 
                 <!-- Logs iframe container -->
                 <div id="logsContent">
-                    <iframe id="logsFrame" src="logs.html" style="width: 100%; height: 100%; border: none; background: rgba(0, 0, 0, 0.2);"></iframe>
+                    <iframe id="logsFrame" src="logs.html" style="width:100%;height:100%;border:none;background:rgba(0,0,0,0.2);"></iframe>
                 </div>
+
+                <!-- Admins panel -->
+                <div id="adminsContent">
+                    <div class="admins-layout">
+
+                        <div class="admin-create-panel">
+                            <div class="admin-panel-eyebrow">New Account</div>
+                            <h3 class="admin-panel-title">Create User</h3>
+                            <div class="create-msg" id="createAccountMsg"></div>
+                            <form onsubmit="createXorbitUser(event)" id="createUserForm">
+                                <div class="admin-form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" id="newName" placeholder="Full name" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="newEmail" placeholder="email@example.com" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>Password</label>
+                                    <input type="password" id="newPassword" placeholder="••••••••" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>Phone <span style="color:var(--text-ghost);font-size:0.58rem;">(optional)</span></label>
+                                    <input type="tel" id="newPhone" placeholder="+1 555 000 0000">
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>Role</label>
+                                    <select class="action-select" id="newRole" style="width:100%;padding:10px 12px;">
+                                        <option value="standard">Standard</option>
+                                        <option value="premium">Premium</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="admin-create-btn" id="createUserBtn">
+                                    <i class="fas fa-plus"></i> Create User
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="clients-panel">
+                            <div class="clients-col">
+                                <div class="admin-panel-eyebrow">Support Tickets</div>
+                                <h3 class="admin-panel-title">Ticket Submitters</h3>
+                                <div class="clients-list" id="submittersList">
+                                    <div class="loading-spinner"><i class="fas fa-spinner"></i> Loading…</div>
+                                </div>
+                            </div>
+                            <div class="clients-col">
+                                <div class="admin-panel-eyebrow">Registered Accounts</div>
+                                <h3 class="admin-panel-title">X-ORBIT Users</h3>
+                                <div class="clients-list" id="xorbitUsersList">
+                                    <div class="loading-spinner"><i class="fas fa-spinner"></i> Loading…</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Edit client modal -->
+    <div id="editClientModal" class="modal-overlay" style="display:none;">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span class="modal-title">Edit User</span>
+                <button class="modal-close" onclick="closeEditModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editClientId">
+                <div class="admin-form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="editName" placeholder="Full name">
+                </div>
+                <div class="admin-form-group">
+                    <label>Email</label>
+                    <input type="email" id="editEmail" placeholder="email@example.com">
+                </div>
+                <div class="admin-form-group">
+                    <label>Phone <span style="color:var(--text-ghost);font-size:0.58rem;">(optional)</span></label>
+                    <input type="tel" id="editPhone" placeholder="+1 555 000 0000">
+                </div>
+                <div class="admin-form-group">
+                    <label>Role</label>
+                    <select class="action-select" id="editRole" style="width:100%;padding:10px 12px;">
+                        <option value="standard">Standard</option>
+                        <option value="premium">Premium</option>
+                    </select>
+                </div>
+                <div class="admin-form-group">
+                    <label>Blocked</label>
+                    <select class="action-select" id="editBlocked" style="width:100%;padding:10px 12px;">
+                        <option value="false">No</option>
+                        <option value="true">Yes</option>
+                    </select>
+                </div>
+                <div class="admin-form-group">
+                    <label>Block Reason <span style="color:var(--text-ghost);font-size:0.58rem;">(if blocked)</span></label>
+                    <input type="text" id="editBanReason" placeholder="Reason…">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="create-msg" id="editClientMsg"></div>
+                <button class="admin-create-btn" onclick="saveClientEdit()" id="saveClientBtn">
+                    <i class="fas fa-check"></i> Save Changes
+                </button>
             </div>
         </div>
     </div>
@@ -1060,17 +1346,18 @@
     <script>
         const SUPABASE_URL = 'https://rujvmtvozorylfzsqppc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1anZtdHZvem9yeWxmenNxcHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0NjQxNDEsImV4cCI6MjA3MzA0MDE0MX0.b7jJz3Se_oXXDwwd0dWQ8-rEvhY0aU4JDHQVioE39iY';
-        
+
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentAdmin = null;
         let currentTicket = null;
         let allTickets = [];
+        let xorbitClients = [];
         let messagesSubscription = null;
         let currentView = 'tickets';
-        let sidebarCollapsed = false;
         let logsAuthToken = null;
+        let pendingEnrollFactorId = null;
 
         function generateLogsAuthToken() {
             if (!currentAdmin) return null;
@@ -1079,84 +1366,159 @@
             return `xorbit-admin-${currentAdmin.id}-${timestamp}-${random}`;
         }
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const toggleIcon = document.getElementById('toggleIcon');
-            
-            sidebarCollapsed = !sidebarCollapsed;
-            
-            if (sidebarCollapsed) {
-                sidebar.classList.add('collapsed');
-                toggleIcon.className = 'fas fa-chevron-right';
-            } else {
-                sidebar.classList.remove('collapsed');
-                toggleIcon.className = 'fas fa-chevron-left';
-            }
+        function showPanel(panelId) {
+            ['loginPanel', 'totpPanel', 'enrollPanel'].forEach(id => {
+                document.getElementById(id).style.display = id === panelId ? 'block' : 'none';
+            });
         }
 
         async function handleLogin(event) {
             event.preventDefault();
-            const username = document.getElementById('username').value;
+            const email    = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
             const errorMsg = document.getElementById('loginError');
 
             loginBtn.disabled = true;
-            loginBtn.textContent = 'Logging in...';
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in…';
             errorMsg.classList.remove('show');
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('admin_login')
-                    .select('*')
-                    .eq('username', username)
-                    .eq('is_active', true)
-                    .single();
+                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
 
-                if (error || !data) {
-                    throw new Error('Invalid username or password');
+                const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
+
+                if (aalData.nextLevel === 'aal2') {
+                    showPanel('totpPanel');
+                    document.getElementById('totpCode').value = '';
+                    document.getElementById('totpCode').focus();
+                } else {
+                    await startEnrollment();
                 }
-
-                currentAdmin = data;
-                sessionStorage.setItem('currentAdmin', JSON.stringify(data));
-
-                await supabaseClient
-                    .from('admin_login')
-                    .update({ last_login: new Date().toISOString() })
-                    .eq('id', data.id);
-
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'flex';
-                document.getElementById('adminName').textContent = data.full_name;
-
-                await loadTickets();
-                loadStats();
-
-            } catch (error) {
-                console.error('Login error:', error);
-                errorMsg.textContent = error.message || 'Login failed. Please try again.';
+            } catch (err) {
+                console.error('Login error:', err);
+                errorMsg.textContent = err.message || 'Login failed. Please try again.';
                 errorMsg.classList.add('show');
             } finally {
                 loginBtn.disabled = false;
-                loginBtn.textContent = 'Login';
+                loginBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Login';
             }
         }
 
-        function logout() {
-            sessionStorage.removeItem('currentAdmin');
-            currentAdmin = null;
-            currentTicket = null;
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('loginForm').reset();
+        async function startEnrollment() {
+            const enrollError = document.getElementById('enrollError');
+            enrollError.classList.remove('show');
+
+            try {
+                const { data, error } = await supabaseClient.auth.mfa.enroll({
+                    factorType: 'totp',
+                    issuer: 'X-ORBIT Admin'
+                });
+                if (error) throw error;
+
+                pendingEnrollFactorId = data.id;
+                document.getElementById('enrollQr').src = data.totp.qr_code;
+                document.getElementById('enrollSecret').textContent = data.totp.secret;
+                showPanel('enrollPanel');
+                document.getElementById('enrollCode').value = '';
+                document.getElementById('enrollCode').focus();
+            } catch (err) {
+                console.error('Enrollment error:', err);
+                const loginError = document.getElementById('loginError');
+                loginError.textContent = err.message || 'Failed to start 2FA setup.';
+                loginError.classList.add('show');
+                showPanel('loginPanel');
+            }
         }
 
-        function logout() {
-            sessionStorage.removeItem('currentAdmin');
+        async function handleTotpVerify() {
+            const code     = document.getElementById('totpCode').value.trim();
+            const totpBtn  = document.getElementById('totpBtn');
+            const errorMsg = document.getElementById('totpError');
+
+            if (!code) return;
+
+            totpBtn.disabled = true;
+            totpBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying…';
+            errorMsg.classList.remove('show');
+
+            try {
+                const { data: factors } = await supabaseClient.auth.mfa.listFactors();
+                const totpFactor = factors.totp && factors.totp[0];
+                if (!totpFactor) throw new Error('No TOTP factor found');
+
+                const { error } = await supabaseClient.auth.mfa.challengeAndVerify({
+                    factorId: totpFactor.id,
+                    code
+                });
+                if (error) throw error;
+
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                await enterDashboard(session.user);
+            } catch (err) {
+                console.error('TOTP verify error:', err);
+                errorMsg.textContent = err.message || 'Invalid code. Please try again.';
+                errorMsg.classList.add('show');
+            } finally {
+                totpBtn.disabled = false;
+                totpBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Verify';
+            }
+        }
+
+        async function handleEnrollVerify() {
+            const code      = document.getElementById('enrollCode').value.trim();
+            const enrollBtn = document.getElementById('enrollBtn');
+            const errorMsg  = document.getElementById('enrollError');
+
+            if (!code || !pendingEnrollFactorId) return;
+
+            enrollBtn.disabled = true;
+            enrollBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Activating…';
+            errorMsg.classList.remove('show');
+
+            try {
+                const { error } = await supabaseClient.auth.mfa.challengeAndVerify({
+                    factorId: pendingEnrollFactorId,
+                    code
+                });
+                if (error) throw error;
+
+                pendingEnrollFactorId = null;
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                await enterDashboard(session.user);
+            } catch (err) {
+                console.error('Enrollment verify error:', err);
+                errorMsg.textContent = err.message || 'Invalid code. Please try again.';
+                errorMsg.classList.add('show');
+            } finally {
+                enrollBtn.disabled = false;
+                enrollBtn.innerHTML = '<i class="fas fa-check"></i> Activate 2FA';
+            }
+        }
+
+        async function enterDashboard(user) {
+            currentAdmin = {
+                id:        user.id,
+                email:     user.email,
+                full_name: user.user_metadata?.full_name || user.email
+            };
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'flex';
+            document.getElementById('adminName').textContent = currentAdmin.full_name;
+
+            await loadTickets();
+            loadStats();
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
             currentAdmin = null;
             currentTicket = null;
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('dashboard').style.display = 'none';
+            showPanel('loginPanel');
             document.getElementById('loginForm').reset();
         }
 
@@ -1177,21 +1539,23 @@
         }
 
         function displayTickets(tickets) {
-            const listContainer = document.getElementById('ticketList');
-            
+            const listEl = document.getElementById('ticketList');
+            const countEl = document.getElementById('navTicketCount');
+            if (countEl) countEl.textContent = tickets.length;
+
             if (tickets.length === 0) {
-                listContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">No tickets found</div>';
+                listEl.innerHTML = '<div class="no-tickets">No tickets found</div>';
                 return;
             }
 
-            listContainer.innerHTML = tickets.map(ticket => `
+            listEl.innerHTML = tickets.map(ticket => `
                 <div class="ticket-item ${currentTicket?.id === ticket.id ? 'active' : ''}" onclick="selectTicket('${ticket.id}')">
-                    <div class="ticket-header">
-                        <span class="ticket-number">${ticket.ticket_number}</span>
-                        <span class="ticket-status status-${ticket.status}">${ticket.status.replace('_', ' ')}</span>
+                    <div class="ticket-row-top">
+                        <span class="ticket-id">${ticket.ticket_number}</span>
+                        <span class="status-dot dot-${ticket.status}" title="${ticket.status.replace('_', ' ')}"></span>
                     </div>
                     <div class="ticket-name">${ticket.name}</div>
-                    <div class="ticket-subject">${ticket.subject || ticket.message.substring(0, 50) + '...'}</div>
+                    <div class="ticket-subject">${ticket.subject || ticket.message.substring(0, 48) + '…'}</div>
                     <div class="ticket-time">${formatTime(ticket.created_at)}</div>
                 </div>
             `).join('');
@@ -1216,12 +1580,11 @@
             if (!ticket) return;
 
             currentTicket = ticket;
-            
+
             document.getElementById('logsContent').style.display = 'none';
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('chatContent').style.display = 'flex';
-            document.getElementById('sidebarToggle').classList.remove('visible');
-            
+
             document.getElementById('chatTicketNumber').textContent = ticket.ticket_number;
             document.getElementById('chatUserName').textContent = ticket.name;
             document.getElementById('chatUserEmail').textContent = ticket.email;
@@ -1260,27 +1623,20 @@
 
         function displayMessages(messages) {
             const container = document.getElementById('messagesContainer');
-            
+
             container.innerHTML = messages.map(msg => {
                 if (msg.sender_email === 'system@xorbit.org') {
                     return `
                         <div class="message system">
-                            <div class="message-bubble">
-                                ${msg.message}
-                            </div>
+                            <div class="msg-bubble">${msg.message}</div>
                         </div>
                     `;
                 }
-                
                 return `
                     <div class="message ${msg.is_staff ? 'staff' : 'user'}">
-                        <div class="message-header">
-                            ${msg.sender_name}
-                        </div>
-                        <div class="message-bubble">
-                            ${msg.message}
-                        </div>
-                        <div class="message-time">${formatTime(msg.created_at)}</div>
+                        <div class="msg-sender">${msg.sender_name}</div>
+                        <div class="msg-bubble">${msg.message}</div>
+                        <div class="msg-time">${formatTime(msg.created_at)}</div>
                     </div>
                 `;
             }).join('');
@@ -1289,9 +1645,7 @@
         }
 
         function subscribeToMessages(ticketId) {
-            if (messagesSubscription) {
-                messagesSubscription.unsubscribe();
-            }
+            if (messagesSubscription) messagesSubscription.unsubscribe();
 
             supabaseClient
                 .from('conversations')
@@ -1307,9 +1661,7 @@
                                 schema: 'public',
                                 table: 'messages',
                                 filter: `conversation_id=eq.${conversation.id}`
-                            }, (payload) => {
-                                loadMessages(ticketId);
-                            })
+                            }, () => { loadMessages(ticketId); })
                             .subscribe();
                     }
                 });
@@ -1318,7 +1670,6 @@
         async function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
-            
             if (!message || !currentTicket) return;
 
             const sendBtn = document.getElementById('sendBtn');
@@ -1347,13 +1698,13 @@
                 if (msgError) throw msgError;
 
                 messageInput.value = '';
-                
+
                 if (currentTicket.status === 'open') {
                     await supabaseClient
                         .from('support_tickets')
                         .update({ status: 'in_progress' })
                         .eq('id', currentTicket.id);
-                    
+
                     currentTicket.status = 'in_progress';
                     document.getElementById('statusSelect').value = 'in_progress';
                     await loadTickets();
@@ -1371,7 +1722,7 @@
         }
 
         function handleMessageKeydown(event) {
-            if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+            if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
                 sendMessage();
             }
@@ -1379,9 +1730,7 @@
 
         async function updateTicketStatus() {
             if (!currentTicket) return;
-
             const newStatus = document.getElementById('statusSelect').value;
-
             try {
                 const { error } = await supabaseClient
                     .from('support_tickets')
@@ -1393,10 +1742,7 @@
                 currentTicket.status = newStatus;
                 await loadTickets();
                 await loadStats();
-                
-                setTimeout(() => {
-                    loadMessages(currentTicket.id);
-                }, 500);
+                setTimeout(() => { loadMessages(currentTicket.id); }, 500);
             } catch (error) {
                 console.error('Error updating status:', error);
                 alert('Failed to update status');
@@ -1405,9 +1751,7 @@
 
         async function updateTicketPriority() {
             if (!currentTicket) return;
-
             const newPriority = document.getElementById('prioritySelect').value;
-
             try {
                 const { error } = await supabaseClient
                     .from('support_tickets')
@@ -1418,10 +1762,7 @@
 
                 currentTicket.priority = newPriority;
                 await loadTickets();
-                
-                setTimeout(() => {
-                    loadMessages(currentTicket.id);
-                }, 500);
+                setTimeout(() => { loadMessages(currentTicket.id); }, 500);
             } catch (error) {
                 console.error('Error updating priority:', error);
                 alert('Failed to update priority');
@@ -1436,72 +1777,44 @@
 
                 if (error) throw error;
 
-                const stats = {
-                    open: 0,
-                    in_progress: 0,
-                    waiting: 0,
-                    total: 0
-                };
+                const open       = data.filter(t => t.status === 'open').length;
+                const inProgress = data.filter(t => t.status === 'in_progress').length;
+                const waiting    = data.filter(t => t.status === 'waiting_response').length;
+                const total      = data.filter(t => t.status !== 'resolved' && t.status !== 'closed').length;
 
-                if (data && data.length > 0) {
-                    stats.open = data.filter(t => t.status === 'open').length;
-                    stats.in_progress = data.filter(t => t.status === 'in_progress').length;
-                    stats.waiting = data.filter(t => t.status === 'waiting_response').length;
-                    stats.total = data.filter(t => t.status !== 'resolved' && t.status !== 'closed').length;
-                }
-
-                document.getElementById('statOpen').textContent = stats.open;
-                document.getElementById('statInProgress').textContent = stats.in_progress;
-                document.getElementById('statWaiting').textContent = stats.waiting;
-                document.getElementById('statTotal').textContent = stats.total;
+                document.getElementById('statOpen').textContent       = open;
+                document.getElementById('statInProgress').textContent = inProgress;
+                document.getElementById('statWaiting').textContent    = waiting;
+                document.getElementById('statTotal').textContent      = total;
             } catch (error) {
                 console.error('Error loading stats:', error);
-                document.getElementById('statOpen').textContent = '0';
-                document.getElementById('statInProgress').textContent = '0';
-                document.getElementById('statWaiting').textContent = '0';
-                document.getElementById('statTotal').textContent = '0';
             }
         }
 
         function searchTickets() {
             const query = document.getElementById('searchInput').value.toLowerCase();
-            
-            if (!query) {
-                displayTickets(allTickets);
-                return;
-            }
+            if (!query) { displayTickets(allTickets); return; }
 
-            const filtered = allTickets.filter(ticket => 
-                ticket.ticket_number.toLowerCase().includes(query) ||
-                ticket.name.toLowerCase().includes(query) ||
-                ticket.email.toLowerCase().includes(query) ||
-                ticket.subject?.toLowerCase().includes(query) ||
-                ticket.message.toLowerCase().includes(query)
+            const filtered = allTickets.filter(t =>
+                t.ticket_number.toLowerCase().includes(query) ||
+                t.name.toLowerCase().includes(query) ||
+                t.email.toLowerCase().includes(query) ||
+                t.subject?.toLowerCase().includes(query) ||
+                t.message.toLowerCase().includes(query)
             );
-
             displayTickets(filtered);
         }
 
-        async function loadClientLogs() {
-            // This function is no longer used since we're using iframe
-            // but keeping it for reference
-        }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
+        function switchTab(tab, ev) {
+            document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+            ev.target.closest('.nav-tab').classList.add('active');
             currentView = tab;
 
             if (tab === 'tickets') {
-                document.getElementById('ticketList').style.display = 'flex';
+                document.getElementById('ticketPanel').classList.remove('hidden');
                 document.getElementById('logsContent').style.display = 'none';
-                document.getElementById('sidebarToggle').classList.remove('visible');
-                
-                if (!sidebarCollapsed) {
-                    document.getElementById('sidebar').classList.remove('collapsed');
-                }
-                
+                document.getElementById('adminsContent').style.display = 'none';
+
                 if (currentTicket) {
                     document.getElementById('chatContent').style.display = 'flex';
                     document.getElementById('emptyState').style.display = 'none';
@@ -1510,21 +1823,15 @@
                     document.getElementById('emptyState').style.display = 'flex';
                 }
                 loadTickets();
+
             } else if (tab === 'logs') {
-                document.getElementById('ticketList').style.display = 'none';
+                document.getElementById('ticketPanel').classList.add('hidden');
                 document.getElementById('chatContent').style.display = 'none';
                 document.getElementById('emptyState').style.display = 'none';
-                document.getElementById('logsContent').style.display = 'block';
-                
-                // Collapse sidebar and show toggle button
-                document.getElementById('sidebar').classList.add('collapsed');
-                document.getElementById('sidebarToggle').classList.add('visible');
-                document.getElementById('toggleIcon').className = 'fas fa-chevron-right';
-                sidebarCollapsed = true;
-                
-                // Generate and send authentication token to logs iframe
+                document.getElementById('logsContent').style.display = 'flex';
+                document.getElementById('adminsContent').style.display = 'none';
+
                 logsAuthToken = generateLogsAuthToken();
-                
                 setTimeout(() => {
                     const logsFrame = document.getElementById('logsFrame');
                     if (logsFrame && logsFrame.contentWindow) {
@@ -1534,20 +1841,244 @@
                         }, '*');
                     }
                 }, 100);
+
             } else if (tab === 'admins') {
-                alert('Admin management - coming soon!\n\nThis will allow:\n- Adding new admin users\n- Managing admin permissions\n- Viewing admin activity logs');
+                document.getElementById('ticketPanel').classList.add('hidden');
+                document.getElementById('chatContent').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'none';
+                document.getElementById('logsContent').style.display = 'none';
+                document.getElementById('adminsContent').style.display = 'flex';
+                loadClients();
             }
         }
 
-        // Listen for messages from logs iframe
+        async function hashPassword(password) {
+            const data = new TextEncoder().encode(password);
+            const buf  = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        function generateDmCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+            return code;
+        }
+
+        async function createXorbitUser(event) {
+            event.preventDefault();
+            const name     = document.getElementById('newName').value.trim();
+            const email    = document.getElementById('newEmail').value.trim();
+            const password = document.getElementById('newPassword').value;
+            const phone    = document.getElementById('newPhone').value.trim() || null;
+            const role     = document.getElementById('newRole').value;
+
+            const btn   = document.getElementById('createUserBtn');
+            const msgEl = document.getElementById('createAccountMsg');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating…';
+            msgEl.style.display = 'none';
+            msgEl.className = 'create-msg';
+
+            try {
+                const { data: existing } = await supabaseClient
+                    .from('clients')
+                    .select('id')
+                    .eq('email', email)
+                    .maybeSingle();
+
+                if (existing) throw new Error(`An account with that email already exists`);
+
+                const hashedPassword = await hashPassword(password);
+                const dmCode = generateDmCode();
+
+                const { error } = await supabaseClient
+                    .from('clients')
+                    .insert([{
+                        name,
+                        email,
+                        password:   hashedPassword,
+                        phone,
+                        role,
+                        blocked:    false,
+                        ban_reason: null,
+                        dm_code:    dmCode
+                    }]);
+
+                if (error) throw error;
+
+                msgEl.className = 'create-msg success';
+                msgEl.textContent = `User "${name}" created successfully.`;
+                msgEl.style.display = 'block';
+                document.getElementById('createUserForm').reset();
+                loadClients();
+
+            } catch (error) {
+                console.error('Error creating user:', error);
+                msgEl.className = 'create-msg error';
+                msgEl.textContent = error.message || 'Failed to create user.';
+                msgEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-plus"></i> Create User';
+            }
+        }
+
+        async function loadClients() {
+            const submEl   = document.getElementById('submittersList');
+            const usersEl  = document.getElementById('xorbitUsersList');
+
+            submEl.innerHTML  = '<div class="loading-spinner"><i class="fas fa-spinner"></i> Loading…</div>';
+            usersEl.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i> Loading…</div>';
+
+            // ── Ticket submitters (from support_tickets) ──────────────
+            try {
+                const { data: tickets, error } = await supabaseClient
+                    .from('support_tickets')
+                    .select('name, email, created_at')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const map = {};
+                tickets.forEach(t => {
+                    if (!map[t.email]) {
+                        map[t.email] = { name: t.name, email: t.email, count: 0, last: t.created_at };
+                    }
+                    map[t.email].count++;
+                });
+
+                const submitters = Object.values(map);
+
+                if (submitters.length === 0) {
+                    submEl.innerHTML = '<div class="no-tickets">No ticket submitters found</div>';
+                } else {
+                    submEl.innerHTML = submitters.map(s => `
+                        <div class="client-item">
+                            <div>
+                                <div class="client-name">${s.name}</div>
+                                <div class="client-email">${s.email}</div>
+                            </div>
+                            <div class="client-meta">
+                                <span class="client-ticket-count">${s.count} ticket${s.count !== 1 ? 's' : ''}</span>
+                                <span class="client-last-seen">${formatTime(s.last)}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('Error loading submitters:', err);
+                submEl.innerHTML = '<div class="no-tickets">Failed to load submitters</div>';
+            }
+
+            // ── X-ORBIT users (from clients table) ───────────────────
+            try {
+                const { data: users, error } = await supabaseClient
+                    .from('clients')
+                    .select('id, name, email, phone, role, blocked, ban_reason, created_at')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!users || users.length === 0) {
+                    usersEl.innerHTML = '<div class="no-tickets">No X-ORBIT users found</div>';
+                } else {
+                    xorbitClients = users;
+                    usersEl.innerHTML = users.map(u => `
+                        <div class="client-item">
+                            <div>
+                                <div class="client-name">${u.name}</div>
+                                <div class="client-email">${u.email}</div>
+                                <div class="client-badges">
+                                    <span class="role-badge role-${u.role}">${u.role}</span>
+                                    ${u.blocked ? `<span class="banned-badge" title="${u.ban_reason || ''}">blocked</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="client-meta">
+                                <button class="edit-btn" onclick="openEditModal('${u.id}')"><i class="fas fa-pen"></i></button>
+                                <span class="client-last-seen">${formatTime(u.created_at)}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('Error loading X-ORBIT users:', err);
+                usersEl.innerHTML = '<div class="no-tickets">Failed to load users</div>';
+            }
+        }
+
+        function openEditModal(id) {
+            const user = xorbitClients.find(u => String(u.id) === String(id));
+            if (!user) return;
+
+            document.getElementById('editClientId').value   = user.id;
+            document.getElementById('editName').value       = user.name || '';
+            document.getElementById('editEmail').value      = user.email || '';
+            document.getElementById('editPhone').value      = user.phone || '';
+            document.getElementById('editRole').value       = user.role || 'standard';
+            document.getElementById('editBlocked').value    = user.blocked ? 'true' : 'false';
+            document.getElementById('editBanReason').value  = user.ban_reason || '';
+
+            const msgEl = document.getElementById('editClientMsg');
+            msgEl.style.display = 'none';
+            msgEl.className = 'create-msg';
+
+            document.getElementById('editClientModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editClientModal').style.display = 'none';
+        }
+
+        async function saveClientEdit() {
+            const id        = document.getElementById('editClientId').value;
+            const name      = document.getElementById('editName').value.trim();
+            const email     = document.getElementById('editEmail').value.trim();
+            const phone     = document.getElementById('editPhone').value.trim() || null;
+            const role      = document.getElementById('editRole').value;
+            const blocked   = document.getElementById('editBlocked').value === 'true';
+            const banReason = document.getElementById('editBanReason').value.trim() || null;
+
+            const btn   = document.getElementById('saveClientBtn');
+            const msgEl = document.getElementById('editClientMsg');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+            msgEl.style.display = 'none';
+            msgEl.className = 'create-msg';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('clients')
+                    .update({ name, email, phone, role, blocked, ban_reason: banReason })
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                msgEl.className = 'create-msg success';
+                msgEl.textContent = 'Changes saved.';
+                msgEl.style.display = 'block';
+
+                loadClients();
+
+            } catch (err) {
+                console.error('Error saving client:', err);
+                msgEl.className = 'create-msg error';
+                msgEl.textContent = err.message || 'Failed to save changes.';
+                msgEl.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Save Changes';
+            }
+        }
+
         window.addEventListener('message', (event) => {
             if (event.data === 'logs-ready') {
                 console.log('Logs viewer is ready and authenticated');
             } else if (event.data && event.data.type === 'request-auth') {
-                if (!logsAuthToken) {
-                    logsAuthToken = generateLogsAuthToken();
-                }
-                
+                if (!logsAuthToken) logsAuthToken = generateLogsAuthToken();
+
                 const logsFrame = document.getElementById('logsFrame');
                 if (logsFrame && logsFrame.contentWindow) {
                     logsFrame.contentWindow.postMessage({
@@ -1558,16 +2089,31 @@
             }
         });
 
-        window.addEventListener('load', () => {
-            const savedAdmin = sessionStorage.getItem('currentAdmin');
-            if (savedAdmin) {
-                currentAdmin = JSON.parse(savedAdmin);
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'flex';
-                document.getElementById('adminName').textContent = currentAdmin.full_name;
-                loadTickets();
-                loadStats();
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT') {
+                currentAdmin = null;
+                currentTicket = null;
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('dashboard').style.display = 'none';
+                showPanel('loginPanel');
             }
+        });
+
+        window.addEventListener('load', async () => {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) return;
+
+            const { data: aalData } = await supabaseClient.auth.mfa.getAuthenticatorAssuranceLevel();
+
+            if (aalData.nextLevel === 'aal2' && aalData.currentLevel !== 'aal2') {
+                // Session exists but TOTP not yet verified (e.g. refreshed mid-login)
+                showPanel('totpPanel');
+                document.getElementById('totpCode').value = '';
+                document.getElementById('totpCode').focus();
+                return;
+            }
+
+            await enterDashboard(session.user);
         });
 
         setInterval(() => {
