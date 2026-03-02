@@ -220,6 +220,10 @@
       .desktop-icon:hover span {
         color: #ffffff;
       }
+
+      /* Desktop folder: hidden until minimalist-theme is active */
+      #desktopFolder { display: none; }
+
       .window {
         position: absolute;
         min-width: 400px;
@@ -1971,6 +1975,114 @@
         border: 1px solid rgba(255, 87, 87, 0.6);
       }
 
+      /* DM Notification Badge */
+      .desktop-dm-badge {
+        position: fixed;
+        top: 48px;
+        right: 20px;
+        background: rgba(18, 18, 22, 0.96);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        border-radius: 16px;
+        padding: 14px 16px 14px 18px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.65),
+          0 0 0 1px rgba(255, 255, 255, 0.07) inset;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        z-index: 9997;
+        cursor: pointer;
+        transition: top 0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                    transform 0.2s ease,
+                    box-shadow 0.2s ease;
+        max-width: 300px;
+        width: 300px;
+        display: none;
+        flex-direction: row;
+        align-items: center;
+        gap: 13px;
+        animation: badgeSlideIn 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .desktop-dm-badge.show {
+        display: flex;
+      }
+
+      .desktop-dm-badge:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 44px rgba(0, 0, 0, 0.75),
+          0 0 0 1px rgba(255, 255, 255, 0.11) inset;
+      }
+
+      .desktop-dm-badge-icon-wrap {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .desktop-dm-badge-icon-wrap i {
+        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .desktop-dm-badge-body {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .desktop-dm-badge-app {
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.38);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 2px;
+      }
+
+      .desktop-dm-badge-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.92);
+        margin-bottom: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .desktop-dm-badge-text {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        line-height: 1.35;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .desktop-dm-badge-close {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.6rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background 0.15s, color 0.15s;
+      }
+
+      .desktop-dm-badge-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.9);
+      }
+
       /* === CUSTOM MODIFICATIONS === */
       /* Hide minimize button */
       .window-control.minimize {
@@ -2001,6 +2113,78 @@
       .menu-bar.menu-bar-hidden {
         display: none !important;
       }
+
+      /* ── X-ORBIT Modal System ─────────────────────────────────────────── */
+      .xmodal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 99999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .xmodal-overlay.show { display: flex; }
+      .xmodal-card {
+        background: rgba(14, 9, 32, 0.97);
+        border: 1px solid rgba(120, 80, 255, 0.22);
+        border-radius: 16px;
+        padding: 28px 26px 22px;
+        width: 340px;
+        max-width: calc(100vw - 40px);
+        box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(120,80,255,0.08) inset;
+        animation: xmodalIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      @keyframes xmodalIn {
+        from { opacity: 0; transform: scale(0.90) translateY(10px); }
+        to   { opacity: 1; transform: scale(1)    translateY(0); }
+      }
+      .xmodal-icon { text-align: center; font-size: 1.8rem; margin-bottom: 13px; }
+      .xmodal-title {
+        font-size: 0.94rem; font-weight: 700; color: #ede6ff;
+        text-align: center; margin-bottom: 7px; letter-spacing: -0.01em;
+      }
+      .xmodal-message {
+        font-size: 0.80rem; color: rgba(180, 165, 220, 0.82);
+        text-align: center; line-height: 1.65; margin-bottom: 22px;
+      }
+      .xmodal-actions { display: flex; gap: 8px; }
+      .xmodal-actions button { flex: 1; }
+      /* Base button style needed for modal action buttons */
+      .xorbit-button {
+        background: linear-gradient(135deg, rgba(110,70,240,0.22), rgba(50,120,240,0.16));
+        border: 1px solid rgba(110,70,240,0.3);
+        border-radius: 7px;
+        color: #baaeff;
+        padding: 8px 14px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.18s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-family: inherit;
+      }
+      .xorbit-button:hover {
+        background: linear-gradient(135deg, rgba(110,70,240,0.38), rgba(50,120,240,0.28));
+        border-color: rgba(110,70,240,0.55);
+        transform: translateY(-1px);
+      }
+      .xorbit-button.danger { background: rgba(255,60,60,0.12); border-color: rgba(255,60,60,0.28); color: #ff7878; }
+      .xorbit-button.danger:hover { background: rgba(255,60,60,0.24); border-color: rgba(255,60,60,0.5); }
+      .xmodal-btn-primary {
+        background: rgba(120, 80, 255, 0.22) !important;
+        border-color: rgba(120, 80, 255, 0.42) !important;
+        color: #b090ff !important;
+      }
+      .xmodal-btn-primary:hover {
+        background: rgba(120, 80, 255, 0.34) !important;
+        border-color: rgba(120, 80, 255, 0.6) !important;
+      }
     </style>
   </head>
   <body>
@@ -2009,7 +2193,7 @@
       <div class="startup-content">
         <i class="fas fa-globe startup-icon"></i>
         <div class="startup-text">X-ORBIT</div>
-        <div class="startup-version">v5.2.3B Ventas</div>
+        <div class="startup-version">v5.3.4B Ventas</div>
         <div class="startup-progress-container">
           <div class="startup-progress-bar" id="startupProgress"></div>
         </div>
@@ -2419,6 +2603,35 @@
           <i class="fa-solid fa-music"></i>
           <span>Music</span>
         </div>
+        <div
+          class="desktop-icon"
+          data-app="Jitter"
+          data-src="jittery.html"
+          data-icon="fas fa-comment-dots"
+          onclick="openWindow('Jitter', 'jittery.html', 'fas fa-comment-dots')"
+        >
+          <i class="fas fa-comment-dots"></i>
+          <span>Jitter</span>
+        </div>
+        <!-- Minimalist theme folder – hidden in all other themes -->
+        <div id="desktopFolder" class="desktop-icon">
+          <i class="fas fa-folder-open"></i>
+          <span>Desktop</span>
+        </div>
+      </div>
+    </div>
+    <!-- DM Notification Badge -->
+    <div class="desktop-dm-badge" id="desktopDMBadge" onclick="openDMApp()">
+      <div class="desktop-dm-badge-icon-wrap">
+        <i class="fas fa-comment-dots"></i>
+      </div>
+      <div class="desktop-dm-badge-body">
+        <div class="desktop-dm-badge-app">Direct Messages</div>
+        <div class="desktop-dm-badge-title" id="dmBadgeTitle">New Message</div>
+        <div class="desktop-dm-badge-text" id="dmBadgeText">You have an unread message</div>
+      </div>
+      <div class="desktop-dm-badge-close" onclick="hideDMBadge(event)">
+        <i class="fas fa-times"></i>
       </div>
     </div>
     <!-- Update Notification Badge - Desktop Corner -->
@@ -2708,6 +2921,7 @@
         if (badge && !desktopUpdateBadgeShown) {
           badge.classList.add("show");
           desktopUpdateBadgeShown = true;
+          repositionDMBadge();
 
           // Play preloaded notification sound
           _updateNotifSound.currentTime = 0;
@@ -2733,6 +2947,7 @@
         if (badge) {
           badge.classList.remove("show");
           desktopUpdateBadgeShown = false;
+          repositionDMBadge();
           if (event) {
             updateDismissedThisSession = true;
           }
@@ -2927,6 +3142,126 @@
       ];
 
       // Load user data from session storage
+      // ── DM Notification Polling ───────────────────────────────────────
+      let dmPollInterval = null;
+      let dmSnapshot     = new Set(); // IDs of unread messages known at page load
+
+      // Called once on load — records every currently-unread message so we
+      // never fire a notification for messages that were already there.
+      async function takeDMSnapshot() {
+        if (!currentUser || !currentUser.email) return;
+        if (!supabaseClient) { initSupabaseClient(); if (!supabaseClient) return; }
+
+        try {
+          const { data: convs } = await supabaseClient
+            .from("dm_conversations")
+            .select("id")
+            .or(`participant_1_email.eq.${currentUser.email},participant_2_email.eq.${currentUser.email}`);
+
+          if (!convs || convs.length === 0) { dmSnapshot = new Set(); return; }
+
+          const convIds = convs.map(c => c.id);
+
+          const { data: msgs } = await supabaseClient
+            .from("dm_messages")
+            .select("id")
+            .in("conversation_id", convIds)
+            .neq("sender_email", currentUser.email)
+            .eq("is_read", false);
+
+          dmSnapshot = new Set((msgs || []).map(m => m.id));
+          console.log(`[DM Snapshot] ${dmSnapshot.size} pre-existing unread message(s) recorded`);
+        } catch (err) {
+          console.error("[DM Snapshot]", err);
+        }
+      }
+
+      function startDMPolling() {
+        if (dmPollInterval) return;
+        // Take snapshot first, then begin polling
+        takeDMSnapshot().then(() => {
+          dmPollInterval = setInterval(pollDMNotifications, 10000);
+        });
+      }
+
+      async function pollDMNotifications() {
+        if (!currentUser || !currentUser.email) return;
+        if (!supabaseClient) { initSupabaseClient(); if (!supabaseClient) return; }
+
+        try {
+          const { data: convs } = await supabaseClient
+            .from("dm_conversations")
+            .select("id")
+            .or(`participant_1_email.eq.${currentUser.email},participant_2_email.eq.${currentUser.email}`);
+
+          if (!convs || convs.length === 0) return;
+
+          const convIds = convs.map(c => c.id);
+
+          // Fetch all current unread messages not sent by this user
+          const { data: msgs } = await supabaseClient
+            .from("dm_messages")
+            .select("id, sender_name, message")
+            .in("conversation_id", convIds)
+            .neq("sender_email", currentUser.email)
+            .eq("is_read", false)
+            .order("created_at", { ascending: false });
+
+          if (!msgs || msgs.length === 0) return;
+
+          // Only care about messages not in the snapshot (new since page load)
+          const newMsgs = msgs.filter(m => !dmSnapshot.has(m.id));
+          if (newMsgs.length === 0) return;
+
+          // Show notification for the most recent new message
+          showDMBadge(newMsgs[0].sender_name, newMsgs[0].message);
+
+          // Add all new IDs to snapshot so they don't re-trigger
+          newMsgs.forEach(m => dmSnapshot.add(m.id));
+
+          // Mark them as read in the table (notification delivered)
+          await supabaseClient
+            .from("dm_messages")
+            .update({ is_read: true })
+            .in("id", newMsgs.map(m => m.id));
+
+        } catch (err) {
+          console.error("[DM Poll]", err);
+        }
+      }
+
+      function showDMBadge(senderName, preview) {
+        const badge = document.getElementById("desktopDMBadge");
+        if (!badge) return;
+        document.getElementById("dmBadgeTitle").textContent = senderName;
+        document.getElementById("dmBadgeText").textContent =
+          preview.length > 55 ? preview.substring(0, 55) + "…" : preview;
+        repositionDMBadge();
+        badge.classList.add("show");
+        _updateNotifSound.currentTime = 0;
+        _updateNotifSound.play().catch(() => {});
+      }
+
+      function hideDMBadge(event) {
+        if (event) event.stopPropagation();
+        const badge = document.getElementById("desktopDMBadge");
+        if (badge) badge.classList.remove("show");
+      }
+
+      function repositionDMBadge() {
+        const badge = document.getElementById("desktopDMBadge");
+        if (!badge) return;
+        const updateBadge = document.getElementById("desktopUpdateBadge");
+        const updateVisible = updateBadge && updateBadge.classList.contains("show");
+        badge.style.top = updateVisible ? "160px" : "48px";
+      }
+
+      function openDMApp() {
+        hideDMBadge(null);
+        openWindow("Jitter", "jittery.html", "fas fa-comment-dots");
+      }
+      // ─────────────────────────────────────────────────────────────────
+
       function loadUserData() {
         try {
           const authData =
@@ -2938,6 +3273,7 @@
             currentUser.email = authSession.email || "";
             console.log("✅ User data loaded:", currentUser.username);
             updateUserDisplay();
+            startDMPolling();
           }
         } catch (e) {
           console.warn("Could not load user data:", e);
@@ -3129,13 +3465,18 @@
         // Select the appropriate theme file
         if (theme === "light") {
           link.href = "theme-light.css";
-          document.body.classList.remove("halloween-theme");
+          document.body.classList.remove("halloween-theme", "minimalist-theme");
         } else if (theme === "orange") {
           link.href = "theme-orange.css";
           document.body.classList.add("halloween-theme");
+          document.body.classList.remove("minimalist-theme");
+        } else if (theme === "minimalist") {
+          link.href = "theme-minimalist.css";
+          document.body.classList.remove("halloween-theme");
+          document.body.classList.add("minimalist-theme");
         } else {
           link.href = "theme-dark.css";
-          document.body.classList.remove("halloween-theme");
+          document.body.classList.remove("halloween-theme", "minimalist-theme");
         }
 
         document.head.appendChild(link);
@@ -3425,6 +3766,13 @@
         } else if (event.data && event.data.type === "settings-updated") {
           settings = { ...settings, ...event.data.settings };
           applySettings();
+        } else if (event.data && event.data.type === "request-auth") {
+          // jittery.html is requesting its auth token
+          if (!jitterAuthToken) jitterAuthToken = generateJitterAuthToken();
+          const jitterWin = document.querySelector('#desktop iframe[src="jittery.html"]');
+          if (jitterWin && jitterWin.contentWindow) {
+            jitterWin.contentWindow.postMessage({ type: "auth-token", token: jitterAuthToken }, "*");
+          }
         }
       });
 
@@ -3892,6 +4240,15 @@
         }
       }
 
+      // Jitter iframe auth token
+      let jitterAuthToken = null;
+
+      function generateJitterAuthToken() {
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(2, 9);
+        return `xorbit-jitter-${timestamp}-${random}`;
+      }
+
       // Open window function
       function openWindow(title, src, icon) {
         if (!isAuthenticated) return;
@@ -3991,6 +4348,128 @@
         setTimeout(() => {
           forceWindowInBounds(windowEl);
           // Trigger smooth animation like weather UI
+          windowEl.classList.add("window-visible");
+        }, 0);
+
+        // Send auth token to Jitter iframe
+        if (src === "jittery.html") {
+          jitterAuthToken = generateJitterAuthToken();
+          setTimeout(() => {
+            const iframe = windowEl.querySelector("iframe");
+            if (iframe && iframe.contentWindow) {
+              iframe.contentWindow.postMessage({ type: "auth-token", token: jitterAuthToken }, "*");
+            }
+          }, 100);
+        }
+      }
+
+      // Open desktop folder (minimalist theme file explorer)
+      function openDesktopFolder() {
+        if (!isAuthenticated) return;
+
+        const title = "Desktop";
+        if (activeWindows.has(title)) {
+          focusWindow(activeWindows.get(title));
+          return;
+        }
+
+        // Gather all real desktop app icons (exclude the folder itself)
+        const iconEls = document.querySelectorAll(".desktop-icons .desktop-icon:not(#desktopFolder)");
+        const apps = Array.from(iconEls).map(el => ({
+          name: el.getAttribute("data-app"),
+          src:  el.getAttribute("data-src"),
+          icon: el.getAttribute("data-icon")
+        })).filter(a => a.name && a.src);
+
+        windowCounter++;
+        const windowId = "win" + windowCounter;
+        const windowEl = document.createElement("div");
+        windowEl.className = "window";
+        windowEl.id = windowId;
+
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const w = Math.min(640, vw - 80);
+        const h = Math.min(480, vh - 140);
+        windowEl.style.left  = Math.floor((vw - w) / 2) + "px";
+        windowEl.style.top   = Math.floor((vh - h) / 2) + "px";
+        windowEl.style.width  = w + "px";
+        windowEl.style.height = h + "px";
+
+        const rows = apps.map(a =>
+          `<div class="fe-row" ondblclick="openWindow('${a.name}','${a.src}','${a.icon}')">`+
+            `<div class="fe-row-name">`+
+              `<div class="fe-row-icon"><i class="${a.icon}"></i></div>`+
+              `<span>${a.name}</span>`+
+            `</div>`+
+            `<div class="fe-row-kind">Application</div>`+
+            `<button class="fe-open-btn" onclick="event.stopPropagation();openWindow('${a.name}','${a.src}','${a.icon}')">Open</button>`+
+          `</div>`
+        ).join("");
+
+        windowEl.innerHTML =
+          `<div class="window-titlebar">`+
+            `<div class="window-controls">`+
+              `<div class="window-control close"></div>`+
+              `<div class="window-control minimize"></div>`+
+              `<div class="window-control maximize"></div>`+
+            `</div>`+
+            `<div class="window-title"><i class="fas fa-folder-open" style="margin-right:8px"></i>Desktop</div>`+
+          `</div>`+
+          `<div class="window-content" style="padding:0;overflow:hidden;">`+
+            `<style>`+
+              `.fe-wrap{height:100%;display:flex;flex-direction:column;background:#000;font-family:"SF Mono","Fira Code","Consolas",monospace;color:#fff}`+
+              `.fe-toolbar{display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,0.08);font-size:0.72rem;color:#555}`+
+              `.fe-toolbar i{color:#fff}`+
+              `.fe-toolbar .fe-path{color:#fff}`+
+              `.fe-toolbar .fe-count{color:#444}`+
+              `.fe-body{display:flex;flex:1;overflow:hidden}`+
+              `.fe-sidebar{width:150px;min-width:150px;border-right:1px solid rgba(255,255,255,0.08);padding:10px 0;overflow-y:auto}`+
+              `.fe-sidebar-label{font-size:0.52rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.22);padding:0 10px 5px}`+
+              `.fe-sidebar-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:5px;margin:1px 6px;font-size:0.78rem;color:#888;cursor:pointer;transition:background 0.15s}`+
+              `.fe-sidebar-item:hover{background:rgba(255,255,255,0.06);color:#fff}`+
+              `.fe-sidebar-item.active{background:rgba(255,255,255,0.1);color:#fff}`+
+              `.fe-sidebar-item i{font-size:0.7rem;width:14px;text-align:center}`+
+              `.fe-main{flex:1;overflow-y:auto;padding:12px 16px}`+
+              `.fe-col-header{display:grid;grid-template-columns:1fr 110px 72px;gap:12px;padding:0 8px 7px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:2px}`+
+              `.fe-col-header span{font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.25)}`+
+              `.fe-row{display:grid;grid-template-columns:1fr 110px 72px;gap:12px;padding:7px 8px;border-radius:6px;cursor:pointer;align-items:center;transition:background 0.15s;border:1px solid transparent}`+
+              `.fe-row:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.08)}`+
+              `.fe-row-name{display:flex;align-items:center;gap:10px;font-size:0.83rem;color:#e8e8e8;overflow:hidden}`+
+              `.fe-row-name span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}`+
+              `.fe-row-icon{width:26px;height:26px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:5px;font-size:0.72rem;color:#ccc}`+
+              `.fe-row-kind{font-size:0.74rem;color:#444;white-space:nowrap}`+
+              `.fe-open-btn{background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:4px;color:#888;padding:3px 10px;font-size:0.7rem;cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap}`+
+              `.fe-open-btn:hover{background:rgba(255,255,255,0.09);color:#fff;border-color:rgba(255,255,255,0.28)}`+
+            `</style>`+
+            `<div class="fe-wrap">`+
+              `<div class="fe-toolbar">`+
+                `<i class="fas fa-folder-open"></i>`+
+                `<span class="fe-path">Desktop</span>`+
+                `<span class="fe-count">— ${apps.length} item${apps.length !== 1 ? "s" : ""}</span>`+
+              `</div>`+
+              `<div class="fe-body">`+
+                `<div class="fe-sidebar">`+
+                  `<div class="fe-sidebar-label">Locations</div>`+
+                  `<div class="fe-sidebar-item active"><i class="fas fa-desktop"></i>Desktop</div>`+
+                `</div>`+
+                `<div class="fe-main">`+
+                  `<div class="fe-col-header"><span>Name</span><span>Kind</span><span></span></div>`+
+                  rows+
+                `</div>`+
+              `</div>`+
+            `</div>`+
+          `</div>`;
+
+        const desktop = document.getElementById("desktop");
+        if (desktop) desktop.appendChild(windowEl);
+
+        activeWindows.set(title, windowId);
+        focusWindow(windowId);
+        setupWindowEvents(windowEl, windowId, title);
+        constrainWindowSize(windowEl);
+        setTimeout(() => {
+          forceWindowInBounds(windowEl);
           windowEl.classList.add("window-visible");
         }, 0);
       }
@@ -4159,9 +4638,11 @@
           const src = desktopIcon.dataset.src;
           const icon = desktopIcon.dataset.icon;
 
-          if (title === "Settings") {
+          if (desktopIcon.id === "desktopFolder") {
+            openDesktopFolder();
+          } else if (title === "Settings") {
             openSettingsWindow();
-          } else {
+          } else if (title && src) {
             openWindow(title, src, icon);
           }
         }
@@ -4414,55 +4895,6 @@
 
       .backup-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
       .backup-note { font-size: 0.72rem; color: rgba(140,128,190,0.65); margin-top: 8px; line-height: 1.5; }
-
-      /* ── X-ORBIT Modal System ───────────────────────────────────────── */
-      .xmodal-overlay {
-        position: fixed; inset: 0;
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        z-index: 99999;
-        display: none;
-        align-items: center;
-        justify-content: center;
-      }
-      .xmodal-overlay.show { display: flex; }
-      .xmodal-card {
-        background: rgba(14, 9, 32, 0.97);
-        border: 1px solid rgba(120, 80, 255, 0.22);
-        border-radius: 16px;
-        padding: 28px 26px 22px;
-        width: 340px;
-        max-width: calc(100vw - 40px);
-        box-shadow: 0 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(120,80,255,0.08) inset;
-        animation: xmodalIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
-      }
-      @keyframes xmodalIn {
-        from { opacity: 0; transform: scale(0.90) translateY(10px); }
-        to   { opacity: 1; transform: scale(1)    translateY(0);    }
-      }
-      .xmodal-icon {
-        text-align: center; font-size: 1.8rem; margin-bottom: 13px;
-      }
-      .xmodal-title {
-        font-size: 0.94rem; font-weight: 700; color: #ede6ff;
-        text-align: center; margin-bottom: 7px; letter-spacing: -0.01em;
-      }
-      .xmodal-message {
-        font-size: 0.80rem; color: rgba(180, 165, 220, 0.82);
-        text-align: center; line-height: 1.65; margin-bottom: 22px;
-      }
-      .xmodal-actions { display: flex; gap: 8px; }
-      .xmodal-actions button { flex: 1; }
-      .xmodal-btn-primary {
-        background: rgba(120, 80, 255, 0.22) !important;
-        border-color: rgba(120, 80, 255, 0.42) !important;
-        color: #b090ff !important;
-      }
-      .xmodal-btn-primary:hover {
-        background: rgba(120, 80, 255, 0.34) !important;
-        border-color: rgba(120, 80, 255, 0.6) !important;
-      }
 
       .reset-all-button {
         width: 100%; background: rgba(255,50,50,0.09); border: 1px solid rgba(255,50,50,0.22);
@@ -4836,7 +5268,7 @@
                         <i class="fas fa-check" style="animation:updateSuccess 2.5s ease-in-out infinite;"></i>
                       </div>
                       <div class="upd-title upd-title-ok">You're up to date!</div>
-                      <div class="upd-subtitle">X-ORBIT Desktop v5.2.3B Ventas &mdash; latest version installed</div>
+                      <div class="upd-subtitle">X-ORBIT Desktop v5.3.4B Ventas &mdash; latest version installed</div>
                     </div>
                   </div>
                   <div class="upd-actions-single">
@@ -4951,6 +5383,7 @@
                   <option value="dark">Dark Mode</option>
                   <option value="light">Light Mode</option>
                   <option value="orange">Halloween 2025</option>
+                  <option value="minimalist">Minimalistic</option>
                   <option value="auto">Auto (System)</option>
                 </select>
               </div>
@@ -5206,7 +5639,7 @@
           <div class="about-hero">
             <div class="about-logo-ring"><i class="fas fa-globe"></i></div>
             <div class="about-os-name">X-ORBIT Desktop</div>
-            <div class="about-version-badge"><i class="fas fa-tag"></i> v5.2.3B Ventas</div>
+            <div class="about-version-badge"><i class="fas fa-tag"></i> v5.3.4B Ventas</div>
             <div class="about-description">
               X-ORBIT Desktop is a web-based proxy OS built for students. X-ORBIT allows students and people around the world to browse the world wide web without restrictions or data leaks.
             </div>
@@ -5215,7 +5648,7 @@
           <div class="about-info-grid">
             <div class="about-info-card">
               <div class="about-info-label">Version</div>
-              <div class="about-info-value">v5.2.3B Ventas</div>
+              <div class="about-info-value">v5.3.4B Ventas</div>
             </div>
             <div class="about-info-card">
               <div class="about-info-label">Build</div>
@@ -6860,7 +7293,7 @@
               <i class="fas fa-check" style="color:#34c759;font-size:1rem;"></i>
             </div>
             <div style="font-size:0.9rem;font-weight:600;color:#34c759;letter-spacing:-0.01em;">You're up to date</div>
-            <div style="font-size:0.76rem;color:rgba(160,148,210,0.7);">X-ORBIT Desktop v5.2.3B Ventas is the latest version.</div>
+            <div style="font-size:0.76rem;color:rgba(160,148,210,0.7);">X-ORBIT Desktop v5.3.4B Ventas is the latest version.</div>
           </div>
         `;
             }
@@ -7423,8 +7856,8 @@
       // ============================================
 
       // Add these global variables at the top with your other global variables:
-      const CURRENT_VERSION = "v5.2.3B";
-      const CURRENT_VERSION_NAME = "X-ORBIT Desktop v5.2.3B Ventas";
+      const CURRENT_VERSION = "v5.3.4B";
+      const CURRENT_VERSION_NAME = "X-ORBIT Desktop v5.3.4B Ventas";
       let pendingUpdateOnClose = false;
       let latestUpdateData = null;
 
