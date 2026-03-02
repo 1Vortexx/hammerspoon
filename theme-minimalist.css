@@ -1,0 +1,593 @@
+/* Minimalist Theme for X-ORBIT Desktop */
+:root {
+  --bg-gradient-start: #000000;
+  --bg-gradient-middle: #0a0a0a;
+  --bg-gradient-end: #111111;
+  --bg-overlay-1: rgba(255, 255, 255, 0.02);
+  --bg-overlay-2: rgba(255, 255, 255, 0.01);
+  --bg-overlay-3: rgba(255, 255, 255, 0.015);
+
+  --menu-bg: rgba(0, 0, 0, 0.85);
+  --menu-border: rgba(255, 255, 255, 0.12);
+  --menu-text: #ffffff;
+  --menu-hover: rgba(255, 255, 255, 0.08);
+
+  --window-bg: rgba(10, 10, 10, 0.92);
+  --window-border: rgba(255, 255, 255, 0.12);
+  --window-shadow: rgba(0, 0, 0, 0.7);
+  --window-glow: rgba(255, 255, 255, 0.04);
+  --window-active-glow: rgba(255, 255, 255, 0.08);
+
+  --titlebar-bg: rgba(0, 0, 0, 0.9);
+  --titlebar-border: rgba(255, 255, 255, 0.1);
+  --titlebar-text: #ffffff;
+
+  --dock-bg: rgba(0, 0, 0, 0.8);
+  --dock-border: rgba(255, 255, 255, 0.12);
+  --dock-shadow: rgba(0, 0, 0, 0.6);
+  --dock-glow: rgba(255, 255, 255, 0.04);
+
+  --dock-item-hover: rgba(255, 255, 255, 0.08);
+  --dock-item-active: rgba(255, 255, 255, 0.14);
+
+  --desktop-icon-text: #ffffff;
+  --desktop-icon-hover: rgba(255, 255, 255, 0.07);
+  --desktop-icon-shadow: rgba(255, 255, 255, 0.12);
+
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --text-bright: #ffffff;
+
+  --content-bg: rgba(0, 0, 0, 0.4);
+
+  --settings-bg: rgba(8, 8, 8, 0.98);
+  --settings-text: #ffffff;
+  --settings-border: rgba(255, 255, 255, 0.1);
+  --settings-hover: rgba(255, 255, 255, 0.04);
+  --settings-label: #888888;
+  --settings-select-bg: rgba(20, 20, 20, 0.95);
+  --settings-select-border: rgba(255, 255, 255, 0.15);
+
+  --button-primary: rgba(255, 255, 255, 0.9);
+  --button-primary-hover: rgba(255, 255, 255, 1);
+  --button-secondary: rgba(255, 255, 255, 0.12);
+  --button-secondary-hover: rgba(255, 255, 255, 0.2);
+}
+
+body {
+  background: #000000 !important;
+  color: var(--text-primary) !important;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Consolas", "Menlo", "Monaco", "Courier New", monospace !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* In minimalist theme: collapse desktop icons into a single folder */
+.minimalist-theme .desktop-icons > .desktop-icon:not(#desktopFolder) {
+  display: none !important;
+}
+
+.minimalist-theme #desktopFolder {
+  display: flex !important;
+}
+
+/* Black and white globe background icon */
+body::after {
+  content: "\f57d" !important;
+  font-family: "Font Awesome 6 Free" !important;
+  font-weight: 900 !important;
+  color: rgba(255, 255, 255, 0.05) !important;
+  text-shadow:
+    0 0 80px rgba(255, 255, 255, 0.08),
+    0 0 160px rgba(255, 255, 255, 0.04) !important;
+  filter: none !important;
+}
+
+body::before {
+  background:
+    radial-gradient(circle at 20% 50%, var(--bg-overlay-1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, var(--bg-overlay-2) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, var(--bg-overlay-3) 0%, transparent 50%) !important;
+}
+
+.menu-bar {
+  background: var(--menu-bg) !important;
+  color: var(--menu-text) !important;
+  border-bottom: 1px solid var(--menu-border) !important;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Consolas", "Menlo", "Monaco", "Courier New", monospace !important;
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 4px 16px var(--window-shadow) !important;
+}
+
+.menu-item:hover {
+  background: var(--menu-hover) !important;
+}
+
+.window {
+  background: var(--window-bg) !important;
+  border: 1px solid var(--window-border) !important;
+  box-shadow:
+    0 0 60px var(--window-glow),
+    0 20px 40px var(--window-shadow),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset !important;
+}
+
+.window.active {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  box-shadow:
+    0 0 80px var(--window-active-glow),
+    0 25px 50px var(--window-shadow),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset !important;
+}
+
+.window-titlebar {
+  background: var(--titlebar-bg) !important;
+  border-bottom: 1px solid var(--titlebar-border) !important;
+}
+
+.window-title {
+  color: var(--titlebar-text) !important;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Consolas", "Menlo", "Monaco", "Courier New", monospace !important;
+  letter-spacing: 0.05em !important;
+}
+
+.window-content {
+  background: var(--content-bg) !important;
+}
+
+.dock {
+  background: var(--dock-bg) !important;
+  border: 1px solid var(--dock-border) !important;
+  box-shadow:
+    0 0 40px var(--dock-glow),
+    0 20px 40px var(--dock-shadow),
+    0 1px 0 rgba(255, 255, 255, 0.06) inset !important;
+}
+
+.dock-item {
+  background: transparent !important;
+}
+
+.dock-item:hover {
+  background: var(--dock-item-hover) !important;
+}
+
+.dock-item.active {
+  background: var(--dock-item-active) !important;
+}
+
+.desktop-icon {
+  color: var(--desktop-icon-text) !important;
+}
+
+.desktop-icon:hover {
+  background: var(--desktop-icon-hover) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+.desktop-icon i {
+  color: #cccccc !important;
+  filter: none !important;
+}
+
+.desktop-icon:hover i {
+  color: #ffffff !important;
+  filter: none !important;
+}
+
+.desktop-icon span {
+  color: var(--desktop-icon-text) !important;
+}
+
+.desktop-icon:hover span {
+  color: var(--text-bright) !important;
+}
+
+/* Settings specific styles */
+.settings-container {
+  background: var(--settings-bg) !important;
+  color: var(--settings-text) !important;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Consolas", "Menlo", "Monaco", "Courier New", monospace !important;
+}
+
+.settings-section {
+  border-bottom: 1px solid var(--settings-border) !important;
+}
+
+.settings-section:hover {
+  background: var(--settings-hover) !important;
+}
+
+.section-title {
+  color: var(--settings-text) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.section-title i {
+  color: #ffffff !important;
+}
+
+.setting-item {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.setting-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.setting-label {
+  color: var(--settings-text) !important;
+}
+
+.setting-description {
+  color: var(--settings-label) !important;
+}
+
+.toggle-switch {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.toggle-switch.active {
+  background: #ffffff !important;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.25) !important;
+}
+
+.select-dropdown {
+  background: var(--settings-select-bg) !important;
+  border: 1px solid var(--settings-select-border) !important;
+  color: var(--settings-text) !important;
+}
+
+.select-dropdown:focus {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05) !important;
+}
+
+.range-slider {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.range-slider::-webkit-slider-thumb {
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+.range-slider::-moz-range-thumb {
+  background: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+.range-value {
+  color: #ffffff !important;
+}
+
+.reset-button {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.reset-button:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+/* X-ORBIT Menu Styles */
+.xorbit-menu {
+  background: rgba(8, 8, 8, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
+}
+
+.xorbit-menu-item {
+  color: var(--text-primary) !important;
+}
+
+.xorbit-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-bright) !important;
+}
+
+.xorbit-menu-item i {
+  color: #aaaaaa !important;
+}
+
+.xorbit-menu-item:hover i {
+  color: #ffffff !important;
+}
+
+.xorbit-menu-divider {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Weather/Time Menu Styles */
+.time-menu {
+  background: rgba(8, 8, 8, 0.96) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset !important;
+}
+
+.time-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.time-display {
+  color: var(--text-primary) !important;
+}
+
+.date-display {
+  color: var(--text-secondary) !important;
+}
+
+.timezone-display {
+  color: #888888 !important;
+}
+
+.weather-section {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.weather-temp {
+  color: var(--text-primary) !important;
+}
+
+.weather-desc {
+  color: var(--text-secondary) !important;
+}
+
+.weather-location {
+  color: #aaaaaa !important;
+}
+
+.weather-detail {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.weather-detail-label {
+  color: var(--text-secondary) !important;
+}
+
+.weather-detail-value {
+  color: var(--text-primary) !important;
+}
+
+.location-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.location-text {
+  color: var(--text-secondary) !important;
+}
+
+.location-update {
+  color: #aaaaaa !important;
+}
+
+.location-update:hover {
+  color: #ffffff !important;
+}
+
+.settings-button {
+  background: var(--button-primary) !important;
+  color: #000000 !important;
+}
+
+.settings-button:hover {
+  background: var(--button-primary-hover) !important;
+}
+
+.settings-button.secondary {
+  background: var(--button-secondary) !important;
+  color: #ffffff !important;
+}
+
+.settings-button.secondary:hover {
+  background: var(--button-secondary-hover) !important;
+}
+
+/* ── Settings App (xorbit-settings-container) ──────────────────────── */
+.xorbit-settings-container {
+  background: #000000 !important;
+  font-family: "SF Mono", "Fira Code", "Fira Mono", "Consolas", "Menlo", "Monaco", "Courier New", monospace !important;
+}
+
+.settings-sidebar {
+  background: rgba(5, 5, 5, 0.98) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.settings-logo {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.settings-logo i {
+  color: #ffffff !important;
+}
+
+.settings-logo-text {
+  color: #cccccc !important;
+}
+
+.settings-group-label {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.settings-nav-item {
+  color: #888888 !important;
+}
+
+.settings-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+}
+
+.settings-nav-item.active {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.settings-nav-item.active i {
+  color: #ffffff !important;
+}
+
+.settings-main {
+  background: #000000 !important;
+}
+
+.settings-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.settings-header h1 {
+  color: #ffffff !important;
+}
+
+.settings-header h1 i {
+  color: #ffffff !important;
+}
+
+.settings-header p {
+  color: #666666 !important;
+}
+
+.settings-subsection-title {
+  color: rgba(255, 255, 255, 0.3) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07) !important;
+}
+
+.setting-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.setting-card:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.16) !important;
+}
+
+.setting-card::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent) !important;
+}
+
+.setting-card-icon {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.setting-card-label {
+  color: #ffffff !important;
+}
+
+.setting-card-desc {
+  color: #555555 !important;
+}
+
+.xorbit-toggle {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.xorbit-toggle::before {
+  background: #888888 !important;
+}
+
+.xorbit-toggle.active {
+  background: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.xorbit-toggle.active::before {
+  background: #000000 !important;
+}
+
+.xorbit-select select {
+  background: rgba(10, 10, 10, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #ffffff !important;
+}
+
+.xorbit-select select:focus {
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05) !important;
+}
+
+.xorbit-select::after {
+  color: #666666 !important;
+}
+
+.xorbit-slider {
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.xorbit-slider::-webkit-slider-thumb {
+  background: #ffffff !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+}
+
+.xorbit-slider::-moz-range-thumb {
+  background: #ffffff !important;
+}
+
+.xorbit-slider-value {
+  color: #ffffff !important;
+}
+
+.xorbit-button {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #cccccc !important;
+}
+
+.xorbit-button:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+}
+
+/* keep danger buttons red for clarity */
+.xorbit-button.danger {
+  background: rgba(255, 60, 60, 0.1) !important;
+  border-color: rgba(255, 60, 60, 0.25) !important;
+  color: #ff7878 !important;
+}
+
+.xorbit-button.danger:hover {
+  background: rgba(255, 60, 60, 0.2) !important;
+  border-color: rgba(255, 60, 60, 0.45) !important;
+}
+
+/* About section */
+.about-os-name {
+  color: #ffffff !important;
+}
+
+.about-version-badge {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #aaaaaa !important;
+}
+
+.about-description {
+  color: #555555 !important;
+}
+
+.about-info-card {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.about-info-label {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.about-info-value {
+  color: #cccccc !important;
+}
