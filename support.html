@@ -4,859 +4,859 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-ORBIT Support Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary-gradient: linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #EC4899 100%);
-            --dark-bg: #0a0a0f;
-            --card-bg: rgba(17, 17, 28, 0.95);
-            --card-border: rgba(147, 51, 234, 0.2);
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --purple-glow: 0 0 20px rgba(147, 51, 234, 0.5);
-            --pink-glow: 0 0 20px rgba(236, 72, 153, 0.5);
-            --accent-purple: #9333EA;
-            --accent-pink: #EC4899;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --error: #ef4444;
+            --bg:         #000;
+            --surface:    #070707;
+            --surface-2:  #050505;
+            --border:     #1a1a1a;
+            --border-hi:  #2a2a2a;
+            --text:       #fff;
+            --text-dim:   #ccc;
+            --text-muted: #888;
+            --text-faint: #555;
+            --text-ghost: #444;
+            --text-dead:  #333;
+            --warning:    #fbbf24;
+            --success:    #6ee7b7;
+            --error:      #f87171;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--dark-bg);
-            min-height: 100vh;
-            color: var(--text-primary);
-            position: relative;
+            font-family: 'Share Tech Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.5;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 50%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 50% 100%, rgba(107, 70, 193, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
+        /* ════════════════════════════════════════════════
+           LOGIN
+        ════════════════════════════════════════════════ */
         #loginScreen {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
             padding: 20px;
+        }
+
+        #loginScreen::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+            background-size: 52px 52px;
+            pointer-events: none;
+        }
+
+        .login-wrap {
             position: relative;
             z-index: 1;
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            width: 700px;
+            max-width: 95vw;
+            border: 1px solid var(--border-hi);
         }
 
-        .login-box {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), var(--purple-glow);
-            width: 450px;
-            max-width: 100%;
-            backdrop-filter: blur(10px);
+        .login-brand {
+            padding: 48px 36px;
+            border-right: 1px solid var(--border);
+            background: var(--surface-2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .login-box h1 {
-            text-align: center;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .login-box h1 i {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .login-box > p {
-            text-align: center;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 13px;
+        .login-eyebrow {
+            font-size: 0.58rem;
+            color: var(--text-ghost);
+            letter-spacing: 4px;
             text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-eyebrow::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .login-logo {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 4px;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .login-logo span {
+            background: var(--text);
+            color: var(--bg);
+            padding: 0 6px;
+        }
+
+        .login-tagline {
+            font-size: 0.65rem;
+            color: var(--text-faint);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .login-brand-bottom {
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .login-feature {
+            font-size: 0.62rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-feature::before {
+            content: '→';
+            color: var(--text-dead);
+        }
+
+        .login-form-panel {
+            padding: 48px 40px;
+            background: var(--surface);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-form-heading {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-faint);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .panel-desc {
+            font-size: 0.68rem;
+            color: var(--text-ghost);
+            margin-bottom: 20px;
             letter-spacing: 0.5px;
         }
 
-        .form-group input,
-        select,
-        textarea {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .form-group input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.05);
-            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
-        }
-
-        .form-group input::placeholder {
-            color: rgba(161, 161, 170, 0.5);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .login-btn:hover::before {
-            left: 100%;
-        }
-
-        .login-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
+        /* Login option buttons */
         .login-option-btn {
             width: 100%;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(147, 51, 234, 0.2);
-            border-radius: 12px;
+            padding: 14px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border-hi);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.15s, border-color 0.15s;
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 12px;
+            gap: 14px;
+            margin-bottom: 8px;
             text-align: left;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-option-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.1), transparent);
-            transition: left 0.4s;
-        }
-
-        .login-option-btn:hover::before {
-            left: 100%;
+            color: var(--text);
         }
 
         .login-option-btn:hover {
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.1);
-            transform: translateX(5px);
-            box-shadow: 0 5px 20px rgba(147, 51, 234, 0.2);
+            background: #080808;
+            border-color: var(--text-faint);
         }
 
         .login-option-btn i {
-            font-size: 28px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            min-width: 40px;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            min-width: 22px;
+            text-align: center;
         }
 
         .login-option-btn h3 {
-            color: var(--text-primary);
-            font-size: 16px;
-            margin-bottom: 4px;
-            font-weight: 600;
+            color: var(--text-dim);
+            font-size: 0.82rem;
+            margin-bottom: 2px;
+            font-weight: 400;
+            font-family: 'Share Tech Mono', monospace;
         }
 
         .login-option-btn p {
-            color: var(--text-secondary);
-            font-size: 13px;
+            color: var(--text-ghost);
+            font-size: 0.65rem;
             margin: 0;
+            letter-spacing: 0.5px;
         }
 
+        /* Back link */
         .back-link {
             background: none;
             border: none;
-            color: var(--accent-purple);
-            font-size: 14px;
+            color: var(--text-muted);
+            font-size: 0.65rem;
             cursor: pointer;
             margin-bottom: 20px;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             padding: 0;
-            transition: all 0.2s;
-            font-weight: 500;
+            transition: color 0.15s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-family: 'Share Tech Mono', monospace;
         }
 
-        .back-link:hover {
-            color: var(--accent-pink);
-            transform: translateX(-3px);
+        .back-link:hover { color: var(--text); }
+
+        /* Form elements */
+        .form-group { margin-bottom: 16px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-ghost);
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
+        .form-group input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px 13px;
+            background: var(--bg);
+            border: 1px solid var(--border-hi);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.88rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--text-faint);
+            box-shadow: none;
+        }
+
+        .form-group input::placeholder { color: var(--border-hi); }
+
+        /* Primary button */
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background: var(--text);
+            border: 1px solid var(--text);
+            color: var(--bg);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .login-btn:hover:not(:disabled) { background: var(--bg); color: var(--text); }
+        .login-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Error / success messages */
         .error-message,
         .success-message {
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 10px 12px;
+            margin-bottom: 16px;
             display: none;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 0.78rem;
             border: 1px solid;
         }
 
         .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border-color: rgba(239, 68, 68, 0.3);
+            background: rgba(248,113,113,0.07);
+            color: #f87171;
+            border-color: rgba(248,113,113,0.2);
         }
 
         .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(110,231,183,0.07);
+            color: #6ee7b7;
+            border-color: rgba(110,231,183,0.2);
         }
 
         .error-message.show,
-        .success-message.show {
-            display: block;
-        }
+        .success-message.show { display: block; }
 
+        /* ════════════════════════════════════════════════
+           DASHBOARD SHELL
+        ════════════════════════════════════════════════ */
         #supportDashboard {
             display: none;
-            min-height: 100vh;
-            position: relative;
-            z-index: 1;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
 
+        /* ─── TOP BAR ───────────────────────────────────── */
         .header {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--card-border);
-            padding: 20px 0;
-            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: stretch;
+            height: 50px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-2);
+            flex-shrink: 0;
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
         .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            display: contents;
         }
 
         .logo {
-            font-size: 28px;
-            font-weight: 800;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.82rem;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 3px;
+            padding: 0 24px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
+
+        .logo span {
+            background: var(--text);
+            color: var(--bg);
+            padding: 0 5px;
+        }
+
+        .top-bar-spacer { flex: 1; }
 
         .user-info {
             display: flex;
             align-items: center;
-            gap: 20px;
-            color: var(--text-secondary);
+            gap: 0;
+            margin-left: auto;
+            border-left: 1px solid var(--border);
+        }
+
+        .user-info > span {
+            padding: 0 18px;
+            font-size: 0.72rem;
+            color: var(--text-faint);
+            white-space: nowrap;
+            border-right: 1px solid var(--border);
         }
 
         .user-info strong {
-            color: var(--text-primary);
+            color: var(--text-dim);
         }
 
         .logout-btn {
-            background: rgba(147, 51, 234, 0.1);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            color: var(--accent-purple);
-            padding: 10px 20px;
-            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 18px;
+            background: transparent;
+            border: none;
+            color: var(--text-ghost);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.56rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-            font-size: 14px;
+            transition: color 0.15s, background 0.15s;
+            white-space: nowrap;
+            height: 100%;
         }
 
-        .logout-btn:hover {
-            background: var(--primary-gradient);
-            color: white;
-            border-color: transparent;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(147, 51, 234, 0.3);
-        }
+        .logout-btn:hover { color: var(--text); background: #080808; }
 
+        /* ─── CONTENT AREA ──────────────────────────────── */
         .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
+            flex: 1;
+            overflow-y: auto;
+            padding: 28px 24px;
         }
 
+        .container::-webkit-scrollbar { width: 3px; }
+        .container::-webkit-scrollbar-track { background: transparent; }
+        .container::-webkit-scrollbar-thumb { background: var(--border-hi); }
+
+        .container-inner {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        /* Welcome section */
         .welcome-section {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 50px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            margin-bottom: 40px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .welcome-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, transparent 70%);
-            animation: rotate 30s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 32px 36px;
+            margin-bottom: 20px;
         }
 
         .welcome-section h1 {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            font-size: 36px;
-            font-weight: 800;
-            position: relative;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
         }
 
         .welcome-section p {
-            color: var(--text-secondary);
-            position: relative;
+            color: var(--text-faint);
+            font-size: 0.72rem;
+            letter-spacing: 1px;
         }
 
+        /* Tickets section */
         .my-tickets-section {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            overflow: hidden;
         }
 
         .my-tickets-section h2 {
-            color: var(--text-primary);
-            margin-bottom: 30px;
+            color: var(--text);
+            padding: 14px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 24px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.68rem;
             font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
         }
 
         .new-ticket-btn {
-            padding: 12px 24px;
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            border-radius: 10px;
+            padding: 7px 14px;
+            background: var(--text);
+            border: 1px solid var(--text);
+            color: var(--bg);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s;
+            transition: background 0.15s, color 0.15s;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .new-ticket-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
-        }
+        .new-ticket-btn:hover { background: var(--bg); color: var(--text); }
 
         .ticket-list {
-            display: grid;
-            gap: 15px;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* Ticket card */
         .ticket-card {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(147, 51, 234, 0.2);
-            border-radius: 12px;
-            padding: 20px;
+            padding: 14px 20px 14px 22px;
+            border-bottom: 1px solid var(--border);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.12s;
             position: relative;
-            overflow: hidden;
         }
+
+        .ticket-card:last-child { border-bottom: none; }
 
         .ticket-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.05), transparent);
-            transition: left 0.5s;
+            left: 0; top: 0; bottom: 0;
+            width: 2px;
+            background: transparent;
+            transition: background 0.12s;
         }
 
-        .ticket-card:hover::before {
-            left: 100%;
-        }
-
-        .ticket-card:hover {
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.05);
-            transform: translateX(5px);
-            box-shadow: 0 5px 20px rgba(147, 51, 234, 0.2);
-        }
+        .ticket-card:hover { background: #080808; }
+        .ticket-card:hover::before { background: var(--text-faint); }
 
         .ticket-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
+            align-items: center;
+            margin-bottom: 6px;
         }
 
         .ticket-number {
-            font-weight: 600;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.58rem;
+            font-weight: 700;
+            color: var(--text-faint);
+            letter-spacing: 1px;
         }
 
         .ticket-status {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 0.56rem;
+            font-weight: 700;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 2px 7px;
+            border: 1px solid;
         }
 
-        .status-open { 
-            background: rgba(251, 191, 36, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-        .status-in_progress { 
-            background: rgba(59, 130, 246, 0.2);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        .status-waiting_response { 
-            background: rgba(236, 72, 153, 0.2);
-            color: #ec4899;
-            border: 1px solid rgba(236, 72, 153, 0.3);
-        }
-        .status-resolved { 
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        .status-closed { 
-            background: rgba(107, 114, 128, 0.2);
-            color: #6b7280;
-            border: 1px solid rgba(107, 114, 128, 0.3);
-        }
+        .status-open             { color: #fbbf24; border-color: rgba(251,191,36,0.3);  background: rgba(251,191,36,0.05); }
+        .status-in_progress      { color: #60a5fa; border-color: rgba(96,165,250,0.3);  background: rgba(96,165,250,0.05); }
+        .status-waiting_response { color: #f9a8d4; border-color: rgba(249,168,212,0.3); background: rgba(249,168,212,0.05); }
+        .status-resolved         { color: #6ee7b7; border-color: rgba(110,231,183,0.3); background: rgba(110,231,183,0.05); }
+        .status-closed           { color: var(--text-ghost); border-color: var(--border-hi); background: transparent; }
 
         .ticket-subject {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            font-size: 16px;
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
         }
 
         .ticket-preview {
-            color: var(--text-secondary);
-            font-size: 14px;
-            margin-bottom: 12px;
+            font-size: 0.7rem;
+            color: var(--text-faint);
+            margin-bottom: 7px;
             line-height: 1.5;
         }
 
         .ticket-meta {
             display: flex;
             gap: 20px;
-            font-size: 13px;
-            color: var(--text-secondary);
+            font-size: 0.62rem;
+            color: var(--text-ghost);
         }
 
         .ticket-meta i {
-            color: var(--accent-purple);
-            margin-right: 5px;
+            color: var(--text-muted);
+            margin-right: 4px;
         }
 
+        /* Empty state */
         .empty-state {
+            padding: 48px 20px;
             text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
         }
 
         .empty-state i {
-            font-size: 64px;
-            margin-bottom: 20px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            opacity: 0.5;
+            font-size: 28px;
+            color: var(--border-hi);
         }
 
+        .empty-state p {
+            font-size: 0.7rem;
+            color: var(--text-ghost);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* ════════════════════════════════════════════════
+           TICKET CLOSED STATE
+        ════════════════════════════════════════════════ */
         .ticket-closed-state {
             display: flex;
             align-items: center;
             justify-content: center;
             flex: 1;
             padding: 40px 20px;
-            background: transparent;
         }
 
         .ticket-closed-modal {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
+            background: var(--surface);
+            border: 1px solid var(--border-hi);
             padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), var(--purple-glow);
-            width: 450px;
+            width: 420px;
             max-width: 100%;
             text-align: center;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
         }
 
         .ticket-closed-modal i.status-icon {
-            font-size: 64px;
-            margin-bottom: 24px;
+            font-size: 36px;
+            margin-bottom: 20px;
             color: var(--warning);
             display: block;
         }
 
         .ticket-closed-modal.closed-status i.status-icon {
-            color: var(--text-secondary);
+            color: var(--text-ghost);
         }
 
         .ticket-closed-modal h2 {
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            font-size: 28px;
+            font-family: 'Orbitron', monospace;
+            color: var(--text);
+            margin-bottom: 10px;
+            font-size: 0.88rem;
             font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .ticket-closed-modal p {
-            color: var(--text-secondary);
-            margin-bottom: 30px;
+            color: var(--text-faint);
+            margin-bottom: 24px;
             line-height: 1.6;
-            font-size: 15px;
+            font-size: 0.75rem;
         }
 
         .ticket-closed-actions {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .reopen-btn {
             width: 100%;
-            padding: 14px 24px;
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            border-radius: 10px;
+            padding: 12px 20px;
+            background: var(--text);
+            border: 1px solid var(--text);
+            color: var(--bg);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.3s;
+            transition: background 0.15s, color 0.15s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
 
-        .reopen-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
-        }
+        .reopen-btn:hover { background: var(--bg); color: var(--text); }
 
         .delete-btn {
             width: 100%;
-            padding: 14px 24px;
+            padding: 12px 20px;
             background: transparent;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            color: #ef4444;
-            border-radius: 10px;
+            border: 1px solid rgba(248,113,113,0.3);
+            color: #f87171;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.3s;
+            transition: background 0.15s, border-color 0.15s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
 
-        .delete-btn:hover {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: #ef4444;
-            transform: translateY(-2px);
-        }
+        .delete-btn:hover { background: rgba(248,113,113,0.08); border-color: #f87171; }
 
         .ticket-info-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            background: rgba(147, 51, 234, 0.1);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            color: var(--accent-purple);
-            margin-bottom: 24px;
-            font-weight: 600;
-            border: 1px solid rgba(147, 51, 234, 0.3);
+            gap: 6px;
+            background: transparent;
+            padding: 4px 10px;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            border: 1px solid var(--border-hi);
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
+        /* ════════════════════════════════════════════════
+           CHAT VIEW
+        ════════════════════════════════════════════════ */
         #chatView {
             display: none;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            height: 650px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            height: calc(100vh - 50px - 56px);
             flex-direction: column;
             overflow: hidden;
         }
 
         .chat-header {
-            padding: 25px;
-            border-bottom: 1px solid var(--card-border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(0, 0, 0, 0.3);
+            height: 46px;
+            padding: 0 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
             flex-shrink: 0;
+            gap: 12px;
         }
 
         .chat-header h3 {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-            font-size: 18px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.62rem;
+            font-weight: 900;
+            color: var(--text);
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
         .chat-header span {
-            margin-left: 15px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-left: 10px;
+            font-size: 0.56rem;
+            letter-spacing: 1px;
+            padding: 2px 7px;
+            border: 1px solid;
         }
 
         .back-btn {
-            padding: 10px 20px;
+            padding: 6px 14px;
             background: transparent;
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            color: var(--accent-purple);
-            border-radius: 10px;
+            border: 1px solid var(--border-hi);
+            color: var(--text-ghost);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.56rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
+            transition: color 0.15s, border-color 0.15s;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        .back-btn:hover {
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.1);
-            transform: translateX(-3px);
-        }
+        .back-btn:hover { color: var(--text); border-color: var(--text-faint); }
 
+        /* Messages */
         .messages-container {
             flex: 1;
             overflow-y: auto;
-            padding: 25px;
-            background: rgba(0, 0, 0, 0.2);
+            padding: 24px 28px;
             min-height: 0;
         }
 
-        .messages-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .messages-container::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .messages-container::-webkit-scrollbar-thumb {
-            background: rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-        }
-
-        .messages-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(147, 51, 234, 0.5);
-        }
+        .messages-container::-webkit-scrollbar { width: 3px; }
+        .messages-container::-webkit-scrollbar-track { background: transparent; }
+        .messages-container::-webkit-scrollbar-thumb { background: var(--border-hi); }
 
         .message {
-            max-width: 70%;
-            margin-bottom: 20px;
-            animation: fadeIn 0.3s;
+            max-width: 64%;
+            margin-bottom: 18px;
+            animation: msgIn 0.18s ease;
         }
 
-        .message.user {
-            margin-left: auto;
+        @keyframes msgIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
+
+        .message.user { margin-left: auto; text-align: right; }
 
         .message-header {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-            font-weight: 500;
+            font-size: 0.58rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
 
-        .message.user .message-header {
-            text-align: right;
-        }
+        .message.user .message-header { text-align: right; }
 
         .message-bubble {
             display: inline-block;
-            padding: 14px 18px;
-            border-radius: 16px;
-            line-height: 1.5;
-            word-wrap: break-word;
-            font-size: 15px;
+            padding: 10px 14px;
+            line-height: 1.6;
+            font-size: 0.85rem;
         }
 
         .message.user .message-bubble {
-            background: var(--primary-gradient);
-            color: white;
-            border-bottom-right-radius: 4px;
+            background: #0a0a0a;
+            color: var(--text-dim);
+            border: 1px solid var(--border-hi);
             float: right;
-            box-shadow: 0 5px 15px rgba(147, 51, 234, 0.3);
         }
 
         .message.staff .message-bubble {
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(147, 51, 234, 0.2);
-            color: var(--text-primary);
-            border-bottom-left-radius: 4px;
+            background: var(--text);
+            color: var(--bg);
         }
 
         .message.system {
             max-width: 100%;
             text-align: center;
-            margin: 25px 0;
+            margin: 14px 0;
         }
 
         .message.system .message-bubble {
-            background: rgba(251, 191, 36, 0.1);
-            color: #fbbf24;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-            padding: 14px 24px;
-            font-size: 14px;
-            border-radius: 10px;
+            background: transparent;
+            color: var(--text-ghost);
+            border: 1px solid var(--border);
+            padding: 5px 14px;
+            font-size: 0.68rem;
+            font-style: italic;
+            float: none;
             display: inline-block;
             max-width: 90%;
             line-height: 1.6;
-            font-weight: 500;
         }
 
         .message-time {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-top: 6px;
+            font-size: 0.58rem;
+            color: var(--text-ghost);
+            margin-top: 4px;
             clear: both;
-            opacity: 0.7;
+            opacity: 0.6;
         }
 
-        .message.user .message-time {
-            text-align: right;
-        }
+        .message.user .message-time { text-align: right; }
 
+        /* Input area */
         .message-input-area {
-            padding: 20px;
-            border-top: 1px solid var(--card-border);
-            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid var(--border);
+            background: var(--surface);
             flex-shrink: 0;
+        }
+
+        .input-hint {
+            padding: 5px 16px 0;
+            font-size: 0.56rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         #chatMessagesArea {
@@ -869,267 +869,250 @@
 
         .message-input-container {
             display: flex;
-            gap: 12px;
+            align-items: stretch;
         }
 
         .message-input {
             flex: 1;
-            padding: 14px 16px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-            color: var(--text-primary);
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            border-right: 1px solid var(--border);
+            color: var(--text);
             resize: none;
-            font-family: inherit;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-
-        .message-input:focus {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.88rem;
             outline: none;
-            border-color: var(--accent-purple);
-            background: rgba(147, 51, 234, 0.05);
-            box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+            line-height: 1.5;
         }
 
-        .message-input::placeholder {
-            color: rgba(161, 161, 170, 0.5);
-        }
+        .message-input::placeholder { color: var(--border-hi); }
 
         .send-btn {
-            padding: 14px 28px;
-            background: var(--primary-gradient);
+            padding: 0 24px;
+            background: var(--text);
             border: none;
-            color: white;
-            border-radius: 10px;
+            color: var(--bg);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.62rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
             cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
+            transition: background 0.15s;
         }
 
-        .send-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(147, 51, 234, 0.4);
-        }
+        .send-btn:hover:not(:disabled) { background: var(--text-dim); }
+        .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .send-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
+        /* ════════════════════════════════════════════════
+           MODAL
+        ════════════════════════════════════════════════ */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
 
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
 
         .modal-content {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 40px;
-            border-radius: 20px;
-            max-width: 500px;
+            background: var(--surface);
+            border: 1px solid var(--border-hi);
+            padding: 32px;
+            max-width: 480px;
             width: 90%;
             max-height: 90vh;
             overflow-y: auto;
             position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), var(--purple-glow);
         }
 
-        .modal-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .modal-content::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb {
-            background: rgba(147, 51, 234, 0.3);
-            border-radius: 10px;
-        }
-
-        .modal-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(147, 51, 234, 0.5);
-        }
+        .modal-content::-webkit-scrollbar { width: 3px; }
+        .modal-content::-webkit-scrollbar-track { background: transparent; }
+        .modal-content::-webkit-scrollbar-thumb { background: var(--border-hi); }
 
         .close-modal {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 16px; right: 16px;
             background: transparent;
-            border: 1px solid rgba(147, 51, 234, 0.2);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-size: 18px;
+            border: 1px solid var(--border-hi);
+            width: 28px; height: 28px;
+            font-size: 1rem;
             cursor: pointer;
-            color: var(--text-secondary);
+            color: var(--text-ghost);
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            transition: color 0.15s, border-color 0.15s;
         }
 
-        .close-modal:hover {
-            background: rgba(147, 51, 234, 0.1);
-            border-color: var(--accent-purple);
-            color: var(--accent-purple);
-            transform: rotate(90deg);
-        }
+        .close-modal:hover { color: var(--text); border-color: var(--text-faint); }
 
         .modal h2 {
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 25px;
-            font-size: 28px;
+            font-family: 'Orbitron', monospace;
+            color: var(--text);
+            margin-bottom: 24px;
+            font-size: 0.8rem;
             font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         select {
-            background: rgba(0, 0, 0, 0.4);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--text);
             cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
         }
 
         select option {
-            background: var(--card-bg);
-            color: var(--text-primary);
+            background: var(--surface);
+            color: var(--text);
         }
 
         textarea {
             resize: vertical;
-            min-height: 120px;
-            font-family: inherit;
+            min-height: 100px;
+            font-family: 'Share Tech Mono', monospace;
         }
-        
-</style>
+    </style>
 </head>
 <body>
+
+    <!-- ══ LOGIN ═══════════════════════════════════════════ -->
     <div id="loginScreen">
-        <div class="login-box">
-            <h1><i class="fas fa-satellite"></i> X-ORBIT Support</h1>
-            <p>How can we help you today?</p>
-            
-            <div id="loginOptions">
-                <button class="login-option-btn" onclick="showClientLogin()">
-                    <i class="fas fa-user"></i>
-                    <div>
-                        <h3>X-ORBIT Member</h3>
-                        <p>Login with your X-ORBIT account</p>
-                    </div>
-                </button>
-                <button class="login-option-btn" onclick="showGuestServices()">
-                    <i class="fas fa-headset"></i>
-                    <div>
-                        <h3>Account Services</h3>
-                        <p>Password reset or account creation</p>
-                    </div>
-                </button>
-                <button class="login-option-btn" onclick="showGuestLogin()">
-                    <i class="fas fa-envelope"></i>
-                    <div>
-                        <h3>Returning Guest</h3>
-                        <p>Continue previous support conversation</p>
-                    </div>
-                </button>
+        <div class="login-wrap">
+            <div class="login-brand">
+                <div>
+                    <div class="login-eyebrow">Support Center</div>
+                    <div class="login-logo">X-<span>ORBIT</span></div>
+                    <div class="login-tagline">Customer Support</div>
+                </div>
+                <div class="login-brand-bottom">
+                    <div class="login-feature">Submit support tickets</div>
+                    <div class="login-feature">Real-time staff chat</div>
+                    <div class="login-feature">Track ticket status</div>
+                </div>
             </div>
 
-            <div id="clientLoginForm" style="display: none;">
-                <button class="back-link" onclick="showLoginOptions()">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
-                <div class="error-message" id="loginError"></div>
-                <form onsubmit="handleLogin(event)" id="loginForm">
-                    <div class="form-group">
-                        <label for="username">Email</label>
-                        <input type="text" id="username" required placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" required placeholder="Enter your password">
-                    </div>
-                    <button type="submit" class="login-btn" id="loginBtn">Login</button>
-                </form>
-            </div>
+            <div class="login-form-panel">
 
-            <div id="guestServicesForm" style="display: none;">
-                <button class="back-link" onclick="showLoginOptions()">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
-                <h2 style="text-align: center; color: #9333EA; margin-bottom: 10px;">Account Services</h2>
-                <p style="text-align: center; color: #a1a1aa; margin-bottom: 20px; font-size: 14px;">
-                    Get help with password resets or account creation
-                </p>
-                <div class="error-message" id="guestError"></div>
-                <form onsubmit="handleGuestServices(event)" id="guestForm">
-                    <div class="form-group">
-                        <label for="guestFirstName">First Name</label>
-                        <input type="text" id="guestFirstName" required placeholder="John">
-                    </div>
-                    <div class="form-group">
-                        <label for="guestLastName">Last Name</label>
-                        <input type="text" id="guestLastName" required placeholder="Doe">
-                    </div>
-                    <div class="form-group">
-                        <label for="guestEmail">Email</label>
-                        <input type="email" id="guestEmail" required placeholder="your@email.com">
-                    </div>
-                    <button type="submit" class="login-btn" id="guestBtn">Continue to Support</button>
-                </form>
-            </div>
+                <div id="loginOptions">
+                    <div class="login-form-heading">How can we help?</div>
+                    <button class="login-option-btn" onclick="showClientLogin()">
+                        <i class="fas fa-user"></i>
+                        <div>
+                            <h3>X-ORBIT Member</h3>
+                            <p>Login with your X-ORBIT account</p>
+                        </div>
+                    </button>
+                    <button class="login-option-btn" onclick="showGuestServices()">
+                        <i class="fas fa-headset"></i>
+                        <div>
+                            <h3>Account Services</h3>
+                            <p>Password reset or account creation</p>
+                        </div>
+                    </button>
+                    <button class="login-option-btn" onclick="showGuestLogin()">
+                        <i class="fas fa-envelope"></i>
+                        <div>
+                            <h3>Returning Guest</h3>
+                            <p>Continue previous support conversation</p>
+                        </div>
+                    </button>
+                </div>
 
-            <div id="guestLoginForm" style="display: none;">
-                <button class="back-link" onclick="showLoginOptions()">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
-                <h2 style="text-align: center; background: linear-gradient(135deg, #6B46C1 0%, #9333EA 50%, #EC4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;">Returning Guest</h2>
-                <p style="text-align: center; color: #a1a1aa; margin-bottom: 20px; font-size: 14px;">
-                    Access your previous support tickets
-                </p>
-                <div class="error-message" id="guestLoginError"></div>
-                <form onsubmit="handleGuestLogin(event)" id="guestLoginFormElement">
-                    <div class="form-group">
-                        <label for="guestLoginFirstName">First Name</label>
-                        <input type="text" id="guestLoginFirstName" required placeholder="John">
-                    </div>
-                    <div class="form-group">
-                        <label for="guestLoginLastName">Last Name</label>
-                        <input type="text" id="guestLoginLastName" required placeholder="Doe">
-                    </div>
-                    <div class="form-group">
-                        <label for="guestLoginEmail">Email</label>
-                        <input type="email" id="guestLoginEmail" required placeholder="your@email.com">
-                    </div>
-                    <button type="submit" class="login-btn" id="guestLoginBtn">Access Support</button>
-                </form>
+                <div id="clientLoginForm" style="display: none;">
+                    <button class="back-link" onclick="showLoginOptions()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <div class="login-form-heading">Member Login</div>
+                    <div class="error-message" id="loginError"></div>
+                    <form onsubmit="handleLogin(event)" id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Email</label>
+                            <input type="text" id="username" required placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="login-btn" id="loginBtn">
+                            <i class="fas fa-arrow-right"></i> Login
+                        </button>
+                    </form>
+                </div>
+
+                <div id="guestServicesForm" style="display: none;">
+                    <button class="back-link" onclick="showLoginOptions()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <div class="login-form-heading">Account Services</div>
+                    <p class="panel-desc">Get help with password resets or account creation</p>
+                    <div class="error-message" id="guestError"></div>
+                    <form onsubmit="handleGuestServices(event)" id="guestForm">
+                        <div class="form-group">
+                            <label for="guestFirstName">First Name</label>
+                            <input type="text" id="guestFirstName" required placeholder="John">
+                        </div>
+                        <div class="form-group">
+                            <label for="guestLastName">Last Name</label>
+                            <input type="text" id="guestLastName" required placeholder="Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="guestEmail">Email</label>
+                            <input type="email" id="guestEmail" required placeholder="your@email.com">
+                        </div>
+                        <button type="submit" class="login-btn" id="guestBtn">
+                            <i class="fas fa-arrow-right"></i> Continue to Support
+                        </button>
+                    </form>
+                </div>
+
+                <div id="guestLoginForm" style="display: none;">
+                    <button class="back-link" onclick="showLoginOptions()">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <div class="login-form-heading">Returning Guest</div>
+                    <p class="panel-desc">Access your previous support tickets</p>
+                    <div class="error-message" id="guestLoginError"></div>
+                    <form onsubmit="handleGuestLogin(event)" id="guestLoginFormElement">
+                        <div class="form-group">
+                            <label for="guestLoginFirstName">First Name</label>
+                            <input type="text" id="guestLoginFirstName" required placeholder="John">
+                        </div>
+                        <div class="form-group">
+                            <label for="guestLoginLastName">Last Name</label>
+                            <input type="text" id="guestLoginLastName" required placeholder="Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="guestLoginEmail">Email</label>
+                            <input type="email" id="guestLoginEmail" required placeholder="your@email.com">
+                        </div>
+                        <button type="submit" class="login-btn" id="guestLoginBtn">
+                            <i class="fas fa-arrow-right"></i> Access Support
+                        </button>
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>
 
+    <!-- ══ DASHBOARD ═══════════════════════════════════════ -->
     <div id="supportDashboard">
         <header class="header">
             <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-satellite"></i> X-ORBIT Support
-                </div>
+                <div class="logo">X-<span>ORBIT</span> Support</div>
                 <div class="user-info">
                     <span>Welcome, <strong id="userName"></strong></span>
                     <button class="logout-btn" onclick="logout()">
@@ -1140,85 +1123,91 @@
         </header>
 
         <div class="container">
-            <div id="ticketsView">
-                <div class="welcome-section">
-                    <h1>Support Center</h1>
-                    <p>View your tickets or start a new conversation with X-ORBIT support</p>
+            <div class="container-inner">
+
+                <div id="ticketsView">
+                    <div class="welcome-section">
+                        <h1>Support Center</h1>
+                        <p>View your tickets or start a new conversation with X-ORBIT support</p>
+                    </div>
+
+                    <div class="my-tickets-section">
+                        <h2>
+                            <span>My Support Tickets</span>
+                            <button class="new-ticket-btn" onclick="openNewTicketModal()">
+                                <i class="fas fa-plus"></i> New Ticket
+                            </button>
+                        </h2>
+                        <div class="ticket-list" id="ticketList">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>Loading your tickets...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="my-tickets-section">
-                    <h2>
-                        <span>My Support Tickets</span>
-                        <button class="new-ticket-btn" onclick="openNewTicketModal()">
-                            <i class="fas fa-plus"></i> New Ticket
+                <div id="chatView">
+                    <div class="chat-header">
+                        <div>
+                            <h3 id="chatTicketNumber"></h3>
+                            <span id="chatTicketStatus"></span>
+                        </div>
+                        <button class="back-btn" onclick="backToTickets()">
+                            <i class="fas fa-arrow-left"></i> Back to Tickets
                         </button>
-                    </h2>
-                    <div class="ticket-list" id="ticketList">
-                        <div class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <p>Loading your tickets...</p>
+                    </div>
+
+                    <div id="ticketClosedMessage" style="display: none;" class="ticket-closed-state">
+                        <div class="ticket-closed-modal" id="closedModalContent">
+                            <div class="ticket-info-badge" id="ticketBadge">
+                                <i class="fas fa-ticket-alt"></i>
+                                <span id="modalTicketNumber"></span>
+                            </div>
+                            <i class="fas fa-check-circle status-icon" id="closedIcon"></i>
+                            <h2 id="closedTitle">Ticket Resolved</h2>
+                            <p id="closedMessage">
+                                This ticket has been marked as resolved. If you're still experiencing issues, you can reopen it below.
+                            </p>
+                            <div class="ticket-closed-actions">
+                                <button class="reopen-btn" onclick="reopenTicket()">
+                                    <i class="fas fa-arrow-rotate-left"></i>
+                                    Reopen Ticket
+                                </button>
+                                <button class="delete-btn" onclick="confirmDeleteTicket()">
+                                    <i class="fas fa-trash-can"></i>
+                                    Delete Ticket
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="chatMessagesArea" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden;">
+                        <div class="messages-container" id="messagesContainer"></div>
+
+                        <div class="message-input-area">
+                            <div class="input-hint">Ctrl+Enter to send</div>
+                            <div class="message-input-container">
+                                <textarea
+                                    id="messageInput"
+                                    class="message-input"
+                                    placeholder="Type your message…"
+                                    rows="3"
+                                    onkeydown="handleMessageKeydown(event)"
+                                ></textarea>
+                                <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="chatView">
-                <div class="chat-header">
-                    <div>
-                        <h3 id="chatTicketNumber"></h3>
-                        <span id="chatTicketStatus"></span>
-                    </div>
-                    <button class="back-btn" onclick="backToTickets()">
-                        <i class="fas fa-arrow-left"></i> Back to Tickets
-                    </button>
-                </div>
-
-                <div id="ticketClosedMessage" style="display: none;" class="ticket-closed-state">
-                    <div class="ticket-closed-modal" id="closedModalContent">
-                        <div class="ticket-info-badge" id="ticketBadge">
-                            <i class="fas fa-ticket-alt"></i>
-                            <span id="modalTicketNumber"></span>
-                        </div>
-                        <i class="fas fa-check-circle status-icon" id="closedIcon"></i>
-                        <h2 id="closedTitle">Ticket Resolved</h2>
-                        <p id="closedMessage">
-                            This ticket has been marked as resolved. If you're still experiencing issues, you can reopen it below.
-                        </p>
-                        <div class="ticket-closed-actions">
-                            <button class="reopen-btn" onclick="reopenTicket()">
-                                <i class="fas fa-arrow-rotate-left"></i>
-                                Reopen Ticket
-                            </button>
-                            <button class="delete-btn" onclick="confirmDeleteTicket()">
-                                <i class="fas fa-trash-can"></i>
-                                Delete Ticket
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="chatMessagesArea" style="display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden;">
-                    <div class="messages-container" id="messagesContainer"></div>
-
-                    <div class="message-input-area">
-                        <div class="message-input-container">
-                            <textarea 
-                                id="messageInput" 
-                                class="message-input" 
-                                placeholder="Type your message..." 
-                                rows="3"
-                                onkeydown="handleMessageKeydown(event)"
-                            ></textarea>
-                            <button class="send-btn" onclick="sendMessage()" id="sendBtn">
-                                <i class="fas fa-paper-plane"></i> Send
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 
+    <!-- ══ NEW TICKET MODAL ════════════════════════════════ -->
     <div id="newTicketModal" class="modal">
         <div class="modal-content">
             <button class="close-modal" onclick="closeNewTicketModal()">
@@ -1247,7 +1236,9 @@
                     <label for="ticketMessage">Message</label>
                     <textarea id="ticketMessage" required placeholder="Describe your issue..."></textarea>
                 </div>
-                <button type="submit" class="login-btn" id="createTicketBtn">Create Ticket</button>
+                <button type="submit" class="login-btn" id="createTicketBtn">
+                    <i class="fas fa-plus"></i> Create Ticket
+                </button>
             </form>
         </div>
     </div>
@@ -1255,7 +1246,7 @@
     <script>
         const SUPABASE_URL = 'https://rujvmtvozorylfzsqppc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ1anZtdHZvem9yeWxmenNxcHBjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc0NjQxNDEsImV4cCI6MjA3MzA0MDE0MX0.b7jJz3Se_oXXDwwd0dWQ8-rEvhY0aU4JDHQVioE39iY';
-        
+
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1328,7 +1319,7 @@
                     blocked: data.blocked,
                     isGuest: false
                 };
-                
+
                 localStorage.setItem('xorbit_support_user', JSON.stringify(currentUser));
                 isGuest = false;
                 await showDashboard();
@@ -1339,7 +1330,7 @@
                 errorMsg.classList.add('show');
             } finally {
                 loginBtn.disabled = false;
-                loginBtn.textContent = 'Login';
+                loginBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Login';
             }
         }
 
@@ -1350,7 +1341,7 @@
                 // System/Staff names
                 'admin', 'administrator', 'moderator', 'support', 'staff',
                 'xorbit', 'system', 'bot', 'test', 'demitri', 'dmitri', 'demetri',
-                
+
                 // Profanity
                 'fuck', 'fucking', 'fucker', 'fck', 'fuk',
                 'shit', 'shit', 'crap',
@@ -1370,32 +1361,32 @@
                 'nazi', 'hitler'
                 // Add more words as needed
             ];
-            
+
             const lowerText = text.toLowerCase();
-            
+
             // Check for exact matches and partial matches
             for (const word of blockedWords) {
                 if (lowerText.includes(word)) {
                     return true;
                 }
             }
-            
+
             return false;
         }
 
         async function handleGuestServices(event) {
             event.preventDefault();
-            
+
             // Check if a guest account has already been created on this device
             const hasGuestAccount = localStorage.getItem('xorbit_guest_account_created');
             const errorMsg = document.getElementById('guestError');
-            
+
             if (hasGuestAccount === 'true') {
                 errorMsg.textContent = 'You have already created a guest account. Only one guest account is allowed per device. Please use "Returning Guest" to log in.';
                 errorMsg.classList.add('show');
                 return;
             }
-            
+
             const firstName = document.getElementById('guestFirstName').value.trim();
             const lastName = document.getElementById('guestLastName').value.trim();
             const email = document.getElementById('guestEmail').value.trim();
@@ -1448,7 +1439,7 @@
 
                     if (error) throw error;
                     guestUser = data;
-                    
+
                     // Mark that a guest account has been created on this device
                     localStorage.setItem('xorbit_guest_account_created', 'true');
                 }
@@ -1471,7 +1462,7 @@
                 errorMsg.classList.add('show');
             } finally {
                 guestBtn.disabled = false;
-                guestBtn.textContent = 'Continue to Support';
+                guestBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Continue to Support';
             }
         }
 
@@ -1530,13 +1521,13 @@
                 errorMsg.classList.add('show');
             } finally {
                 guestLoginBtn.disabled = false;
-                guestLoginBtn.textContent = 'Access Support';
+                guestLoginBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Access Support';
             }
         }
 
         async function showDashboard() {
             document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('supportDashboard').style.display = 'block';
+            document.getElementById('supportDashboard').style.display = 'flex';
             document.getElementById('userName').textContent = currentUser.name;
             await loadUserTickets();
         }
@@ -1545,7 +1536,7 @@
             localStorage.removeItem('xorbit_support_user');
             currentUser = null;
             currentTicket = null;
-            
+
             if (messagesSubscription) {
                 messagesSubscription.unsubscribe();
             }
@@ -1575,12 +1566,12 @@
 
         function displayTickets() {
             const container = document.getElementById('ticketList');
-            
+
             if (userTickets.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-inbox"></i>
-                        <p>You don't have any support tickets yet.</p>
+                        <p>No support tickets yet</p>
                     </div>
                 `;
                 return;
@@ -1631,22 +1622,22 @@
             if (ticket.status === 'resolved' || ticket.status === 'closed') {
                 document.getElementById('ticketClosedMessage').style.display = 'flex';
                 document.getElementById('chatMessagesArea').style.display = 'none';
-                
+
                 document.getElementById('modalTicketNumber').textContent = ticket.ticket_number;
                 const modalContent = document.getElementById('closedModalContent');
                 const icon = document.getElementById('closedIcon');
-                
+
                 if (ticket.status === 'resolved') {
                     modalContent.classList.remove('closed-status');
                     icon.className = 'fas fa-check-circle status-icon';
                     document.getElementById('closedTitle').textContent = 'Ticket Resolved';
-                    document.getElementById('closedMessage').textContent = 
+                    document.getElementById('closedMessage').textContent =
                         'This ticket has been marked as resolved. If you\'re still experiencing issues, you can reopen it below.';
                 } else {
                     modalContent.classList.add('closed-status');
                     icon.className = 'fas fa-lock status-icon';
                     document.getElementById('closedTitle').textContent = 'Ticket Closed';
-                    document.getElementById('closedMessage').textContent = 
+                    document.getElementById('closedMessage').textContent =
                         'This ticket has been closed. You can reopen it to continue the conversation or delete it.';
                 }
             } else {
@@ -1687,7 +1678,7 @@
                 // Update currentTicket status if we got fresh data
                 if (ticketData && currentTicket) {
                     currentTicket.status = ticketData.status;
-                    
+
                     // Update the status badge in the UI
                     document.getElementById('chatTicketStatus').textContent = ticketData.status.replace('_', ' ').toUpperCase();
                     document.getElementById('chatTicketStatus').className = `ticket-status status-${ticketData.status}`;
@@ -1716,10 +1707,10 @@
                     console.error('Messages error:', msgError);
                     throw msgError;
                 }
-                
+
                 console.log('Messages loaded:', messages);
                 displayMessages(messages || []);
-                
+
                 // CRITICAL FIX: Always ensure chat area is visible for open tickets
                 // Check the fresh ticket status, not stale data
                 if (currentTicket && ticketData && ticketData.status !== 'resolved' && ticketData.status !== 'closed') {
@@ -1729,22 +1720,22 @@
                     // Ticket was closed/resolved, show the closed message
                     document.getElementById('ticketClosedMessage').style.display = 'flex';
                     document.getElementById('chatMessagesArea').style.display = 'none';
-                    
+
                     document.getElementById('modalTicketNumber').textContent = currentTicket.ticket_number;
                     const modalContent = document.getElementById('closedModalContent');
                     const icon = document.getElementById('closedIcon');
-                    
+
                     if (ticketData.status === 'resolved') {
                         modalContent.classList.remove('closed-status');
                         icon.className = 'fas fa-check-circle status-icon';
                         document.getElementById('closedTitle').textContent = 'Ticket Resolved';
-                        document.getElementById('closedMessage').textContent = 
+                        document.getElementById('closedMessage').textContent =
                             'This ticket has been marked as resolved. If you\'re still experiencing issues, you can reopen it below.';
                     } else {
                         modalContent.classList.add('closed-status');
                         icon.className = 'fas fa-lock status-icon';
                         document.getElementById('closedTitle').textContent = 'Ticket Closed';
-                        document.getElementById('closedMessage').textContent = 
+                        document.getElementById('closedMessage').textContent =
                             'This ticket has been closed. You can reopen it to continue the conversation or delete it.';
                     }
                 }
@@ -1754,7 +1745,7 @@
                 container.innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <p>Error loading messages. Please refresh the page.</p>
+                        <p>Error loading messages. Please refresh.</p>
                     </div>
                 `;
             }
@@ -1762,7 +1753,7 @@
 
         function displayMessages(messages) {
             const container = document.getElementById('messagesContainer');
-            
+
             if (messages.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
@@ -1778,12 +1769,12 @@
                     return `
                         <div class="message system">
                             <div class="message-bubble">
-                                ⚠️ ${escapeHtml(msg.message)}
+                                ${escapeHtml(msg.message)}
                             </div>
                         </div>
                     `;
                 }
-                
+
                 return `
                     <div class="message ${msg.is_staff ? 'staff' : 'user'}">
                         <div class="message-header">${escapeHtml(msg.sender_name)}</div>
@@ -1825,7 +1816,7 @@
         async function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
-            
+
             if (!message || !currentTicket) return;
 
             const sendBtn = document.getElementById('sendBtn');
@@ -1844,7 +1835,7 @@
                 }]);
 
                 messageInput.value = '';
-                
+
                 // Reload messages - loadMessages will ensure the chat area stays visible
                 await loadMessages(currentTicket.id);
             } catch (error) {
@@ -1875,7 +1866,7 @@
 
         async function createNewTicket(event) {
             event.preventDefault();
-            
+
             const category = document.getElementById('ticketCategory').value;
             const subject = document.getElementById('ticketSubject').value;
             const message = document.getElementById('ticketMessage').value;
@@ -1941,9 +1932,9 @@
 
                 successMsg.textContent = `Ticket ${ticketResult.ticket_number} created successfully!`;
                 successMsg.classList.add('show');
-                
+
                 await loadUserTickets();
-                
+
                 setTimeout(() => {
                     closeNewTicketModal();
                     openTicket(ticketResult.id);
@@ -1955,7 +1946,7 @@
                 errorMsg.classList.add('show');
             } finally {
                 createBtn.disabled = false;
-                createBtn.textContent = 'Create Ticket';
+                createBtn.innerHTML = '<i class="fas fa-plus"></i> Create Ticket';
             }
         }
 
@@ -1982,12 +1973,12 @@
 
                 await loadUserTickets();
                 currentTicket.status = 'open';
-                
+
                 document.getElementById('ticketClosedMessage').style.display = 'none';
                 document.getElementById('chatMessagesArea').style.display = 'flex';
                 document.getElementById('chatTicketStatus').textContent = 'OPEN';
                 document.getElementById('chatTicketStatus').className = 'ticket-status status-open';
-                
+
                 await loadMessages(currentTicket.id);
                 subscribeToMessages(currentTicket.id);
 
@@ -2005,7 +1996,7 @@
                 'Are you sure you want to delete this ticket?\n\n' +
                 'This action cannot be undone and all conversation history will be permanently deleted.'
             );
-            
+
             if (!confirmDelete) return;
 
             try {
