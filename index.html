@@ -143,6 +143,32 @@
         font-size: 0.8rem;
       }
 
+      .topbar-avatar {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: rgba(120, 80, 255, 0.3);
+        border: 1px solid rgba(120, 80, 255, 0.4);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.52rem;
+        font-weight: 700;
+        color: #c4b0ff;
+        overflow: hidden;
+        vertical-align: middle;
+        margin-right: 6px;
+        flex-shrink: 0;
+      }
+
+      .topbar-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        border-radius: 50%;
+      }
+
       .menu-item {
         padding: 4px 8px;
         border-radius: 6px;
@@ -2359,7 +2385,7 @@
       <div class="startup-content">
         <i class="fas fa-globe startup-icon"></i>
         <div class="startup-text">X-ORBIT</div>
-        <div class="startup-version">v5.3.5B Ventas</div>
+        <div class="startup-version">v5.4.6B Ventas</div>
         <div class="startup-progress-container">
           <div class="startup-progress-bar" id="startupProgress"></div>
         </div>
@@ -2519,7 +2545,7 @@
           id="userNameplate"
           style="cursor: pointer; position: relative"
         >
-          <i class="fas fa-user-circle" style="margin-right: 6px"></i>
+          <span class="topbar-avatar" id="topbarAvatar"></span>
           <span id="userNameDisplay">User</span>
           <div class="xorbit-menu" id="userDropdown">
             <div class="xorbit-menu-item" onclick="showAccountInfo()">
@@ -3622,11 +3648,47 @@
             currentUser.email = authSession.email || "";
             console.log("✅ User data loaded:", currentUser.username);
             updateUserDisplay();
+            fetchAndSetTopbarAvatar();
             startDMPolling();
           }
         } catch (e) {
           console.warn("Could not load user data:", e);
         }
+      }
+
+      async function fetchAndSetTopbarAvatar() {
+        const el = document.getElementById("topbarAvatar");
+        if (!el) return;
+
+        // Read from xorbit_remembered_user set by auth.html
+        let email = null;
+        let username = currentUser.username || "U";
+        try {
+          const saved = localStorage.getItem("xorbit_remembered_user");
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            email    = parsed.email    || null;
+            username = parsed.username || username;
+          }
+        } catch (_) {}
+
+        // Fall back to currentUser if remembered user isn't available
+        if (!email) email = currentUser.email;
+
+        const initial = username[0].toUpperCase();
+        el.textContent = initial;
+
+        if (!email || !supabaseClient) return;
+        try {
+          const { data } = await supabaseClient
+            .from("clients")
+            .select("avatar_url")
+            .eq("email", email)
+            .single();
+          if (data?.avatar_url) {
+            el.innerHTML = `<img src="${data.avatar_url}" alt="${initial}" onerror="this.parentElement.textContent='${initial}'">`;
+          }
+        } catch (_) {}
       }
 
       // Update the user display in the menu bar
@@ -5618,7 +5680,7 @@
                         <i class="fas fa-check" style="animation:updateSuccess 2.5s ease-in-out infinite;"></i>
                       </div>
                       <div class="upd-title upd-title-ok">You're up to date!</div>
-                      <div class="upd-subtitle">X-ORBIT Desktop v5.3.5B Ventas &mdash; latest version installed</div>
+                      <div class="upd-subtitle">X-ORBIT Desktop v5.4.6B Ventas &mdash; latest version installed</div>
                     </div>
                   </div>
                   <div class="upd-actions-single">
@@ -5989,7 +6051,7 @@
           <div class="about-hero">
             <div class="about-logo-ring"><i class="fas fa-globe"></i></div>
             <div class="about-os-name">X-ORBIT Desktop</div>
-            <div class="about-version-badge"><i class="fas fa-tag"></i> v5.3.5B Ventas</div>
+            <div class="about-version-badge"><i class="fas fa-tag"></i> v5.4.6B Ventas</div>
             <div class="about-description">
               X-ORBIT Desktop is a web-based proxy OS built for students. X-ORBIT allows students and people around the world to browse the world wide web without restrictions or data leaks.
             </div>
@@ -5998,7 +6060,7 @@
           <div class="about-info-grid">
             <div class="about-info-card">
               <div class="about-info-label">Version</div>
-              <div class="about-info-value">v5.3.5B Ventas</div>
+              <div class="about-info-value">v5.4.6B Ventas</div>
             </div>
             <div class="about-info-card">
               <div class="about-info-label">Build</div>
@@ -7411,120 +7473,312 @@
       // Global variable to store session start time
       let sessionStartTime = new Date();
 
-      function showAccountInfo() {
-        const authData =
-          sessionStorage.getItem("xorbit_auth_session") ||
-          localStorage.getItem("xorbit_auth_session");
+      async function showAccountInfo() {
+        document.getElementById("xorbitDropdown")?.classList.remove("show");
+        document.getElementById("userDropdown")?.classList.remove("show");
 
-        let username = "Guest";
-        let email = "Not logged in";
-
-        if (authData) {
-          try {
-            const authSession = JSON.parse(authData);
-            username = authSession.username || authSession.name || "User";
-            email = authSession.email || "No email on file";
-          } catch (e) {
-            console.warn("Could not parse auth data");
+        // Get identity from xorbit_remembered_user (set by auth.html)
+        let email = "", username = "User", userId = null;
+        try {
+          const saved = localStorage.getItem("xorbit_remembered_user");
+          if (saved) {
+            const p = JSON.parse(saved);
+            email    = p.email    || "";
+            username = p.username || "User";
+            userId   = p.id       || null;
           }
+        } catch (_) {}
+        if (!email) {
+          try {
+            const ad = sessionStorage.getItem("xorbit_auth_session") || localStorage.getItem("xorbit_auth_session");
+            if (ad) { const s = JSON.parse(ad); email = s.email || ""; username = s.username || s.name || "User"; }
+          } catch (_) {}
         }
 
-        // Format last login time
-        const lastLogin = sessionStartTime.toLocaleString("en-US", {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-        });
+        // Fetch full profile
+        let profile = { id: userId, username, email, bio: "", avatar_url: null, banner_url: null, gradient_start: "#0a0a14", gradient_end: "#1a0a2e", gradient_angle: 135 };
+        if (email && supabaseClient) {
+          try {
+            const { data } = await supabaseClient
+              .from("clients")
+              .select("id, name, email, avatar_url, bio, banner_url, gradient_start, gradient_end, gradient_angle")
+              .eq("email", email).single();
+            if (data) { profile = { ...profile, ...data }; }
+          } catch (_) {}
+        }
+        window._acctProfile = profile;
 
-        // Calculate session duration
-        const now = new Date();
-        const sessionDuration = Math.floor((now - sessionStartTime) / 1000); // in seconds
-        const hours = Math.floor(sessionDuration / 3600);
-        const minutes = Math.floor((sessionDuration % 3600) / 60);
-        const seconds = sessionDuration % 60;
-        const sessionTime = `${hours}h ${minutes}m ${seconds}s`;
+        const gs    = profile.gradient_start || "#0a0a14";
+        const ge    = profile.gradient_end   || "#1a0a2e";
+        const ga    = profile.gradient_angle ?? 135;
+        const init  = (profile.name || username || "U")[0].toUpperCase();
+        const avHtml = profile.avatar_url
+          ? `<img src="${profile.avatar_url}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%;">`
+          : `<span style="font-size:1.4rem;font-weight:700;color:#c4b0ff;">${init}</span>`;
 
-        const accountContent = `
-    <div style="padding: 24px;">
-      <h2 style="color: #e8f0ff; margin-bottom: 24px; font-size: 1.4rem;">
-        <i class="fas fa-user-circle" style="margin-right: 12px; color: #7d5cff;"></i>
-        Account Information
-      </h2>
-      
-      <div style="display: grid; gap: 16px;">
-        <div style="background: rgba(120, 80, 255, 0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(120, 80, 255, 0.2);">
-          <div style="color: #7d5cff; font-weight: 600; margin-bottom: 8px;">User Profile</div>
-          <div style="color: #e8f0ff; font-size: 0.9rem; margin-bottom: 4px;">
-            <i class="fas fa-user" style="margin-right: 8px; color: #7d5cff;"></i>
-            Username: <strong>${username}</strong>
-          </div>
-          <div style="color: #a8b4d9; font-size: 0.85rem;">
-            <i class="fas fa-envelope" style="margin-right: 8px; color: #7d5cff;"></i>
-            Email: ${email}
-          </div>
-        </div>
-        
-        <div style="background: rgba(120, 80, 255, 0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(120, 80, 255, 0.2);">
-          <div style="color: #7d5cff; font-weight: 600; margin-bottom: 8px;">Session Information</div>
-          <div style="color: #e8f0ff; font-size: 0.9rem; margin-bottom: 4px;">
-            <i class="fas fa-clock" style="margin-right: 8px; color: #7d5cff;"></i>
-            Last Login: ${lastLogin}
-          </div>
-          <div style="color: #a8b4d9; font-size: 0.85rem;">
-            <i class="fas fa-hourglass-half" style="margin-right: 8px; color: #7d5cff;"></i>
-            Session Duration: ${sessionTime}
-          </div>
-        </div>
-        
-        <div style="background: rgba(120, 80, 255, 0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(120, 80, 255, 0.2);">
-          <div style="color: #7d5cff; font-weight: 600; margin-bottom: 8px;">Location Information</div>
-          <div style="color: #e8f0ff; font-size: 0.9rem; margin-bottom: 4px;">
-            <i class="fas fa-map-marker-alt" style="margin-right: 8px; color: #7d5cff;"></i>
-            Location: ${userLocation.city}, ${userLocation.state}
-          </div>
-          <div style="color: #a8b4d9; font-size: 0.85rem;">
-            <i class="fas fa-globe" style="margin-right: 8px; color: #7d5cff;"></i>
-            Timezone: ${userLocation.timezone}
-          </div>
-        </div>
-        
-        <div style="background: rgba(120, 80, 255, 0.1); padding: 16px; border-radius: 12px; border: 1px solid rgba(120, 80, 255, 0.2);">
-          <div style="color: #7d5cff; font-weight: 600; margin-bottom: 8px;">System Status</div>
-          <div style="color: #e8f0ff; font-size: 0.9rem; margin-bottom: 4px;">
-            <i class="fas fa-check-circle" style="margin-right: 8px; color: #28ca42;"></i>
-            Status: ${isAuthenticated ? "Authenticated" : "Guest Mode"}
-          </div>
-          <div style="color: #a8b4d9; font-size: 0.85rem;">
-            <i class="fas fa-window-restore" style="margin-right: 8px; color: #7d5cff;"></i>
-            Active Windows: ${activeWindows.size}
-          </div>
-        </div>
-      </div>
+        const now  = new Date();
+        const secs = Math.floor((now - sessionStartTime) / 1000);
+        const lastLogin  = sessionStartTime.toLocaleString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+        const sessionTime = `${Math.floor(secs/3600)}h ${Math.floor((secs%3600)/60)}m ${secs%60}s`;
 
-      <button onclick="openWindow('Manage Account', 'account.html', 'fas fa-user-gear')" style="margin-top: 20px; width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(120, 80, 255, 0.4); background: rgba(120, 80, 255, 0.15); color: #c084fc; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit; letter-spacing: 0.5px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(120,80,255,0.28)'; this.style.borderColor='rgba(120,80,255,0.7)'" onmouseout="this.style.background='rgba(120,80,255,0.15)'; this.style.borderColor='rgba(120,80,255,0.4)'">
-        <i class="fas fa-user-gear" style="margin-right: 8px;"></i>Manage Account
-      </button>
-    </div>
-  `;
+        const content = `
+          <div id="acctModalBox" style="font-family:inherit;overflow-y:auto;max-height:680px;background:linear-gradient(${ga}deg,${gs},${ge});transition:background 0.3s;">
 
-        openCustomWindow(
-          "Account Information",
-          accountContent,
-          "fas fa-user-circle",
-          600,
-          500
-        );
+            <!-- Banner (transparent — gradient shows through; image overlays if set) -->
+            <div id="acctBanner" onclick="document.getElementById('acctBannerInput').click()"
+              style="height:130px;background:transparent;position:relative;overflow:hidden;cursor:pointer;flex-shrink:0;">
+              <img id="acctBannerImg" src="${profile.banner_url || ''}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:${profile.banner_url ? 'block' : 'none'};">
+              <div id="acctBannerOverlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);opacity:0;transition:opacity 0.2s;font-size:0.7rem;letter-spacing:2px;color:#fff;text-transform:uppercase;gap:6px;pointer-events:none;">
+                <i class="fas fa-camera"></i> Change Banner
+              </div>
+              ${profile.banner_url ? `<button id="acctRemoveBannerBtn" onclick="event.stopPropagation();removeAccountBanner()" style="position:absolute;top:8px;right:8px;padding:4px 9px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,100,100,0.35);border-radius:6px;color:rgba(255,140,140,0.85);font-family:inherit;font-size:0.6rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;z-index:3;transition:all 0.15s;" onmouseover="this.style.background='rgba(180,40,40,0.5)'" onmouseout="this.style.background='rgba(0,0,0,0.55)'"><i class="fas fa-trash-alt" style="margin-right:4px;"></i>Remove</button>` : ''}
+            </div>
 
-        // Close both possible dropdowns
-        const xorbitDropdown = document.getElementById("xorbitDropdown");
-        if (xorbitDropdown) xorbitDropdown.classList.remove("show");
+            <!-- Avatar -->
+            <div style="padding:0 24px;margin-top:-34px;position:relative;z-index:2;display:flex;align-items:flex-end;gap:10px;">
+              <div id="acctAvatarEl" onclick="document.getElementById('acctAvatarInput').click()"
+                style="width:68px;height:68px;border-radius:50%;background:#12091f;border:3px solid rgba(0,0,0,0.6);box-shadow:0 0 0 1px rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative;flex-shrink:0;">
+                ${avHtml}
+                <div id="acctAvatarOverlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.55);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;color:#fff;pointer-events:none;">
+                  <i class="fas fa-camera"></i>
+                </div>
+              </div>
+              ${profile.avatar_url ? `<button id="acctRemoveAvatarBtn" onclick="removeAccountAvatar()" style="padding:4px 10px;background:rgba(0,0,0,0.4);border:1px solid rgba(255,100,100,0.3);border-radius:6px;color:rgba(255,140,140,0.8);font-family:inherit;font-size:0.62rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.15s;margin-bottom:4px;" onmouseover="this.style.background='rgba(180,40,40,0.4)';this.style.borderColor='rgba(255,100,100,0.6)'" onmouseout="this.style.background='rgba(0,0,0,0.4)';this.style.borderColor='rgba(255,100,100,0.3)'"><i class="fas fa-trash-alt" style="margin-right:5px;"></i>Remove Photo</button>` : ''}
+            </div>
 
-        const userDropdown = document.getElementById("userDropdown");
-        if (userDropdown) userDropdown.classList.remove("show");
+            <!-- Body scrim for readability -->
+            <div style="padding:12px 24px 24px;background:rgba(0,0,0,0.35);">
+              <div style="font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;color:#e8f0ff;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;margin-top:10px;">${profile.name || username}</div>
+              <div style="font-size:0.78rem;color:rgba(200,180,255,0.8);margin-bottom:18px;">${email}</div>
+
+              <div style="font-size:0.6rem;color:rgba(200,180,255,0.55);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Bio</div>
+              <textarea id="acctBioInput" maxlength="300" placeholder="Write something about yourself…"
+                style="width:100%;padding:10px 13px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:#e8f0ff;font-family:inherit;font-size:0.85rem;resize:vertical;min-height:72px;outline:none;line-height:1.6;box-sizing:border-box;">${profile.bio || ''}</textarea>
+
+              <div style="font-size:0.6rem;color:rgba(200,180,255,0.55);letter-spacing:2px;text-transform:uppercase;margin:16px 0 8px;">Profile Gradient</div>
+              <div id="acctGradPreview" style="height:32px;border-radius:8px;border:1px solid rgba(255,255,255,0.1);margin-bottom:12px;background:linear-gradient(${ga}deg,${gs},${ge});transition:background 0.2s;"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <label style="font-size:0.6rem;color:rgba(200,180,255,0.55);letter-spacing:1px;text-transform:uppercase;">From</label>
+                  <input type="color" id="acctGradStart" value="${gs}" oninput="updateAccountGradientPreview()"
+                    style="width:100%;height:32px;border:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);cursor:pointer;border-radius:6px;padding:2px 3px;">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <label style="font-size:0.6rem;color:rgba(200,180,255,0.55);letter-spacing:1px;text-transform:uppercase;">To</label>
+                  <input type="color" id="acctGradEnd" value="${ge}" oninput="updateAccountGradientPreview()"
+                    style="width:100%;height:32px;border:1px solid rgba(255,255,255,0.12);background:rgba(0,0,0,0.3);cursor:pointer;border-radius:6px;padding:2px 3px;">
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+                <label style="font-size:0.6rem;color:rgba(200,180,255,0.55);letter-spacing:1px;text-transform:uppercase;white-space:nowrap;">Angle</label>
+                <input type="range" id="acctGradAngle" min="0" max="360" value="${ga}" oninput="updateAccountGradientPreview()" style="flex:1;accent-color:#c4b0ff;">
+                <span id="acctGradAngleVal" style="font-size:0.72rem;color:rgba(200,180,255,0.7);min-width:34px;text-align:right;">${ga}°</span>
+              </div>
+
+              <button id="acctSaveBtn" onclick="saveAccountProfile()"
+                style="width:100%;padding:10px;background:rgba(0,0,0,0.4);color:#e8f0ff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-family:inherit;font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.15s;"
+                onmouseover="this.style.background='rgba(0,0,0,0.6)'" onmouseout="if(!this.disabled)this.style.background='rgba(0,0,0,0.4)'">
+                <i class="fas fa-check"></i> Save Profile
+              </button>
+
+              <div style="border-top:1px solid rgba(255,255,255,0.08);margin:20px 0 16px;"></div>
+              <div style="font-size:0.6rem;color:rgba(200,180,255,0.45);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Session</div>
+              <div style="display:grid;gap:7px;margin-bottom:20px;">
+                <div style="font-size:0.78rem;color:rgba(200,180,255,0.7);"><i class="fas fa-clock" style="margin-right:8px;width:14px;opacity:0.6;"></i>${lastLogin}</div>
+                <div style="font-size:0.78rem;color:rgba(200,180,255,0.7);"><i class="fas fa-hourglass-half" style="margin-right:8px;width:14px;opacity:0.6;"></i>Duration: ${sessionTime}</div>
+                <div style="font-size:0.78rem;color:rgba(200,180,255,0.7);"><i class="fas fa-map-marker-alt" style="margin-right:8px;width:14px;opacity:0.6;"></i>${userLocation.city}, ${userLocation.state}</div>
+              </div>
+
+              <!-- Manage button styled with the profile gradient -->
+              <button onclick="openWindow('Manage Account','account.html','fas fa-user-gear')"
+                id="acctManageBtn"
+                style="width:100%;padding:11px;background:linear-gradient(${ga}deg,${gs},${ge});color:#e8f0ff;border:1px solid rgba(255,255,255,0.15);border-radius:8px;font-family:inherit;font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;filter:brightness(1.4);transition:filter 0.15s;"
+                onmouseover="this.style.filter='brightness(1.8)'" onmouseout="this.style.filter='brightness(1.4)'">
+                <i class="fas fa-user-gear"></i> Manage X-ORBIT Account
+              </button>
+            </div>
+
+            <input type="file" id="acctAvatarInput" accept="image/*" style="display:none" onchange="uploadAccountAvatar(event)">
+            <input type="file" id="acctBannerInput" accept="image/*" style="display:none" onchange="uploadAccountBanner(event)">
+          </div>`;
+
+        openCustomWindow("Account", content, "fas fa-user-circle", 520, 680);
+
+        // Wire up hover effects after the window renders
+        setTimeout(() => {
+          const banner = document.getElementById("acctBanner");
+          const bannerOv = document.getElementById("acctBannerOverlay");
+          const avatar = document.getElementById("acctAvatarEl");
+          const avatarOv = document.getElementById("acctAvatarOverlay");
+          if (banner && bannerOv) {
+            banner.addEventListener("mouseenter", () => bannerOv.style.opacity = "1");
+            banner.addEventListener("mouseleave", () => bannerOv.style.opacity = "0");
+          }
+          if (avatar && avatarOv) {
+            avatar.addEventListener("mouseenter", () => avatarOv.style.opacity = "1");
+            avatar.addEventListener("mouseleave", () => avatarOv.style.opacity = "0");
+          }
+        }, 80);
+      }
+
+      function updateAccountGradientPreview() {
+        const start = document.getElementById("acctGradStart")?.value;
+        const end   = document.getElementById("acctGradEnd")?.value;
+        const angle = document.getElementById("acctGradAngle")?.value;
+        if (!start || !end || angle == null) return;
+        document.getElementById("acctGradAngleVal").textContent = `${angle}°`;
+        const grad = `linear-gradient(${angle}deg, ${start}, ${end})`;
+        document.getElementById("acctGradPreview").style.background  = grad;
+        document.getElementById("acctModalBox").style.background     = grad;
+        const manageBtn = document.getElementById("acctManageBtn");
+        if (manageBtn) manageBtn.style.background = grad;
+      }
+
+      async function saveAccountProfile() {
+        const btn = document.getElementById("acctSaveBtn");
+        if (!btn) return;
+        const bio   = document.getElementById("acctBioInput")?.value.trim() || "";
+        const start = document.getElementById("acctGradStart")?.value;
+        const end   = document.getElementById("acctGradEnd")?.value;
+        const angle = parseInt(document.getElementById("acctGradAngle")?.value);
+        const profile = window._acctProfile;
+        if (!profile?.id || !supabaseClient) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+
+        try {
+          const { error } = await supabaseClient.from("clients").update({
+            bio, gradient_start: start, gradient_end: end, gradient_angle: angle
+          }).eq("id", profile.id);
+          if (error) throw error;
+          btn.style.background = "#28ca42";
+          btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+          setTimeout(() => {
+            btn.style.background = "#7d5cff";
+            btn.innerHTML = '<i class="fas fa-check"></i> Save Profile';
+            btn.disabled = false;
+          }, 1500);
+        } catch (err) {
+          console.error("Save profile error:", err);
+          btn.style.background = "#e74c3c";
+          btn.innerHTML = '<i class="fas fa-times"></i> Failed';
+          setTimeout(() => {
+            btn.style.background = "#7d5cff";
+            btn.innerHTML = '<i class="fas fa-check"></i> Save Profile';
+            btn.disabled = false;
+          }, 2000);
+        }
+      }
+
+      async function uploadAccountAvatar(event) {
+        const file = event.target.files[0];
+        event.target.value = "";
+        if (!file || !supabaseClient) return;
+        if (file.size > 5 * 1024 * 1024) { alert("Image must be under 5MB."); return; }
+        const profile = window._acctProfile;
+        if (!profile?.id) return;
+
+        const avatarEl = document.getElementById("acctAvatarEl");
+        if (avatarEl) avatarEl.style.opacity = "0.5";
+
+        try {
+          const path = `${profile.id}/avatar`;
+          const { error: upErr } = await supabaseClient.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+          if (upErr) throw upErr;
+
+          const { data: { publicUrl } } = supabaseClient.storage.from("avatars").getPublicUrl(path);
+          const url = `${publicUrl}?t=${Date.now()}`;
+          await supabaseClient.from("clients").update({ avatar_url: url }).eq("id", profile.id);
+          window._acctProfile.avatar_url = url;
+
+          if (avatarEl) {
+            avatarEl.style.opacity = "1";
+            const init = (profile.name || username || "U")[0].toUpperCase();
+            avatarEl.innerHTML = `
+              <img src="${url}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%;">
+              <div id="acctAvatarOverlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.55);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;color:#fff;pointer-events:none;"><i class="fas fa-camera"></i></div>
+            `;
+            avatarEl.addEventListener("mouseenter", () => document.getElementById("acctAvatarOverlay").style.opacity = "1");
+            avatarEl.addEventListener("mouseleave", () => document.getElementById("acctAvatarOverlay").style.opacity = "0");
+          }
+          fetchAndSetTopbarAvatar();
+        } catch (err) {
+          console.error("Avatar upload error:", err);
+          if (avatarEl) avatarEl.style.opacity = "1";
+          alert("Upload failed. Please try again.");
+        }
+      }
+
+      async function uploadAccountBanner(event) {
+        const file = event.target.files[0];
+        event.target.value = "";
+        if (!file || !supabaseClient) return;
+        if (file.size > 8 * 1024 * 1024) { alert("Banner must be under 8MB."); return; }
+        const profile = window._acctProfile;
+        if (!profile?.id) return;
+
+        try {
+          const path = `${profile.id}/banner`;
+          const { error: upErr } = await supabaseClient.storage.from("banners").upload(path, file, { upsert: true, contentType: file.type });
+          if (upErr) throw upErr;
+
+          const { data: { publicUrl } } = supabaseClient.storage.from("banners").getPublicUrl(path);
+          const url = `${publicUrl}?t=${Date.now()}`;
+          await supabaseClient.from("clients").update({ banner_url: url }).eq("id", profile.id);
+          window._acctProfile.banner_url = url;
+
+          const bannerImg = document.getElementById("acctBannerImg");
+          if (bannerImg) { bannerImg.src = url; bannerImg.style.display = "block"; }
+        } catch (err) {
+          console.error("Banner upload error:", err);
+          alert("Upload failed. Please try again.");
+        }
+      }
+
+      async function removeAccountAvatar() {
+        const profile = window._acctProfile;
+        if (!profile?.id || !supabaseClient) return;
+        if (!confirm("Remove your profile picture?")) return;
+        try {
+          await supabaseClient.storage.from("avatars").remove([`${profile.id}/avatar`]);
+          await supabaseClient.from("clients").update({ avatar_url: null }).eq("id", profile.id);
+          window._acctProfile.avatar_url = null;
+
+          const init = (profile.name || profile.username || "U")[0].toUpperCase();
+          const avatarEl = document.getElementById("acctAvatarEl");
+          if (avatarEl) {
+            avatarEl.innerHTML = `
+              <span style="font-size:1.4rem;font-weight:700;color:#c4b0ff;">${init}</span>
+              <div id="acctAvatarOverlay" style="position:absolute;inset:0;background:rgba(0,0,0,0.55);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;color:#fff;pointer-events:none;"><i class="fas fa-camera"></i></div>
+            `;
+            avatarEl.addEventListener("mouseenter", () => document.getElementById("acctAvatarOverlay").style.opacity = "1");
+            avatarEl.addEventListener("mouseleave", () => document.getElementById("acctAvatarOverlay").style.opacity = "0");
+          }
+          document.getElementById("acctRemoveAvatarBtn")?.remove();
+          fetchAndSetTopbarAvatar();
+        } catch (err) {
+          console.error("Remove avatar error:", err);
+          alert("Failed to remove profile picture.");
+        }
+      }
+
+      async function removeAccountBanner() {
+        const profile = window._acctProfile;
+        if (!profile?.id || !supabaseClient) return;
+        if (!confirm("Remove your banner?")) return;
+        try {
+          await supabaseClient.storage.from("banners").remove([`${profile.id}/banner`]);
+          await supabaseClient.from("clients").update({ banner_url: null }).eq("id", profile.id);
+          window._acctProfile.banner_url = null;
+
+          const bannerImg = document.getElementById("acctBannerImg");
+          if (bannerImg) { bannerImg.src = ""; bannerImg.style.display = "none"; }
+          document.getElementById("acctRemoveBannerBtn")?.remove();
+        } catch (err) {
+          console.error("Remove banner error:", err);
+          alert("Failed to remove banner.");
+        }
       }
 
       function showAboutDialog() {
@@ -7650,7 +7904,7 @@
               <i class="fas fa-check" style="color:#34c759;font-size:1rem;"></i>
             </div>
             <div style="font-size:0.9rem;font-weight:600;color:#34c759;letter-spacing:-0.01em;">You're up to date</div>
-            <div style="font-size:0.76rem;color:rgba(160,148,210,0.7);">X-ORBIT Desktop v5.3.5B Ventas is the latest version.</div>
+            <div style="font-size:0.76rem;color:rgba(160,148,210,0.7);">X-ORBIT Desktop v5.4.6B Ventas is the latest version.</div>
           </div>
         `;
             }
@@ -8213,8 +8467,8 @@
       // ============================================
 
       // Add these global variables at the top with your other global variables:
-      const CURRENT_VERSION = "v5.3.5B";
-      const CURRENT_VERSION_NAME = "X-ORBIT Desktop v5.3.5B Ventas";
+      const CURRENT_VERSION = "v5.4.6B";
+      const CURRENT_VERSION_NAME = "X-ORBIT Desktop v5.4.6B Ventas";
       let pendingUpdateOnClose = false;
       let latestUpdateData = null;
 
