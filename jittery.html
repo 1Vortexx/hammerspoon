@@ -512,6 +512,28 @@
             box-shadow: 0 0 0 2px #4ade80;
         }
 
+        .profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 12px;
+        }
+
+        .profile-tag {
+            font-size: 0.58rem;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border: 1px solid;
+        }
+
+        .profile-tag.founder       { color: #fbbf24; border-color: rgba(251,191,36,0.4);  background: rgba(251,191,36,0.08); }
+        .profile-tag.staff         { color: #f87171; border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.08); }
+        .profile-tag.beta_tester   { color: #a78bfa; border-color: rgba(167,139,250,0.4); background: rgba(167,139,250,0.08); }
+        .profile-tag.early_supporter { color: #67e8f9; border-color: rgba(103,232,249,0.4); background: rgba(103,232,249,0.08); }
+
         .profile-status-row {
             display: flex;
             align-items: center;
@@ -724,6 +746,19 @@
             font-size: 0.68rem;
             color: var(--text-muted);
             letter-spacing: 0.3px;
+        }
+
+        .chat-header-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .chat-header-tags .profile-tag {
+            font-size: 0.48rem;
+            padding: 2px 6px;
+            letter-spacing: 1px;
         }
 
         .online-dot {
@@ -1647,6 +1682,7 @@
                     <div class="chat-header-info">
                         <div class="chat-header-name" id="chatRecipientName"></div>
                         <div class="chat-header-email" id="chatRecipientEmail"></div>
+                        <div class="chat-header-tags" id="chatRecipientTags"></div>
                     </div>
                 </div>
 
@@ -1726,6 +1762,7 @@
         <div class="profile-body">
             <div class="profile-name" id="profileModalName"></div>
             <div class="profile-email-label" id="profileModalEmail"></div>
+            <div class="profile-tags" id="profileTagsRow" style="display:none"></div>
             <div class="profile-status-row" id="profileStatusRow"></div>
             <div id="profileBioArea"></div>
 
@@ -1845,6 +1882,7 @@
     let blockedByEmails      = new Set(); // emails that have blocked me
     const avatarCache        = {}; // email -> url or null
     const onlineCache        = {}; // email -> boolean
+    const tagsCache          = {}; // email -> string[]
 
     /* ──────────────────────────────────────────────────
        IFRAME AUTH (mirrors logs.html pattern)
@@ -2150,6 +2188,7 @@
         chatAvatarEl.onclick   = () => openProfile(otherEmail);
         document.getElementById('chatRecipientName').textContent = otherName;
         document.getElementById('chatRecipientEmail').textContent = otherEmail;
+        renderChatTags(otherEmail);
 
         document.getElementById('emptyState').style.display = 'none';
         document.getElementById('chatArea').style.display   = 'flex';
@@ -2625,7 +2664,7 @@
         try {
             const { data, error } = await sb
                 .from('clients')
-                .select('id, name, email, avatar_url, bio, banner_url, gradient_start, gradient_end, gradient_angle, last_seen')
+                .select('id, name, email, avatar_url, bio, banner_url, gradient_start, gradient_end, gradient_angle, last_seen, tags')
                 .eq('email', email)
                 .single();
             if (error) throw error;
@@ -2678,9 +2717,15 @@
             : '';
         avatarEl.innerHTML = avatarContent + uploadOverlay;
 
-        // Name / email / status
+        // Name / email / tags / status
         document.getElementById('profileModalName').textContent  = profile.name;
         document.getElementById('profileModalEmail').textContent = profile.email;
+
+        const tags = Array.isArray(profile.tags) ? profile.tags : [];
+        tagsCache[profile.email] = tags;
+        const tagsEl = document.getElementById('profileTagsRow');
+        tagsEl.innerHTML = tagsHTML(tags);
+        tagsEl.style.display = tags.length ? 'flex' : 'none';
         const isOnline   = effectiveOnline(profile.email);
         const lastSeenTxt = isOnline ? null : fmtLastSeen(profile.last_seen);
         const statusLabel = isOnline ? 'Online' : (lastSeenTxt || 'Offline');
@@ -2794,6 +2839,36 @@
         if (min < 60)      return `Last seen ${min}m ago`;
         if (hr  < 24)      return `Last seen ${hr}h ago`;
         return `Last seen ${day}d ago`;
+    }
+
+    const TAG_LABELS = { founder: 'Founder', staff: 'Staff', beta_tester: 'Beta Tester', early_supporter: 'Early Supporter' };
+
+    function tagsHTML(tags) {
+        if (!Array.isArray(tags) || tags.length === 0) return '';
+        return tags
+            .filter(t => TAG_LABELS[t])
+            .map(t => `<span class="profile-tag ${t}">${TAG_LABELS[t]}</span>`)
+            .join('');
+    }
+
+    async function renderChatTags(email) {
+        const el = document.getElementById('chatRecipientTags');
+        if (!el) return;
+
+        // Use cache or profileCache first
+        let tags = tagsCache[email] ?? profileCache[email]?.tags ?? null;
+
+        if (tags === null) {
+            try {
+                const { data } = await sb.from('clients').select('tags').eq('email', email).single();
+                tags = data?.tags || [];
+                tagsCache[email] = tags;
+            } catch (_) {
+                tags = [];
+            }
+        }
+
+        el.innerHTML = tagsHTML(tags);
     }
 
     function isRecentlySeen(last_seen) {
