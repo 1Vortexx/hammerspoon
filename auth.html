@@ -646,6 +646,18 @@
         box-shadow: inset 0 0 20px rgba(124,58,237,0.4);
       }
 
+      .user-avatar img {
+        position: absolute;
+        inset: 3px;
+        width: calc(100% - 6px);
+        height: calc(100% - 6px);
+        border-radius: 50%;
+        object-fit: cover;
+        z-index: 2;
+        display: none;
+        box-shadow: inset 0 0 20px rgba(124,58,237,0.4);
+      }
+
       .username-display {
         font-size: 1.15rem;
         font-weight: 700;
@@ -1589,7 +1601,9 @@
       <!-- OS Mode View -->
       <div class="os-view" id="osView">
         <div class="user-profile">
-          <div class="user-avatar"></div>
+          <div class="user-avatar">
+            <img id="savedAvatar" alt="Profile picture">
+          </div>
           <div class="username-display" id="savedUsername"></div>
           <div class="user-email" id="savedEmail"></div>
         </div>
@@ -1976,6 +1990,27 @@
         savedEmail.textContent = userData.email;
 
         rememberedUser = userData;
+
+        // Reset avatar to default, then try to load profile picture
+        const savedAvatar = document.getElementById("savedAvatar");
+        if (savedAvatar) {
+          savedAvatar.style.display = "none";
+          savedAvatar.src = "";
+          if (userData.email && supabaseClient) {
+            supabaseClient
+              .from("clients")
+              .select("avatar_url")
+              .eq("email", userData.email)
+              .single()
+              .then(({ data }) => {
+                if (data?.avatar_url) {
+                  savedAvatar.src = data.avatar_url;
+                  savedAvatar.style.display = "block";
+                }
+              })
+              .catch(() => {});
+          }
+        }
 
         regularView.classList.add("hidden");
         osView.classList.add("active");
