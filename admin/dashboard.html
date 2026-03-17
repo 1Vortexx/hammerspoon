@@ -1034,12 +1034,30 @@
         }
         /* ════ TICKET OPTIONS BAR ════ */
         .ticket-options-bar {
-            display: flex;
-            gap: 8px;
-            padding: 6px 12px;
             border-top: 1px solid var(--border);
             background: var(--surface);
         }
+        .ticket-options-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 12px;
+            cursor: pointer;
+            user-select: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .ticket-options-toggle:hover { color: var(--text-dim); }
+        .ticket-options-toggle .toggle-chevron { transition: transform .2s; }
+        .ticket-options-toggle.collapsed .toggle-chevron { transform: rotate(-90deg); }
+        .ticket-options-buttons {
+            display: flex;
+            gap: 8px;
+            padding: 0 12px 8px;
+        }
+        .ticket-options-buttons.hidden { display: none; }
         .option-btn {
             background: transparent;
             border: 1px solid var(--border-hi);
@@ -1271,13 +1289,22 @@
 
                     <div class="messages-container" id="messagesContainer"></div>
 
-                    <div id="ticketOptions" class="ticket-options-bar">
-                        <button class="option-btn" id="accountFormBtn" onclick="sendAccountFormRequest()">
-                            <i class="fas fa-user-plus"></i> Account Form
-                        </button>
-                        <button class="option-btn" onclick="openMarkInactiveModal()">
-                            <i class="fas fa-moon"></i> Mark Inactive
-                        </button>
+                    <div id="ticketOptions" class="ticket-options-bar" style="display:none;">
+                        <div class="ticket-options-toggle collapsed" id="optionsToggle" onclick="toggleTicketOptions()">
+                            <span><i class="fas fa-tools" style="margin-right:6px;"></i>Actions</span>
+                            <i class="fas fa-chevron-down toggle-chevron"></i>
+                        </div>
+                        <div class="ticket-options-buttons hidden" id="optionsButtons">
+                            <button class="option-btn" id="accountFormBtn" onclick="sendAccountFormRequest()">
+                                <i class="fas fa-user-plus"></i> Account Form
+                            </button>
+                            <button class="option-btn" onclick="openMarkInactiveModal()">
+                                <i class="fas fa-moon"></i> Mark Inactive
+                            </button>
+                            <button class="option-btn" id="resetPwBtn" onclick="resetUserPassword()">
+                                <i class="fas fa-key"></i> Reset Password
+                            </button>
+                        </div>
                     </div>
 
                     <div class="message-input-area">
@@ -1414,6 +1441,29 @@
                 <button class="admin-create-btn" onclick="saveClientEdit()" id="saveClientBtn">
                     <i class="fas fa-check"></i> Save Changes
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Choice Modal -->
+    <div id="resetPwChoiceModal" class="modal-overlay" style="display:none;">
+        <div class="modal-box" style="max-width:400px;">
+            <div class="modal-header">
+                <span class="modal-title">Reset Password</span>
+                <button class="modal-close" onclick="document.getElementById('resetPwChoiceModal').style.display='none'">×</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--text-dim);margin-bottom:16px;">How would you like to reset this user's password?</p>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <button class="admin-create-btn" onclick="resetAutoPassword()">
+                        <i class="fas fa-magic"></i> Auto Set Password
+                        <span style="display:block;font-size:10px;font-weight:400;color:var(--text-muted);margin-top:2px;">Generate a temporary password and send it to the user.</span>
+                    </button>
+                    <button class="admin-create-btn" style="background:#1a1a1a;border:1px solid #333;" onclick="resetUserSetPassword()">
+                        <i class="fas fa-user-edit"></i> Let User Set Password
+                        <span style="display:block;font-size:10px;font-weight:400;color:var(--text-muted);margin-top:2px;">Send the user a form in chat to set their own new password.</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1724,6 +1774,11 @@
             document.getElementById('statusSelect').value = ticket.status;
             document.getElementById('prioritySelect').value = ticket.priority;
 
+            // Show options bar, reset to collapsed state
+            document.getElementById('ticketOptions').style.display = 'block';
+            document.getElementById('optionsToggle').classList.add('collapsed');
+            document.getElementById('optionsButtons').classList.add('hidden');
+
             displayTickets(allTickets);
             await loadMessages(ticketId);
             subscribeToMessages(ticketId);
@@ -1779,6 +1834,15 @@
             }
             if (data.type === 'account_form_denied') {
                 return `<div class="form-card form-card-denied"><i class="fas fa-times-circle"></i>&nbsp;Account request denied.${data.reason ? ' Reason: ' + escapeHtmlAdmin(data.reason) : ''}</div>`;
+            }
+            if (data.type === 'password_reset') {
+                return `<div class="form-card"><i class="fas fa-key"></i>&nbsp;Temporary password sent to user.</div>`;
+            }
+            if (data.type === 'password_reset_request') {
+                return `<div class="form-card"><i class="fas fa-user-edit"></i>&nbsp;Password reset form sent — waiting for user to set a new password.</div>`;
+            }
+            if (data.type === 'password_reset_complete') {
+                return `<div class="form-card form-card-approved"><i class="fas fa-check-circle"></i>&nbsp;User has successfully set their new password.</div>`;
             }
             return '';
         }
@@ -2240,6 +2304,88 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-check"></i> Save Changes';
+            }
+        }
+
+        function toggleTicketOptions() {
+            const toggle  = document.getElementById('optionsToggle');
+            const buttons = document.getElementById('optionsButtons');
+            const collapsed = toggle.classList.toggle('collapsed');
+            buttons.classList.toggle('hidden', collapsed);
+        }
+
+        function generateTempPassword() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%';
+            let pw = '';
+            for (let i = 0; i < 16; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+            return pw;
+        }
+
+        function resetUserPassword() {
+            if (!currentTicket) return;
+            document.getElementById('resetPwChoiceModal').style.display = 'flex';
+        }
+
+        async function resetAutoPassword() {
+            document.getElementById('resetPwChoiceModal').style.display = 'none';
+            if (!currentTicket) return;
+
+            const btn = document.getElementById('resetPwBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting…';
+
+            try {
+                const { data: client, error: findErr } = await supabaseClient
+                    .from('clients').select('id').eq('email', currentTicket.email).maybeSingle();
+                if (findErr) throw findErr;
+                if (!client) throw new Error('No account found for ' + currentTicket.email);
+
+                const tempPassword = generateTempPassword();
+
+                const { error: updateErr } = await supabaseClient
+                    .from('clients').update({ password: tempPassword }).eq('id', client.id);
+                if (updateErr) throw updateErr;
+
+                const { data: conversation } = await supabaseClient
+                    .from('conversations').select('id').eq('ticket_id', currentTicket.id).single();
+                await supabaseClient.from('messages').insert([{
+                    conversation_id: conversation.id,
+                    sender_name: currentAdmin.full_name,
+                    sender_email: currentAdmin.email,
+                    sender_admin_id: currentAdmin.id,
+                    is_staff: true,
+                    message: '__XORBIT_FORM__' + JSON.stringify({ type: 'password_reset', tempPassword })
+                }]);
+
+                await loadMessages(currentTicket.id);
+            } catch (err) {
+                console.error('Error resetting password:', err);
+                alert(err.message || 'Failed to reset password.');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-key"></i> Reset Password';
+            }
+        }
+
+        async function resetUserSetPassword() {
+            document.getElementById('resetPwChoiceModal').style.display = 'none';
+            if (!currentTicket) return;
+
+            try {
+                const { data: conversation } = await supabaseClient
+                    .from('conversations').select('id').eq('ticket_id', currentTicket.id).single();
+                await supabaseClient.from('messages').insert([{
+                    conversation_id: conversation.id,
+                    sender_name: currentAdmin.full_name,
+                    sender_email: currentAdmin.email,
+                    sender_admin_id: currentAdmin.id,
+                    is_staff: true,
+                    message: '__XORBIT_FORM__' + JSON.stringify({ type: 'password_reset_request' })
+                }]);
+                await loadMessages(currentTicket.id);
+            } catch (err) {
+                console.error('Error sending password reset form:', err);
+                alert(err.message || 'Failed to send password reset form.');
             }
         }
 
