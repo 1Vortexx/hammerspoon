@@ -963,6 +963,482 @@
         .send-btn:hover:not(:disabled) { background: var(--text-dim); }
         .send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
+        .image-upload-btn {
+            padding: 0 16px;
+            background: transparent;
+            border: none;
+            border-right: 1px solid var(--border);
+            color: var(--text-ghost);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: color 0.15s, background 0.15s;
+        }
+
+        .image-upload-btn:hover { color: var(--text); background: #0a0a0a; }
+        .image-upload-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .msg-image {
+            max-width: 260px;
+            max-height: 240px;
+            display: block;
+            cursor: zoom-in;
+            object-fit: contain;
+        }
+
+        .msg-image-bubble {
+            display: inline-block;
+            padding: 5px;
+            background: var(--surface);
+            border: 1px solid var(--border-hi);
+        }
+
+        .message.mine .msg-image-bubble { background: var(--text); }
+
+        /* wrap: column stack of expiry chip + image row */
+        .msg-image-wrap {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .message.mine .msg-image-wrap { align-items: flex-end; }
+
+        /* expiry chip above image */
+        .msg-expiry-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border: 1px solid var(--border-hi);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-ghost);
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .msg-expiry-chip.expiring  { color: var(--warning); border-color: rgba(251,191,36,0.35); }
+        .msg-expiry-chip.saved-chip { color: var(--success); border-color: rgba(110,231,183,0.35); }
+
+        /* image + save circle side by side */
+        .msg-image-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .message.mine .msg-image-row { flex-direction: row-reverse; }
+
+        /* circular save button */
+        .img-save-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--border-hi);
+            background: var(--surface);
+            color: var(--text-ghost);
+            font-size: 0.72rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .img-save-circle:hover:not(:disabled) { color: var(--text); border-color: var(--text-faint); }
+        .img-save-circle.saved { color: var(--success); border-color: rgba(110,231,183,0.4); cursor: default; }
+
+        /* ─── LIGHTBOX ────────────────────────────────── */
+        #imageLightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.94);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        #imageLightbox.active { display: flex; }
+
+        #lightboxImg {
+            max-width: 90vw;
+            max-height: 80vh;
+            object-fit: contain;
+            border: 1px solid var(--border-hi);
+            display: block;
+        }
+
+        .lightbox-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .lightbox-btn {
+            padding: 8px 18px;
+            background: transparent;
+            border: 1px solid var(--border-hi);
+            color: var(--text-ghost);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .lightbox-btn:hover { color: var(--text); border-color: var(--text-faint); }
+        .lightbox-btn.saved { color: var(--success); border-color: rgba(110,231,183,0.4); cursor: default; }
+
+        /* ─── GROUP INFO MODAL ───────────────────────── */
+        #groupInfoModal { z-index: 1100; }
+
+        .group-info-top {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 28px 24px 20px;
+            border-bottom: 1px solid var(--border);
+            gap: 14px;
+        }
+
+        .group-info-icon {
+            width: 64px;
+            height: 64px;
+            border: 1px solid var(--border-hi);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: var(--text-muted);
+        }
+
+        .group-info-name-display {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .group-info-name-input {
+            width: 100%;
+            padding: 9px 12px;
+            background: var(--bg);
+            border: 1px solid var(--border-hi);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.88rem;
+            outline: none;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        .group-info-name-input:focus { border-color: var(--text-faint); }
+
+        .group-info-section-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.52rem;
+            font-weight: 700;
+            color: var(--text-ghost);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 14px 20px 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-info-member {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .group-info-member-avatar {
+            width: 34px;
+            height: 34px;
+            background: var(--border-hi);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .group-info-member-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .group-info-member-details { flex: 1; min-width: 0; }
+
+        .group-info-member-name {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .group-info-member-email {
+            font-size: 0.65rem;
+            color: var(--text-ghost);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .group-info-member-tag {
+            font-size: 0.52rem;
+            font-family: 'Orbitron', monospace;
+            color: var(--text-dead);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .group-info-remove-btn {
+            background: transparent;
+            border: 1px solid rgba(248,113,113,0.3);
+            color: rgba(248,113,113,0.6);
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+
+        .group-info-remove-btn:hover { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.7); color: var(--error); }
+
+        .chat-header-avatar.clickable { cursor: pointer; }
+        .chat-header-avatar.clickable:hover { border-color: var(--text-faint); }
+
+        /* ─── SAVE EXPLAIN MODAL ─────────────────────── */
+        #saveExplainModal { z-index: 2100; }
+
+        .save-explain-icon {
+            width: 52px;
+            height: 52px;
+            border: 1px solid var(--border-hi);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            margin: 0 auto 20px;
+        }
+
+        .save-explain-body {
+            padding: 28px 24px 24px;
+            text-align: center;
+        }
+
+        .save-explain-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .save-explain-text {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 22px;
+            text-align: left;
+        }
+
+        .save-explain-text strong { color: var(--text); }
+
+        .save-explain-note {
+            font-size: 0.7rem;
+            color: var(--text-ghost);
+            letter-spacing: 0.5px;
+            line-height: 1.7;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
+            margin-bottom: 22px;
+            text-align: left;
+        }
+
+        .save-explain-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* ─── UNSAVE CONFIRM MODAL ────────────────────── */
+        #unsaveModal { z-index: 2100; }
+
+        .unsave-cancel-btn {
+            padding: 9px 20px;
+            background: transparent;
+            border: 1px solid var(--border-hi);
+            color: var(--text-ghost);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .unsave-cancel-btn:hover { color: var(--text); border-color: var(--text-faint); }
+
+        .unsave-confirm-btn {
+            padding: 9px 20px;
+            background: transparent;
+            border: 1px solid rgba(248,113,113,0.4);
+            color: var(--error);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .unsave-confirm-btn:hover:not(:disabled) { background: rgba(248,113,113,0.08); border-color: rgba(248,113,113,0.7); }
+        .unsave-confirm-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        /* ─── DM MODAL TABS ──────────────────────────── */
+        .dm-modal-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .dm-tab {
+            flex: 1;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-ghost);
+            font-family: 'Orbitron', monospace;
+            font-size: 0.58rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin-bottom: -1px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        .dm-tab:hover { color: var(--text-dim); }
+        .dm-tab.active { color: var(--text); border-bottom-color: var(--text); }
+
+        .dm-panel {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .group-name-wrap {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .group-members-section {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .group-members-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.52rem;
+            font-weight: 700;
+            color: var(--text-ghost);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .group-member-count { color: var(--text-dead); font-size: 0.48rem; }
+
+        .group-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+        .group-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px 4px 10px;
+            border: 1px solid var(--border-hi);
+            background: var(--bg);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            max-width: 160px;
+        }
+
+        .group-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        .group-chip-remove {
+            background: transparent;
+            border: none;
+            color: var(--text-ghost);
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.65rem;
+            line-height: 1;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+
+        .group-chip-remove:hover { color: var(--error); }
+
+        .group-create-wrap {
+            padding: 12px 20px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .result-action.added { color: var(--success); }
+        .group-conv-avatar { font-size: 0.9rem; color: var(--text-muted); }
+        .group-header-sub { font-size: 0.65rem; color: var(--text-ghost); letter-spacing: 0.5px; }
+
         /* ════════════════════════════════════════════════
            MODAL – NEW DM / USER SEARCH
         ════════════════════════════════════════════════ */
@@ -1691,6 +2167,10 @@
                 <div class="message-input-area">
                     <div class="input-hint">Enter to send · Shift+Enter for new line</div>
                     <div class="message-input-container">
+                        <input type="file" id="imageFileInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">
+                        <button class="image-upload-btn" id="imageUploadBtn" style="display:none" onclick="document.getElementById('imageFileInput').click()" title="Upload image (Premium)">
+                            <i class="fas fa-image"></i>
+                        </button>
                         <textarea
                             id="messageInput"
                             class="message-input"
@@ -1713,26 +2193,63 @@
 <div id="newDMModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <div class="modal-title">New Direct Message</div>
+            <div class="modal-title" id="newDMModalTitle">New Direct Message</div>
             <button class="close-modal" onclick="closeNewDMModal()">
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        <div class="modal-search-wrap">
-            <i class="fas fa-search modal-search-icon"></i>
-            <input
-                type="text"
-                id="userSearchInput"
-                class="modal-search"
-                placeholder="Search by name or email…"
-                oninput="handleUserSearch(this.value)"
-                autocomplete="off"
-            >
+        <div class="dm-modal-tabs">
+            <button class="dm-tab active" id="tabDirect" onclick="switchDMTab('direct')">
+                <i class="fas fa-user"></i> Direct
+            </button>
+            <button class="dm-tab" id="tabGroup" onclick="switchDMTab('group')">
+                <i class="fas fa-users"></i> Group
+            </button>
         </div>
-        <div class="search-results" id="searchResults">
-            <div class="search-hint">
-                <i class="fas fa-users"></i>
-                <p>Type to search members</p>
+        <!-- Direct panel -->
+        <div id="panelDirect" class="dm-panel">
+            <div class="modal-search-wrap">
+                <i class="fas fa-search modal-search-icon"></i>
+                <input type="text" id="userSearchInput" class="modal-search"
+                    placeholder="Search by name or email…"
+                    oninput="handleUserSearch(this.value)" autocomplete="off">
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-hint">
+                    <i class="fas fa-users"></i>
+                    <p>Type to search members</p>
+                </div>
+            </div>
+        </div>
+        <!-- Group panel -->
+        <div id="panelGroup" class="dm-panel" style="display:none">
+            <div class="group-name-wrap">
+                <input type="text" id="groupNameInput" class="modal-search"
+                    placeholder="Group name…" maxlength="40" autocomplete="off"
+                    oninput="updateCreateGroupBtn()">
+            </div>
+            <div class="group-members-section" id="groupMembersSection" style="display:none">
+                <div class="group-members-label">
+                    Members <span class="group-member-count" id="groupMemberCount">1 / 5</span>
+                </div>
+                <div class="group-chips" id="groupChips"></div>
+            </div>
+            <div class="modal-search-wrap">
+                <i class="fas fa-search modal-search-icon"></i>
+                <input type="text" id="groupSearchInput" class="modal-search"
+                    placeholder="Add up to 4 members…"
+                    oninput="handleGroupSearch(this.value)" autocomplete="off">
+            </div>
+            <div class="search-results" id="groupSearchResults">
+                <div class="search-hint">
+                    <i class="fas fa-users"></i>
+                    <p>Type to search members to add</p>
+                </div>
+            </div>
+            <div class="group-create-wrap">
+                <button id="createGroupBtn" class="login-btn" style="margin:0;width:100%" onclick="createGroupChat()" disabled>
+                    <i class="fas fa-users"></i> Create Group
+                </button>
             </div>
         </div>
     </div>
@@ -1851,6 +2368,140 @@
     </div>
 </div>
 
+<!-- ══ DELETE GROUP CONFIRM MODAL ═════════════════════ -->
+<div id="deleteGroupModal" class="modal" onclick="if(event.target===this)closeDeleteGroupModal()" style="z-index:2200">
+    <div class="modal-content" style="width:420px;max-width:94vw">
+        <div class="modal-header">
+            <div class="modal-title">Delete Group</div>
+            <button class="close-modal" onclick="closeDeleteGroupModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="save-explain-body">
+            <div class="save-explain-icon" style="color:var(--error);border-color:rgba(248,113,113,0.3)">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <div class="save-explain-title">This Cannot Be Undone</div>
+            <p class="save-explain-text" id="deleteGroupBodyText"></p>
+            <p class="save-explain-note">
+                Groups are <strong>not recoverable</strong>. All members will immediately lose access to this conversation and every message inside it will be permanently erased.
+            </p>
+            <div class="save-explain-actions">
+                <button class="unsave-cancel-btn" onclick="closeDeleteGroupModal()">Cancel</button>
+                <button id="deleteGroupConfirmBtn" class="unsave-confirm-btn" onclick="doDeleteGroup()">
+                    <i class="fas fa-trash-alt"></i> Delete Group
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ GROUP INFO MODAL ════════════════════════════════ -->
+<div id="groupInfoModal" class="modal" onclick="if(event.target===this)closeGroupModal()">
+    <div class="modal-content" style="width:420px;max-width:94vw;max-height:86vh;overflow:hidden;display:flex;flex-direction:column">
+        <div class="modal-header">
+            <div class="modal-title" id="groupInfoTitle">Group Info</div>
+            <button class="close-modal" onclick="closeGroupModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div style="flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.08) transparent" id="groupInfoBody">
+            <div class="group-info-top">
+                <div class="group-info-icon"><i class="fas fa-users"></i></div>
+                <div id="groupInfoNameWrap" style="width:100%"></div>
+            </div>
+            <div class="group-info-section-label">
+                Members <span id="groupInfoMemberCount" style="color:var(--text-dead)"></span>
+            </div>
+            <div id="groupInfoMemberList"></div>
+            <div id="groupInfoAddSection" style="display:none">
+                <div class="group-info-section-label">Add Member</div>
+                <div style="padding:0 20px 10px;position:relative">
+                    <i class="fas fa-search" style="position:absolute;left:31px;top:50%;transform:translateY(-50%);color:var(--text-ghost);font-size:0.72rem;pointer-events:none"></i>
+                    <input type="text" id="groupInfoSearchInput" class="modal-search"
+                        style="padding-left:34px"
+                        placeholder="Search members to add…"
+                        oninput="handleGroupInfoSearch(this.value)" autocomplete="off">
+                </div>
+                <div id="groupInfoSearchResults"></div>
+            </div>
+        </div>
+        <div id="groupInfoSaveWrap" style="display:none;padding:12px 20px;border-top:1px solid var(--border);flex-shrink:0;gap:10px">
+            <button class="unsave-confirm-btn" onclick="confirmDeleteGroup()" title="Delete group" style="flex-shrink:0;padding:9px 14px">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+            <button id="groupInfoSaveBtn" class="login-btn" style="margin:0;flex:1" onclick="saveGroupChanges()">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ══ IMAGE LIGHTBOX ══════════════════════════════════ -->
+<div id="imageLightbox" onclick="if(event.target===this)closeLightbox()">
+    <img id="lightboxImg" src="" alt="Image" onerror="this.style.opacity='0.3'">
+    <div class="lightbox-bar">
+        <button class="lightbox-btn" id="lightboxSaveBtn" onclick="saveLightboxImage()">
+            <i class="fas fa-download"></i> Save Locally
+        </button>
+        <button class="lightbox-btn" onclick="closeLightbox()">
+            <i class="fas fa-times"></i> Close
+        </button>
+    </div>
+</div>
+
+<!-- ══ SAVE EXPLAIN MODAL ══════════════════════════════ -->
+<div id="saveExplainModal" class="modal" onclick="if(event.target===this)closeSaveExplainModal()">
+    <div class="modal-content" style="width:420px;max-width:94vw">
+        <div class="modal-header">
+            <div class="modal-title">Saving Images</div>
+            <button class="close-modal" onclick="closeSaveExplainModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="save-explain-body">
+            <div class="save-explain-icon"><i class="fas fa-hard-drive"></i></div>
+            <div class="save-explain-title">Saved to Your Device</div>
+            <p class="save-explain-text">
+                Images in X-ORBIT Direct Messages are hosted on our servers and <strong>automatically deleted after 14 days</strong>
+                to conserve our limited storage space.<br><br>
+                Clicking save stores a copy of the image <strong>directly on your device</strong> in your browser's local storage,
+                so it remains visible in chat even after it has been removed from X-ORBIT servers.
+            </p>
+            <p class="save-explain-note">
+                Saved images are stored only on this device and browser. They will not appear if you log in from a different device.
+                You can unsave an image at any time by clicking the checkmark button.
+            </p>
+            <div class="save-explain-actions">
+                <button class="unsave-cancel-btn" onclick="closeSaveExplainModal()">Cancel</button>
+                <button class="unsave-confirm-btn" onclick="proceedWithSave()" style="border-color:rgba(255,255,255,0.2);color:var(--text)">
+                    <i class="fas fa-download"></i> Got it, Save Image
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ UNSAVE CONFIRM MODAL ════════════════════════════ -->
+<div id="unsaveModal" class="modal" onclick="if(event.target===this)closeUnsaveModal()">
+    <div class="modal-content" style="width:420px;max-width:94vw">
+        <div class="modal-header">
+            <div class="modal-title">Unsave Image</div>
+            <button class="close-modal" onclick="closeUnsaveModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="save-explain-body">
+            <div class="save-explain-icon" id="unsaveIcon">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div class="save-explain-title" id="unsaveTitle">Checking Status</div>
+            <p class="save-explain-text" id="unsaveStatus">
+                Checking image status on X-ORBIT servers…
+            </p>
+            <p class="save-explain-note" id="unsaveNote" style="display:none"></p>
+            <div class="save-explain-actions">
+                <button class="unsave-cancel-btn" onclick="closeUnsaveModal()">Cancel</button>
+                <button id="unsaveConfirmBtn" class="unsave-confirm-btn" onclick="doUnsave()" disabled>
+                    <i class="fas fa-trash-alt"></i> Unsave
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- ══ TOAST ═══════════════════════════════════════════ -->
 <div id="toast"></div>
 
@@ -1883,6 +2534,9 @@
     const avatarCache        = {}; // email -> url or null
     const onlineCache        = {}; // email -> boolean
     const tagsCache          = {}; // email -> string[]
+    let currentUserIsPremium      = false;
+    let groupSelectedMembers      = [];
+    let groupSearchDebounceTimer  = null;
 
     /* ──────────────────────────────────────────────────
        IFRAME AUTH (mirrors logs.html pattern)
@@ -2057,6 +2711,17 @@
         document.getElementById('headerUserName').textContent = currentUser.name;
         document.getElementById('headerAvatarInitials').textContent = getInitials(currentUser.name);
 
+        // Check premium status
+        try {
+            const { data: roleData } = await sb
+                .from('clients')
+                .select('role')
+                .eq('email', currentUser.email)
+                .single();
+            currentUserIsPremium = roleData && roleData.role === 'premium';
+        } catch (_) { currentUserIsPremium = false; }
+        document.getElementById('imageUploadBtn').style.display = currentUserIsPremium ? 'flex' : 'none';
+
         // Load current user's avatar
         await loadAvatarsForEmails([currentUser.email]);
         setHeaderAvatar(avatarCache[currentUser.email]);
@@ -2074,21 +2739,34 @@
     ────────────────────────────────────────────────── */
     async function loadConversations() {
         try {
-            const { data, error } = await sb
-                .from('dm_conversations')
-                .select('*')
-                .or(`participant_1_email.eq.${currentUser.email},participant_2_email.eq.${currentUser.email}`)
-                .order('last_message_at', { ascending: false });
+            const [r1, r2] = await Promise.all([
+                sb.from('dm_conversations')
+                    .select('*')
+                    .or(`participant_1_email.eq.${currentUser.email},participant_2_email.eq.${currentUser.email}`)
+                    .order('last_message_at', { ascending: false }),
+                sb.from('dm_conversations')
+                    .select('*')
+                    .eq('is_group', true)
+                    .filter('participants', 'cs', JSON.stringify([currentUser.email]))
+                    .order('last_message_at', { ascending: false })
+            ]);
 
-            if (error) throw error;
-            conversations = (data || []).filter(c => {
+            const direct = (r1.data || []).filter(c => !c.is_group).filter(c => {
                 const isP1 = c.participant_1_email === currentUser.email;
                 if (isP1 && c.hidden_for_p1) return false;
                 if (!isP1 && c.hidden_for_p2) return false;
                 if (blockedEmails.has(getOtherEmail(c))) return false;
                 return true;
             });
-            const otherEmails = conversations.map(c => getOtherEmail(c));
+
+            const groupMap = new Map();
+            (r2.data || []).forEach(c => groupMap.set(c.id, c));
+            const groups = [...groupMap.values()];
+
+            conversations = [...direct, ...groups].sort((a, b) =>
+                new Date(b.last_message_at || 0) - new Date(a.last_message_at || 0));
+
+            const otherEmails = direct.map(c => getOtherEmail(c)).filter(Boolean);
             await loadAvatarsForEmails(otherEmails);
             renderConversations(conversations);
         } catch (err) {
@@ -2114,13 +2792,19 @@
             const otherEmail = getOtherEmail(conv);
             const unread     = conv.unread_count > 0;
             const isActive   = conv.id === activeConvId;
+            const isOnline   = !conv.is_group && effectiveOnline(otherEmail);
+
+            const avatarContent = conv.is_group
+                ? '<i class="fas fa-users"></i>'
+                : `${avatarHTML(otherName, otherEmail)}<span class="status-dot ${isOnline ? 'online' : 'offline'}"></span>`;
+            const avatarClass = `conv-avatar${isOnline ? ' avatar-online' : ''}${conv.is_group ? ' group-conv-avatar' : ''}`;
 
             return `
                 <div class="conv-item${isActive ? ' active' : ''}${unread ? ' unread' : ''}"
                      id="conv-${conv.id}"
                      onclick="openConversation('${conv.id}')"
                      oncontextmenu="showConvContextMenu(event,'${conv.id}')">
-                    <div class="conv-avatar${effectiveOnline(otherEmail) ? ' avatar-online' : ''}">${avatarHTML(otherName, otherEmail)}<span class="status-dot ${effectiveOnline(otherEmail) ? 'online' : 'offline'}"></span></div>
+                    <div class="${avatarClass}">${avatarContent}</div>
                     <div class="conv-details">
                         <div class="conv-name">${escHtml(otherName)}</div>
                         <div class="conv-preview">${escHtml(conv.last_message_preview || 'No messages yet')}</div>
@@ -2148,7 +2832,7 @@
         if (!q) { renderConversations(conversations); return; }
         const filtered = conversations.filter(conv =>
             getOtherName(conv).toLowerCase().includes(q) ||
-            getOtherEmail(conv).toLowerCase().includes(q)
+            (getOtherEmail(conv) || '').toLowerCase().includes(q)
         );
         renderConversations(filtered);
     }
@@ -2173,30 +2857,36 @@
         const conv = conversations.find(c => c.id === convId);
         if (!conv) return;
 
-        // Update sidebar active state
         document.querySelectorAll('.conv-item').forEach(el => el.classList.remove('active'));
         const convEl = document.getElementById(`conv-${convId}`);
         if (convEl) convEl.classList.add('active');
 
-        // Show chat area
-        const otherName  = getOtherName(conv);
-        const otherEmail = getOtherEmail(conv);
-
         const chatAvatarEl = document.getElementById('chatAvatar');
-        chatAvatarEl.innerHTML = avatarHTML(otherName, otherEmail) + `<span class="status-dot ${effectiveOnline(otherEmail) ? 'online' : 'offline'}"></span>`;
-        chatAvatarEl.className = 'chat-header-avatar' + (effectiveOnline(otherEmail) ? ' avatar-online' : '');
-        chatAvatarEl.onclick   = () => openProfile(otherEmail);
-        document.getElementById('chatRecipientName').textContent = otherName;
-        document.getElementById('chatRecipientEmail').textContent = otherEmail;
-        renderChatTags(otherEmail);
+
+        if (conv.is_group) {
+            const memberCount = Array.isArray(conv.participants) ? conv.participants.length : '';
+            chatAvatarEl.innerHTML = '<i class="fas fa-users" style="font-size:0.85rem;color:var(--text-muted)"></i>';
+            chatAvatarEl.className = 'chat-header-avatar clickable';
+            chatAvatarEl.onclick   = () => openGroupModal(convId);
+            chatAvatarEl.title     = conv.participant_1_email === currentUser.email ? 'Edit group' : 'View group info';
+            document.getElementById('chatRecipientName').textContent  = conv.group_name || 'Group';
+            document.getElementById('chatRecipientEmail').textContent = memberCount ? `${memberCount} members` : 'Group chat';
+            document.getElementById('chatRecipientTags').innerHTML    = '';
+        } else {
+            const otherName  = getOtherName(conv);
+            const otherEmail = getOtherEmail(conv);
+            chatAvatarEl.innerHTML = avatarHTML(otherName, otherEmail) + `<span class="status-dot ${effectiveOnline(otherEmail) ? 'online' : 'offline'}"></span>`;
+            chatAvatarEl.className = 'chat-header-avatar' + (effectiveOnline(otherEmail) ? ' avatar-online' : '');
+            chatAvatarEl.onclick   = () => openProfile(otherEmail);
+            document.getElementById('chatRecipientName').textContent  = otherName;
+            document.getElementById('chatRecipientEmail').textContent = otherEmail;
+            renderChatTags(otherEmail);
+        }
 
         document.getElementById('emptyState').style.display = 'none';
         document.getElementById('chatArea').style.display   = 'flex';
 
-        // Mark as read
         await markAsRead(convId);
-
-        // Load messages
         await loadMessages(convId);
         subscribeToMessages(convId);
     }
@@ -2247,13 +2937,44 @@
                 lastDay = msgDay;
             }
 
-            const isMine = msg.sender_email === currentUser.email;
+            const isMine   = msg.sender_email === currentUser.email;
+            const isImage  = msg.message && msg.message.startsWith('[IMG]:');
+            const imgUrl   = isImage ? msg.message.slice(6) : null;
+            const localSrc = isImage ? getLocalImage(imgUrl) : null;
+            const displaySrc = localSrc || imgUrl;
+            const isSaved  = !!localSrc;
+            const safeUrl  = imgUrl ? imgUrl.replace(/'/g, "\\'") : '';
+            const safeUrlAttr = imgUrl ? imgUrl.replace(/"/g, '&quot;') : '';
+            const expiry   = isImage ? getExpiryLabel(msg.created_at) : null;
+            const expiryMs = isImage ? getExpiryMs(msg.created_at) : null;
+            const chipClass = isSaved ? 'saved-chip' : (expiryMs !== null && expiryMs < 86400000 * 2 ? 'expiring' : '');
+            const chipIcon  = isSaved ? 'fa-check' : 'fa-clock';
+            const chipText  = isSaved ? 'Saved locally' : expiry;
+            const bubbleHtml = isImage
+                ? `<div class="msg-image-wrap" data-img-url="${safeUrlAttr}" data-created-at="${msg.created_at}">
+                    <div class="msg-expiry-chip ${chipClass}">
+                        <i class="fas ${chipIcon}"></i> ${chipText}
+                    </div>
+                    <div class="msg-image-row">
+                        <div class="msg-image-bubble">
+                            <img class="msg-image" src="${displaySrc.replace(/"/g,'&quot;')}" alt="Image"
+                                onclick="openLightbox('${safeUrl}')"
+                                onerror="handleImgError(this,'${safeUrl}')">
+                        </div>
+                        <button class="img-save-circle${isSaved ? ' saved' : ''}"
+                            onclick="${isSaved ? `confirmUnsave('${safeUrl}')` : `handleSaveClick('${safeUrl}', this)`}"
+                            title="${isSaved ? 'Unsave image' : 'Save locally'}">
+                            <i class="fas ${isSaved ? 'fa-check' : 'fa-download'}"></i>
+                        </button>
+                    </div>
+                   </div>`
+                : `<div class="message-bubble">${escHtml(msg.message)}</div>`;
             html += `
                 <div class="message ${isMine ? 'mine' : 'theirs'}">
                     <div class="msg-avatar" onclick="openProfile('${escAttr(msg.sender_email)}')">${avatarHTML(msg.sender_name, msg.sender_email)}</div>
                     <div class="msg-content">
                         <div class="message-header">${escHtml(msg.sender_name)}</div>
-                        <div class="message-bubble">${escHtml(msg.message)}</div>
+                        ${bubbleHtml}
                         <div class="message-time">${fmtTime(msg.created_at)}</div>
                     </div>
                 </div>
@@ -2307,17 +3028,18 @@
 
             if (msgError) throw msgError;
 
-            // Update last message + unhide for recipient
+            // Update last message + unhide for recipient (skip hide logic for groups)
             const conv = conversations.find(c => c.id === activeConvId);
-            const recipientHideField = conv && conv.participant_1_email === currentUser.email
-                ? 'hidden_for_p2' : 'hidden_for_p1';
-            await sb.from('dm_conversations')
-                .update({
-                    last_message_at:      new Date().toISOString(),
-                    last_message_preview: message.length > 60 ? message.substring(0, 60) + '…' : message,
-                    [recipientHideField]: false
-                })
-                .eq('id', activeConvId);
+            const convUpdate = {
+                last_message_at:      new Date().toISOString(),
+                last_message_preview: message.length > 60 ? message.substring(0, 60) + '…' : message,
+            };
+            if (conv && !conv.is_group) {
+                const recipientHideField = conv.participant_1_email === currentUser.email
+                    ? 'hidden_for_p2' : 'hidden_for_p1';
+                convUpdate[recipientHideField] = false;
+            }
+            await sb.from('dm_conversations').update(convUpdate).eq('id', activeConvId);
 
             input.value = '';
             await loadMessages(activeConvId);
@@ -2337,6 +3059,594 @@
         }
     }
 
+    /* ──────────────────────────────────────────────────
+       GROUP INFO / EDIT MODAL
+    ────────────────────────────────────────────────── */
+    let _groupModalConvId        = null;
+    let _groupModalIsCreator     = false;
+    let _groupModalPendingMembers = []; // {email, name, avatar_url}
+    let _groupInfoSearchTimer    = null;
+
+    async function openGroupModal(convId) {
+        _groupModalConvId = convId;
+        const conv = conversations.find(c => c.id === convId);
+        if (!conv || !conv.is_group) return;
+
+        _groupModalIsCreator = conv.participant_1_email === currentUser.email;
+
+        document.getElementById('groupInfoTitle').textContent    = _groupModalIsCreator ? 'Edit Group' : 'Group Info';
+        document.getElementById('groupInfoSaveWrap').style.display = _groupModalIsCreator ? 'flex' : 'none';
+        document.getElementById('groupInfoAddSection').style.display = 'none';
+        const saveBtn = document.getElementById('groupInfoSaveBtn');
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+
+        // Name area
+        const nameWrap = document.getElementById('groupInfoNameWrap');
+        if (_groupModalIsCreator) {
+            nameWrap.innerHTML = `<input type="text" id="groupInfoNameInput" class="group-info-name-input" value="${escHtml(conv.group_name || '')}" maxlength="40">`;
+        } else {
+            nameWrap.innerHTML = `<div class="group-info-name-display">${escHtml(conv.group_name || 'Group')}</div>`;
+        }
+
+        document.getElementById('groupInfoModal').classList.add('active');
+        document.getElementById('groupInfoMemberList').innerHTML = `<div class="search-hint"><i class="fas fa-spinner fa-spin"></i><p>Loading members…</p></div>`;
+
+        const participants = Array.isArray(conv.participants) ? conv.participants : [];
+        document.getElementById('groupInfoMemberCount').textContent = `${participants.length} / 5`;
+
+        try {
+            const { data } = await sb.from('clients').select('email, name, avatar_url').in('email', participants);
+            const memberMap = {};
+            (data || []).forEach(m => { memberMap[m.email] = m; });
+            _groupModalPendingMembers = participants.map(e => memberMap[e] || { email: e, name: e, avatar_url: null });
+            renderGroupInfoMembers(conv);
+        } catch {
+            document.getElementById('groupInfoMemberList').innerHTML = `<div class="search-hint"><i class="fas fa-exclamation-triangle"></i><p>Could not load members.</p></div>`;
+        }
+    }
+
+    function renderGroupInfoMembers(conv) {
+        const creatorEmail = conv ? conv.participant_1_email : null;
+        document.getElementById('groupInfoMemberCount').textContent = `${_groupModalPendingMembers.length} / 5`;
+
+        document.getElementById('groupInfoMemberList').innerHTML = _groupModalPendingMembers.map(member => {
+            const isSelf      = member.email === currentUser.email;
+            const isCreator   = member.email === creatorEmail;
+            const avatarContent = member.avatar_url
+                ? `<img src="${member.avatar_url.replace(/"/g,'&quot;')}" alt="${escHtml(member.name)}" onerror="this.style.display='none'">`
+                : getInitials(member.name);
+            const tag       = isCreator ? 'Creator' : (isSelf ? 'You' : '');
+            const canRemove = _groupModalIsCreator && !isSelf && !isCreator;
+            return `
+                <div class="group-info-member">
+                    <div class="group-info-member-avatar">${avatarContent}</div>
+                    <div class="group-info-member-details">
+                        <div class="group-info-member-name">${escHtml(member.name)}</div>
+                        <div class="group-info-member-email">${escHtml(member.email)}</div>
+                    </div>
+                    ${tag ? `<div class="group-info-member-tag">${tag}</div>` : ''}
+                    ${canRemove ? `<button class="group-info-remove-btn" onclick="removeGroupInfoMember('${escAttr(member.email)}')" title="Remove"><i class="fas fa-times"></i></button>` : ''}
+                </div>`;
+        }).join('');
+
+        if (_groupModalIsCreator) {
+            document.getElementById('groupInfoAddSection').style.display =
+                _groupModalPendingMembers.length < 5 ? 'block' : 'none';
+        }
+    }
+
+    function removeGroupInfoMember(email) {
+        _groupModalPendingMembers = _groupModalPendingMembers.filter(m => m.email !== email);
+        const conv = conversations.find(c => c.id === _groupModalConvId);
+        renderGroupInfoMembers(conv);
+        const q = document.getElementById('groupInfoSearchInput')?.value?.trim();
+        if (q && q.length >= 2) searchGroupInfoUsers(q);
+    }
+
+    function handleGroupInfoSearch(query) {
+        clearTimeout(_groupInfoSearchTimer);
+        const q = query.trim();
+        if (q.length < 2) { document.getElementById('groupInfoSearchResults').innerHTML = ''; return; }
+        _groupInfoSearchTimer = setTimeout(() => searchGroupInfoUsers(q), 300);
+    }
+
+    async function searchGroupInfoUsers(query) {
+        const resultsEl = document.getElementById('groupInfoSearchResults');
+        resultsEl.innerHTML = `<div class="search-hint"><i class="fas fa-spinner fa-spin"></i><p>Searching…</p></div>`;
+        try {
+            const { data, error } = await sb.from('clients')
+                .select('id, name, email, avatar_url')
+                .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
+                .neq('email', currentUser.email)
+                .limit(20);
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                resultsEl.innerHTML = `<div class="search-hint"><i class="fas fa-user-slash"></i><p>No members found</p></div>`;
+                return;
+            }
+            data.forEach(u => { avatarCache[u.email] = u.avatar_url || null; });
+            const selectedEmails = new Set(_groupModalPendingMembers.map(m => m.email));
+            const atMax = _groupModalPendingMembers.length >= 5;
+            resultsEl.innerHTML = data.map(user => {
+                const isAdded  = selectedEmails.has(user.email);
+                const disabled = isAdded || atMax;
+                const action   = isAdded ? 'Added ✓' : (atMax ? 'Max 5' : 'Add +');
+                const safeAvatar = (user.avatar_url || '').replace(/'/g, "\\'");
+                return `
+                    <div class="search-result-item"
+                         style="${disabled ? 'opacity:0.55;pointer-events:none' : 'cursor:pointer'}"
+                         onclick="${disabled ? '' : `addGroupInfoMember('${escAttr(user.id)}','${escAttr(user.name)}','${escAttr(user.email)}','${safeAvatar}')`}">
+                        <div class="result-avatar">${avatarHTML(user.name, user.email)}</div>
+                        <div class="result-info">
+                            <div class="result-name">${escHtml(user.name)}</div>
+                            <div class="result-email">${escHtml(user.email)}</div>
+                        </div>
+                        <div class="result-action${isAdded ? ' added' : ''}">${action}</div>
+                    </div>`;
+            }).join('');
+        } catch {
+            resultsEl.innerHTML = `<div class="search-hint"><i class="fas fa-exclamation-triangle"></i><p>Search failed.</p></div>`;
+        }
+    }
+
+    function addGroupInfoMember(id, name, email, avatarUrl) {
+        if (_groupModalPendingMembers.length >= 5) return;
+        if (_groupModalPendingMembers.some(m => m.email === email)) return;
+        _groupModalPendingMembers.push({ email, name, avatar_url: avatarUrl || null });
+        const conv = conversations.find(c => c.id === _groupModalConvId);
+        renderGroupInfoMembers(conv);
+        const q = document.getElementById('groupInfoSearchInput')?.value?.trim();
+        if (q && q.length >= 2) searchGroupInfoUsers(q);
+    }
+
+    async function saveGroupChanges() {
+        const nameInput = document.getElementById('groupInfoNameInput');
+        const newName   = nameInput ? nameInput.value.trim() : '';
+        if (!newName) { showToast('Group name cannot be empty.'); return; }
+
+        const convId = _groupModalConvId;
+        const btn    = document.getElementById('groupInfoSaveBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+
+        try {
+            await sb.from('dm_conversations').update({
+                group_name:   newName,
+                participants: _groupModalPendingMembers.map(m => m.email)
+            }).eq('id', convId);
+
+            closeGroupModal();
+            await loadConversations();
+            if (activeConvId === convId) {
+                const updated = conversations.find(c => c.id === convId);
+                if (updated) {
+                    document.getElementById('chatRecipientName').textContent  = updated.group_name || 'Group';
+                    document.getElementById('chatRecipientEmail').textContent = `${updated.participants?.length || ''} members`;
+                }
+            }
+            showToast('Group updated.');
+        } catch (err) {
+            console.error('Error saving group:', err);
+            showToast('Could not save changes.');
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+        }
+    }
+
+    function closeGroupModal() {
+        document.getElementById('groupInfoModal').classList.remove('active');
+        _groupModalConvId         = null;
+        _groupModalPendingMembers = [];
+    }
+
+    function confirmDeleteGroup() {
+        const conv = conversations.find(c => c.id === _groupModalConvId);
+        const name = conv ? (conv.group_name || 'this group') : 'this group';
+        document.getElementById('deleteGroupBodyText').innerHTML =
+            `You are about to permanently delete <strong>${escHtml(name)}</strong> and all of its messages.`;
+        const btn = document.getElementById('deleteGroupConfirmBtn');
+        btn.disabled  = false;
+        btn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Group';
+        document.getElementById('deleteGroupModal').classList.add('active');
+    }
+
+    function closeDeleteGroupModal() {
+        document.getElementById('deleteGroupModal').classList.remove('active');
+    }
+
+    async function doDeleteGroup() {
+        const convId = _groupModalConvId;
+        if (!convId) return;
+
+        const btn = document.getElementById('deleteGroupConfirmBtn');
+        btn.disabled  = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting…';
+
+        try {
+            // Delete messages first, then the conversation
+            await sb.from('dm_messages').delete().eq('conversation_id', convId);
+            await sb.from('dm_conversations').delete().eq('id', convId);
+
+            closeDeleteGroupModal();
+            closeGroupModal();
+
+            // Remove from local state and update UI
+            conversations = conversations.filter(c => c.id !== convId);
+            renderConversations(conversations);
+            if (activeConvId === convId) {
+                activeConvId = null;
+                hideChatArea();
+            }
+            showToast('Group deleted.');
+        } catch (err) {
+            console.error('Error deleting group:', err);
+            showToast('Could not delete group. Please try again.');
+            btn.disabled  = false;
+            btn.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Group';
+        }
+    }
+
+    /* ──────────────────────────────────────────────────
+       IMAGE LIGHTBOX + LOCAL SAVE
+    ────────────────────────────────────────────────── */
+    let _lightboxUrl = null;
+
+    function openLightbox(url) {
+        _lightboxUrl = url;
+        const local = getLocalImage(url);
+        const src = local || url;
+        document.getElementById('lightboxImg').src = src;
+        document.getElementById('lightboxImg').style.opacity = '1';
+        const saveBtn = document.getElementById('lightboxSaveBtn');
+        if (getLocalImage(url)) {
+            saveBtn.classList.add('saved');
+            saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+        } else {
+            saveBtn.classList.remove('saved');
+            saveBtn.innerHTML = '<i class="fas fa-download"></i> Save Locally';
+            saveBtn.disabled = false;
+        }
+        document.getElementById('imageLightbox').classList.add('active');
+    }
+
+    function closeLightbox() {
+        document.getElementById('imageLightbox').classList.remove('active');
+        document.getElementById('lightboxImg').src = '';
+        _lightboxUrl = null;
+    }
+
+    async function saveLightboxImage() {
+        if (!_lightboxUrl) return;
+        if (getLocalImage(_lightboxUrl)) {
+            confirmUnsave(_lightboxUrl);
+            return;
+        }
+        const btn = document.getElementById('lightboxSaveBtn');
+        handleSaveClick(_lightboxUrl, btn, true);
+    }
+
+    function getLocalImage(url) {
+        try { return localStorage.getItem('xorbit_dm_img_' + url) || null; }
+        catch { return null; }
+    }
+
+    /* ──────────────────────────────────────────────────
+       SAVE EXPLAIN MODAL (shown once per browser)
+    ────────────────────────────────────────────────── */
+    let _pendingSaveUrl   = null;
+    let _pendingSaveBtnEl = null;
+    let _pendingSaveIsLightbox = false;
+
+    function handleSaveClick(url, btnEl, isLightbox = false) {
+        if (localStorage.getItem('xorbit_dm_save_explained')) {
+            saveImageLocally(url, btnEl, isLightbox);
+            return;
+        }
+        _pendingSaveUrl        = url;
+        _pendingSaveBtnEl      = btnEl;
+        _pendingSaveIsLightbox = isLightbox;
+        document.getElementById('saveExplainModal').classList.add('active');
+    }
+
+    function closeSaveExplainModal() {
+        document.getElementById('saveExplainModal').classList.remove('active');
+        _pendingSaveUrl   = null;
+        _pendingSaveBtnEl = null;
+    }
+
+    function proceedWithSave() {
+        localStorage.setItem('xorbit_dm_save_explained', '1');
+        closeSaveExplainModal();
+        if (_pendingSaveUrl) {
+            saveImageLocally(_pendingSaveUrl, _pendingSaveBtnEl, _pendingSaveIsLightbox);
+        }
+    }
+
+    function getExpiryMs(createdAt) {
+        const expiry = new Date(new Date(createdAt).getTime() + 14 * 24 * 60 * 60 * 1000);
+        return expiry - Date.now();
+    }
+
+    function getExpiryLabel(createdAt) {
+        const ms = getExpiryMs(createdAt);
+        if (ms <= 0) return 'Expired';
+        const days = Math.floor(ms / 86400000);
+        const hrs  = Math.floor((ms % 86400000) / 3600000);
+        const mins = Math.floor((ms % 3600000) / 60000);
+        if (days > 0) return `${days}d ${hrs}h`;
+        if (hrs  > 0) return `${hrs}h ${mins}m`;
+        return `${mins}m`;
+    }
+
+    async function saveImageLocally(url, btnEl, isLightboxBtn = false) {
+        if (getLocalImage(url)) {
+            showToast('Already saved locally.');
+            return;
+        }
+        const origHtml = btnEl.innerHTML;
+        btnEl.disabled = true;
+        btnEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        try {
+            const res  = await fetch(url);
+            const blob = await res.blob();
+            await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    try {
+                        localStorage.setItem('xorbit_dm_img_' + url, reader.result);
+                        resolve();
+                    } catch { reject(new Error('storage_full')); }
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+            btnEl.classList.add('saved');
+            btnEl.innerHTML = isLightboxBtn ? '<i class="fas fa-check"></i> Saved' : '<i class="fas fa-check"></i>';
+            showToast('Image saved locally.');
+            // Update all wraps with this URL (circle button + expiry chip)
+            const safeAttr = url.replace(/"/g, '&quot;');
+            document.querySelectorAll(`.msg-image-wrap[data-img-url="${safeAttr}"]`).forEach(wrap => {
+                const chip = wrap.querySelector('.msg-expiry-chip');
+                if (chip) {
+                    chip.className = 'msg-expiry-chip saved-chip';
+                    chip.innerHTML = '<i class="fas fa-check"></i> Saved locally';
+                }
+                const circle = wrap.querySelector('.img-save-circle');
+                if (circle) {
+                    circle.classList.add('saved');
+                    circle.innerHTML = '<i class="fas fa-check"></i>';
+                    circle.disabled = true;
+                }
+            });
+            // Update lightbox save button if open for this URL
+            if (_lightboxUrl === url) {
+                const lbBtn = document.getElementById('lightboxSaveBtn');
+                lbBtn.classList.add('saved');
+                lbBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+                lbBtn.disabled = true;
+            }
+        } catch (err) {
+            btnEl.disabled = false;
+            btnEl.innerHTML = origHtml;
+            showToast(err.message === 'storage_full' ? 'Storage full — cannot save.' : 'Could not save image.');
+        }
+    }
+
+    function handleImgError(imgEl, url) {
+        const local = getLocalImage(url);
+        if (local) {
+            imgEl.src = local;
+        } else {
+            imgEl.closest('.msg-image-bubble').innerHTML =
+                '<span style="color:var(--text-ghost);font-size:0.75rem;padding:6px;display:block;">Image expired</span>';
+        }
+    }
+
+    /* ──────────────────────────────────────────────────
+       UNSAVE FLOW
+    ────────────────────────────────────────────────── */
+    let _unsaveUrl = null;
+
+    async function confirmUnsave(url) {
+        _unsaveUrl = url;
+
+        const iconEl     = document.getElementById('unsaveIcon');
+        const titleEl    = document.getElementById('unsaveTitle');
+        const statusEl   = document.getElementById('unsaveStatus');
+        const noteEl     = document.getElementById('unsaveNote');
+        const confirmBtn = document.getElementById('unsaveConfirmBtn');
+
+        // Reset to loading state
+        iconEl.innerHTML    = '<i class="fas fa-spinner fa-spin"></i>';
+        iconEl.style.color  = '';
+        iconEl.style.borderColor = '';
+        titleEl.textContent = 'Checking Status';
+        statusEl.textContent = 'Checking image status on X-ORBIT servers…';
+        noteEl.style.display = 'none';
+        confirmBtn.disabled  = true;
+        document.getElementById('unsaveModal').classList.add('active');
+
+        try {
+            const res = await fetch(url, { method: 'HEAD' });
+            if (res.ok) {
+                const { data } = await sb.from('dm_messages')
+                    .select('created_at')
+                    .eq('message', `[IMG]:${url}`)
+                    .limit(1)
+                    .single();
+
+                if (data) {
+                    const label = getExpiryLabel(data.created_at);
+                    const ms    = getExpiryMs(data.created_at);
+                    if (ms <= 0) {
+                        iconEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                        iconEl.style.color = 'var(--warning)';
+                        iconEl.style.borderColor = 'rgba(251,191,36,0.3)';
+                        titleEl.textContent  = 'Expiring Soon';
+                        statusEl.innerHTML   = 'This image is about to be removed from X-ORBIT servers.';
+                        noteEl.innerHTML     = 'Once unsaved, it will <strong>not be recoverable</strong>.';
+                        noteEl.style.display = 'block';
+                    } else {
+                        iconEl.innerHTML = '<i class="fas fa-clock"></i>';
+                        iconEl.style.color = 'var(--text-muted)';
+                        iconEl.style.borderColor = '';
+                        titleEl.textContent  = 'Image Still Available';
+                        statusEl.innerHTML   = `This image can be re-saved for <strong>${label}</strong> before it is permanently deleted from X-ORBIT servers.`;
+                        noteEl.innerHTML     = 'If you unsave now, you can re-download it at any time within that window.';
+                        noteEl.style.display = 'block';
+                    }
+                } else {
+                    iconEl.innerHTML = '<i class="fas fa-clock"></i>';
+                    titleEl.textContent  = 'Image Still Available';
+                    statusEl.textContent = 'This image is still on X-ORBIT servers and can be re-saved before it expires.';
+                    noteEl.style.display = 'none';
+                }
+            } else {
+                iconEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                iconEl.style.color = 'var(--error)';
+                iconEl.style.borderColor = 'rgba(248,113,113,0.3)';
+                titleEl.textContent  = 'Image Unavailable';
+                statusEl.innerHTML   = 'This image is <strong>no longer on X-ORBIT servers.</strong>';
+                noteEl.innerHTML     = 'Unsaving it will make it permanently unrecoverable.';
+                noteEl.style.display = 'block';
+            }
+        } catch {
+            iconEl.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            iconEl.style.color = 'var(--warning)';
+            iconEl.style.borderColor = 'rgba(251,191,36,0.3)';
+            titleEl.textContent  = 'Status Unknown';
+            statusEl.textContent = 'Could not verify image status on X-ORBIT servers.';
+            noteEl.innerHTML     = 'If the image has already expired, unsaving it will make it unrecoverable.';
+            noteEl.style.display = 'block';
+        }
+
+        confirmBtn.disabled = false;
+    }
+
+    function closeUnsaveModal() {
+        document.getElementById('unsaveModal').classList.remove('active');
+        _unsaveUrl = null;
+    }
+
+    function doUnsave() {
+        if (!_unsaveUrl) return;
+        const url = _unsaveUrl;
+
+        try { localStorage.removeItem('xorbit_dm_img_' + url); } catch { /* ignore */ }
+
+        // Update all in-chat wraps for this URL
+        const safeAttr = url.replace(/"/g, '&quot;');
+        const safeJs   = url.replace(/'/g, "\\'");
+        document.querySelectorAll(`.msg-image-wrap[data-img-url="${safeAttr}"]`).forEach(wrap => {
+            const createdAt = wrap.dataset.createdAt;
+            // Restore expiry chip
+            const chip = wrap.querySelector('.msg-expiry-chip');
+            if (chip && createdAt) {
+                const ms        = getExpiryMs(createdAt);
+                const chipClass = ms < 86400000 * 2 ? 'expiring' : '';
+                chip.className  = `msg-expiry-chip ${chipClass}`;
+                chip.innerHTML  = `<i class="fas fa-clock"></i> ${getExpiryLabel(createdAt)}`;
+            }
+            // Restore circle button
+            const circle = wrap.querySelector('.img-save-circle');
+            if (circle) {
+                circle.className = 'img-save-circle';
+                circle.setAttribute('onclick', `handleSaveClick('${safeJs}', this)`);
+                circle.title     = 'Save locally';
+                circle.innerHTML = '<i class="fas fa-download"></i>';
+                circle.disabled  = false;
+            }
+            // Restore remote src in case local was being used
+            const img = wrap.querySelector('.msg-image');
+            if (img) img.src = url;
+        });
+
+        // Update lightbox if open for this URL
+        if (_lightboxUrl === url) {
+            document.getElementById('lightboxImg').src = url;
+            const lbBtn = document.getElementById('lightboxSaveBtn');
+            lbBtn.classList.remove('saved');
+            lbBtn.innerHTML = '<i class="fas fa-download"></i> Save Locally';
+            lbBtn.disabled  = false;
+        }
+
+        closeUnsaveModal();
+        showToast('Image unsaved.');
+    }
+
+    // Close lightbox on Escape
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeLightbox(); closeUnsaveModal(); closeSaveExplainModal(); closeDeleteGroupModal(); closeGroupModal(); }
+    });
+
+    async function handleImageUpload(event) {
+        const file = event.target.files[0];
+        event.target.value = '';
+        if (!file || !activeConvId) return;
+
+        if (!currentUserIsPremium) {
+            showToast('Image uploads are a premium feature.');
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            showToast('Image must be under 10MB.');
+            return;
+        }
+
+        const btn = document.getElementById('imageUploadBtn');
+        btn.disabled = true;
+        showToast('Uploading image…');
+
+        try {
+            const ext  = file.name.split('.').pop() || 'jpg';
+            const path = `${currentUser.id}/${Date.now()}.${ext}`;
+
+            const { error: upErr } = await sb.storage
+                .from('dm-images')
+                .upload(path, file, { upsert: false, contentType: file.type });
+            if (upErr) throw upErr;
+
+            const { data: { publicUrl } } = sb.storage.from('dm-images').getPublicUrl(path);
+
+            // Check if the recipient has blocked us
+            const activeConv = conversations.find(c => c.id === activeConvId);
+            const otherEmail = activeConv ? getOtherEmail(activeConv) : null;
+            if (otherEmail && blockedByEmails.has(otherEmail)) {
+                showToast('You cannot send messages to this user.');
+                return;
+            }
+
+            const { error: msgError } = await sb.from('dm_messages').insert([{
+                conversation_id: activeConvId,
+                sender_email:    currentUser.email,
+                sender_name:     currentUser.name,
+                message:         `[IMG]:${publicUrl}`
+            }]);
+            if (msgError) throw msgError;
+
+            const conv = conversations.find(c => c.id === activeConvId);
+            const imgConvUpdate = {
+                last_message_at:      new Date().toISOString(),
+                last_message_preview: '[Image]',
+            };
+            if (conv && !conv.is_group) {
+                const recipientHideField = conv.participant_1_email === currentUser.email
+                    ? 'hidden_for_p2' : 'hidden_for_p1';
+                imgConvUpdate[recipientHideField] = false;
+            }
+            await sb.from('dm_conversations').update(imgConvUpdate).eq('id', activeConvId);
+
+            await loadMessages(activeConvId);
+        } catch (err) {
+            console.error('Image upload error:', err);
+            showToast('Image upload failed. Please try again.');
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
     async function markAsRead(convId) {
         try {
             await sb.from('dm_messages')
@@ -2352,6 +3662,7 @@
     ────────────────────────────────────────────────── */
     function openNewDMModal() {
         document.getElementById('newDMModal').classList.add('active');
+        switchDMTab('direct');
         document.getElementById('userSearchInput').value = '';
         document.getElementById('searchResults').innerHTML = `
             <div class="search-hint">
@@ -2365,6 +3676,143 @@
     function closeNewDMModal() {
         document.getElementById('newDMModal').classList.remove('active');
         clearTimeout(searchDebounceTimer);
+        clearTimeout(groupSearchDebounceTimer);
+        groupSelectedMembers = [];
+    }
+
+    function switchDMTab(tab) {
+        const isDirect = tab === 'direct';
+        document.getElementById('panelDirect').style.display = isDirect ? 'flex' : 'none';
+        document.getElementById('panelGroup').style.display  = isDirect ? 'none' : 'flex';
+        document.getElementById('tabDirect').classList.toggle('active', isDirect);
+        document.getElementById('tabGroup').classList.toggle('active', !isDirect);
+        document.getElementById('newDMModalTitle').textContent = isDirect ? 'New Direct Message' : 'New Group Chat';
+        if (!isDirect) setTimeout(() => document.getElementById('groupNameInput').focus(), 80);
+    }
+
+    function handleGroupSearch(query) {
+        clearTimeout(groupSearchDebounceTimer);
+        const q = query.trim();
+        if (q.length < 2) {
+            document.getElementById('groupSearchResults').innerHTML = `
+                <div class="search-hint"><i class="fas fa-users"></i><p>Type to search members to add</p></div>
+            `;
+            return;
+        }
+        groupSearchDebounceTimer = setTimeout(() => searchGroupUsers(q), 300);
+    }
+
+    async function searchGroupUsers(query) {
+        const resultsEl = document.getElementById('groupSearchResults');
+        resultsEl.innerHTML = `<div class="search-hint"><i class="fas fa-spinner fa-spin"></i><p>Searching…</p></div>`;
+        try {
+            const { data, error } = await sb
+                .from('clients')
+                .select('id, name, email, avatar_url')
+                .or(`name.ilike.%${query}%,email.ilike.%${query}%`)
+                .neq('email', currentUser.email)
+                .limit(20);
+            if (error) throw error;
+            if (!data || data.length === 0) {
+                resultsEl.innerHTML = `<div class="search-hint"><i class="fas fa-user-slash"></i><p>No members found</p></div>`;
+                return;
+            }
+            data.forEach(u => { avatarCache[u.email] = u.avatar_url || null; });
+            const selectedEmails = new Set(groupSelectedMembers.map(m => m.email));
+            resultsEl.innerHTML = data.map(user => {
+                const isAdded   = selectedEmails.has(user.email);
+                const atMax     = groupSelectedMembers.length >= 4;
+                const disabled  = isAdded || atMax;
+                const action    = isAdded ? 'Added ✓' : (atMax ? 'Max 4' : 'Add +');
+                const actionCls = isAdded ? 'result-action added' : 'result-action';
+                return `
+                    <div class="search-result-item${disabled ? '' : ''}"
+                         style="${disabled ? 'opacity:0.55;pointer-events:none' : 'cursor:pointer'}"
+                         onclick="${disabled ? '' : `selectGroupMember('${escAttr(user.id)}','${escAttr(user.name)}','${escAttr(user.email)}')`}">
+                        <div class="result-avatar">${avatarHTML(user.name, user.email)}</div>
+                        <div class="result-info">
+                            <div class="result-name">${escHtml(user.name)}</div>
+                            <div class="result-email">${escHtml(user.email)}</div>
+                        </div>
+                        <div class="${actionCls}">${action}</div>
+                    </div>`;
+            }).join('');
+        } catch (err) {
+            resultsEl.innerHTML = `<div class="search-hint"><i class="fas fa-exclamation-triangle"></i><p>Search failed.</p></div>`;
+        }
+    }
+
+    function selectGroupMember(id, name, email) {
+        if (groupSelectedMembers.length >= 4) return;
+        if (groupSelectedMembers.some(m => m.email === email)) return;
+        groupSelectedMembers.push({ id, name, email });
+        renderGroupChips();
+        updateCreateGroupBtn();
+        // Re-run search to update Add/Added states
+        const q = document.getElementById('groupSearchInput').value.trim();
+        if (q.length >= 2) searchGroupUsers(q);
+    }
+
+    function removeGroupMember(email) {
+        groupSelectedMembers = groupSelectedMembers.filter(m => m.email !== email);
+        renderGroupChips();
+        updateCreateGroupBtn();
+        const q = document.getElementById('groupSearchInput').value.trim();
+        if (q.length >= 2) searchGroupUsers(q);
+    }
+
+    function renderGroupChips() {
+        const section = document.getElementById('groupMembersSection');
+        const chipsEl = document.getElementById('groupChips');
+        const countEl = document.getElementById('groupMemberCount');
+        if (groupSelectedMembers.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+        section.style.display = 'block';
+        countEl.textContent = `${groupSelectedMembers.length + 1} / 5`;
+        chipsEl.innerHTML = groupSelectedMembers.map(m => `
+            <div class="group-chip">
+                <span>${escHtml(m.name)}</span>
+                <button class="group-chip-remove" onclick="removeGroupMember('${escAttr(m.email)}')" title="Remove">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function updateCreateGroupBtn() {
+        const name = document.getElementById('groupNameInput').value.trim();
+        document.getElementById('createGroupBtn').disabled = !(name && groupSelectedMembers.length > 0);
+    }
+
+    async function createGroupChat() {
+        const groupName = document.getElementById('groupNameInput').value.trim();
+        if (!groupName || groupSelectedMembers.length === 0) return;
+        const btn = document.getElementById('createGroupBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating…';
+        try {
+            const allParticipants = [currentUser.email, ...groupSelectedMembers.map(m => m.email)];
+            const { data: newConv, error } = await sb.from('dm_conversations').insert([{
+                participant_1_email:  currentUser.email,
+                participant_1_name:   currentUser.name,
+                is_group:             true,
+                group_name:           groupName,
+                participants:         allParticipants,
+                last_message_preview: '',
+                last_message_at:      new Date().toISOString()
+            }]).select('id').single();
+            if (error) throw error;
+            closeNewDMModal();
+            await loadConversations();
+            await openConversation(newConv.id);
+        } catch (err) {
+            console.error('Error creating group:', err);
+            showToast('Could not create group. Please try again.');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-users"></i> Create Group';
+        }
     }
 
     // Close modals on backdrop click
@@ -2494,12 +3942,14 @@
        HELPERS
     ────────────────────────────────────────────────── */
     function getOtherName(conv) {
+        if (conv.is_group) return conv.group_name || 'Group';
         return conv.participant_1_email === currentUser.email
             ? conv.participant_2_name
             : conv.participant_1_name;
     }
 
     function getOtherEmail(conv) {
+        if (conv.is_group) return null;
         return conv.participant_1_email === currentUser.email
             ? conv.participant_2_email
             : conv.participant_1_email;
