@@ -5551,7 +5551,7 @@
         try {
             const { data, error } = await sb
                 .from('clients')
-                .select('id, name, email, username, display_name, avatar_url, bio, banner_url, gradient_start, gradient_end, gradient_angle, last_seen, current_page, tags, show_name, show_email')
+                .select('id, name, email, username, display_name, avatar_url, bio, banner_url, gradient_start, gradient_end, gradient_angle, last_seen, current_page, tags, show_name, show_email, role')
                 .eq('email', email)
                 .single();
             if (error) throw error;
@@ -5637,7 +5637,10 @@
             emailEl.style.display = 'none';
         }
 
-        const tags = Array.isArray(profile.tags) ? profile.tags : [];
+        let rawTags = profile.tags;
+        if (typeof rawTags === 'string') { try { rawTags = JSON.parse(rawTags); } catch { rawTags = []; } }
+        const tags = Array.isArray(rawTags) ? [...rawTags] : [];
+        if (profile.role === 'premium' && !tags.includes('premium')) tags.push('premium');
         tagsCache[profile.email] = tags;
         const tagsEl = document.getElementById('profileTagsRow');
         tagsEl.innerHTML = tagsHTML(tags);
