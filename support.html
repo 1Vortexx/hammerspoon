@@ -1446,6 +1446,13 @@
                     throw new Error('Invalid email or password');
                 }
 
+                if (data.blocked) {
+                    const reason = data.ban_reason
+                        ? `Your account has been suspended: ${data.ban_reason}`
+                        : 'Your account has been suspended. Please contact support if you believe this is an error.';
+                    throw new Error(reason);
+                }
+
                 currentUser = {
                     id: data.id,
                     username: data.email,
@@ -1549,6 +1556,13 @@
                 let guestUser;
 
                 if (existingGuest) {
+                    if (existingGuest.blocked) {
+                        const reason = existingGuest.ban_reason
+                            ? `Your guest account has been suspended: ${existingGuest.ban_reason}`
+                            : 'Your guest account has been suspended. Please contact support if you believe this is an error.';
+                        throw new Error(reason);
+                    }
+
                     const { data, error } = await supabaseClient
                         .from('guest_users')
                         .update({
@@ -1594,7 +1608,7 @@
 
             } catch (error) {
                 console.error('Guest services error:', error);
-                errorMsg.textContent = 'An error occurred. Please try again.';
+                errorMsg.textContent = error.message || 'An error occurred. Please try again.';
                 errorMsg.classList.add('show');
             } finally {
                 guestBtn.disabled = false;
@@ -1634,6 +1648,13 @@
                     throw new Error('No account found with those details. Please check your information or use Account Services.');
                 }
 
+                if (data.blocked) {
+                    const reason = data.ban_reason
+                        ? `Your guest account has been suspended: ${data.ban_reason}`
+                        : 'Your guest account has been suspended. Please contact support if you believe this is an error.';
+                    throw new Error(reason);
+                }
+
                 await supabaseClient
                     .from('guest_users')
                     .update({ last_login: new Date().toISOString() })
@@ -1666,6 +1687,7 @@
             document.getElementById('supportDashboard').style.display = 'flex';
             document.getElementById('userName').textContent = currentUser.name;
             await loadUserTickets();
+            checkGuestBanStatus();
         }
 
         function logout() {
@@ -2342,6 +2364,86 @@
                 loadMessages(currentTicket.id);
             }
         }, 15000);
+
+        // ── Ban polling ─────────────────────────────────────────────────
+        async function checkGuestBanStatus() {
+            if (!currentUser || !currentUser.isGuest) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('guest_users')
+                    .select('blocked, ban_reason')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (error || !data) return;
+
+                if (data.blocked) {
+                    showBanModal(data.ban_reason);
+                }
+            } catch (e) {
+                console.error('Ban check error:', e);
+            }
+        }
+
+        function showBanModal(reason) {
+            const existing = document.getElementById('banModal');
+            if (existing) return; // already showing
+
+            const modal = document.createElement('div');
+            modal.id = 'banModal';
+            modal.style.cssText = `
+                position: fixed; inset: 0; z-index: 99999;
+                background: #000;
+                display: flex; flex-direction: column;
+                align-items: center; justify-content: center;
+                gap: 28px; padding: 40px;
+                font-family: 'Share Tech Mono', monospace;
+                animation: banFadeIn 0.4s ease forwards;
+            `;
+
+            modal.innerHTML = `
+                <style>
+                    @keyframes banFadeIn {
+                        from { opacity: 0; transform: scale(1.04); }
+                        to   { opacity: 1; transform: scale(1); }
+                    }
+                    @keyframes banPulse {
+                        0%, 100% { opacity: 1; }
+                        50%       { opacity: 0.5; }
+                    }
+                </style>
+                <div style="font-size:56px; color:#f87171; animation: banPulse 2s ease infinite;"><i class="fas fa-ban"></i></div>
+                <div style="font-size:22px; font-weight:700; color:#f87171; letter-spacing:0.08em; text-transform:uppercase; text-align:center;">
+                    Guest Account Suspended
+                </div>
+                <div style="
+                    max-width: 520px; width: 100%;
+                    background: #0d0d0d;
+                    border: 1px solid #2a2a2a;
+                    border-left: 3px solid #f87171;
+                    border-radius: 8px;
+                    padding: 20px 24px;
+                    color: #ccc;
+                    font-size: 13px;
+                    line-height: 1.7;
+                    text-align: center;
+                ">
+                    <div style="color:#888; font-size:11px; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:10px;">Reason</div>
+                    <div style="color:#fff;">${reason ? reason : 'No reason provided. Please contact support.'}</div>
+                </div>
+                <div style="color:#555; font-size:11px; text-align:center; max-width:400px; line-height:1.6;">
+                    Your guest account has been permanently suspended and you no longer have access to X-ORBIT Support.<br>
+                    If you believe this is a mistake, contact an administrator directly.
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Lock all interaction behind the modal
+            clearInterval(banPollInterval);
+        }
+
+        let banPollInterval = setInterval(checkGuestBanStatus, 30000);
     </script>
 </body>
 </html>
