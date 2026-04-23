@@ -13,6 +13,10 @@
 
 [Live Demo](https://xorbit.org) · [Support Portal](https://xorbit.org/support) · [Changelogs](https://xorbit.org/changelogs)
 
+<br/>
+
+![X-ORBIT Promotional](https://raw.githubusercontent.com/1Vortexx/X-ORBIT-Desktop/main/assets/promotional.png)
+
 </div>
 
 ---
@@ -60,7 +64,7 @@ Designed and built solo by **Demitri Burns**, X-ORBIT is a passion project pushi
 | **Studios** | X-ORBIT Studios hub |
 
 ### Admin
-- Dedicated admin dashboard at `/admin`
+- Dedicated admin dashboard at 
 - Live alert system (downtime, maintenance, feature, info, update) fetched from Supabase and displayed on the login screen
 - Login attempt logging with device UUID, user agent, and timestamp tracking
 
@@ -76,7 +80,7 @@ Designed and built solo by **Demitri Burns**, X-ORBIT is a passion project pushi
 | Icons | [Font Awesome 6](https://fontawesome.com) |
 | Fonts | [Inter](https://fonts.google.com/specimen/Inter) (Google Fonts) |
 | PWA | Web App Manifest + Service Worker |
-| Hosting | Custom domain via CNAME (`xorbit.org`) |
+| Hosting | Custom domain via CNAME () |
 
 ---
 
